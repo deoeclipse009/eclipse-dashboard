@@ -1,13 +1,15 @@
 # Eclipse Dashboard
 
 A minimal personal dashboard meant to be used as a live macOS wallpaper (e.g. with Plash).
-Single self-contained file: `index.html`. No build step.
+Static site (`index.html` + two small modules). No build step.
 
 - Big clock with day and date
 - Month calendar, to-do list (Today / Week / Month), upcoming tasks
 - Spotify embed (paste a playlist or track link)
 - Grainy blurred gradient, palette rotates weekly
-- Data is stored in the browser's localStorage
+- Every section (calendar, clock, to-do, upcoming) folds away on its own
+- Optional: accounts + Firestore task database, Google Calendar events, Spotify now-playing with album art. See [SETUP.md](SETUP.md)
+- Without setup, data stays in the browser's localStorage
 
 ## Deployment
 

@@ -48,12 +48,25 @@
   .stage{
     position:fixed;left:clamp(64px,6vw,96px);right:4.5vw;top:9vh;bottom:8vh;
     display:grid;grid-template-columns:1fr 2fr 1.15fr 1.15fr;
+    transition:grid-template-columns .4s cubic-bezier(.2,.6,.2,1);
   }
-  .col{position:relative;display:flex;flex-direction:column;min-height:0;padding:0 clamp(14px,1.5vw,26px);border-left:1px solid var(--line)}
+  .col{position:relative;display:flex;flex-direction:column;min-height:0;min-width:0;padding:0 clamp(14px,1.5vw,26px);border-left:1px solid var(--line)}
   .col:last-child{border-right:1px solid var(--line)}
   .lbl{font-size:.74rem;letter-spacing:.02em;color:var(--soft)}
   .hide-in-focus{transition:opacity .35s}
   body.focus .c3 > *, body.focus .c4 > *{opacity:0;pointer-events:none}
+
+  /* per-section fold button */
+  .fold{position:absolute;top:-.15rem;right:clamp(8px,.8vw,14px);width:1.5rem;height:1.5rem;display:grid;place-items:center;opacity:.3;transition:opacity .2s;z-index:2}
+  .col:hover .fold,.fold:focus-visible{opacity:.75}
+  .fold:hover{opacity:1 !important}
+  .fold svg{width:.85rem;height:.85rem;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round}
+  .fold .v{transition:opacity .2s}
+  .col:not(.folded) .fold .v{opacity:0}
+  .col.folded{padding:0;align-items:center;overflow:hidden}
+  .col.folded > *:not(.fold){display:none}
+  .col.folded .fold{position:static;opacity:.7}
+  .col.folded::after{content:attr(data-name);writing-mode:vertical-rl;margin-top:1rem;font-size:.74rem;letter-spacing:.08em;color:var(--soft)}
 
   /* column 1: year + month grid */
   .year{font-size:.8rem;font-weight:400;letter-spacing:.02em}
@@ -82,7 +95,7 @@
   .datestamp #daymonth{color:var(--ink)}
 
   /* column 3: to-do */
-  .todo-head{display:flex;justify-content:space-between;align-items:baseline}
+  .todo-head{display:flex;justify-content:space-between;align-items:baseline;padding-right:1.6rem}
   .tabs{display:flex;gap:1rem;margin:.9rem 0 1.1rem;font-size:.85rem}
   .tabs button{opacity:.5;padding-bottom:.25rem;border-bottom:1px solid transparent}
   .tabs button:hover{opacity:.85}
@@ -131,10 +144,34 @@
   .music input{width:100%;padding:.55rem 0;font-size:.9rem;border-bottom:1px solid var(--line)}
   .music input::placeholder{color:var(--soft)}
   .music .hint{font-size:.72rem;color:var(--soft);margin-top:.5rem;line-height:1.4}
+  .np{display:flex;gap:.9rem;align-items:center;text-decoration:none;color:inherit;padding:.2rem 0}
+  .np img{flex:none;width:5.2rem;height:5.2rem;border-radius:.6rem;object-fit:cover;box-shadow:0 .6rem 1.6rem -.6rem color-mix(in srgb,var(--ink) 55%,transparent);background:color-mix(in srgb,var(--ink) 12%,transparent)}
+  .np .info{min-width:0;flex:1}
+  .np .ttl{font-size:.95rem;font-weight:400;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .np .art{font-size:.8rem;color:var(--soft);margin-top:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .np .bar{height:2px;margin-top:.7rem;background:var(--line);border-radius:2px;overflow:hidden}
+  .np .bar i{display:block;height:100%;width:0;background:var(--ink);opacity:.8}
+  .np .state{font-size:.68rem;color:var(--soft);margin-top:.35rem;letter-spacing:.04em}
+  .pill{padding:.3rem .8rem;border:1px solid var(--line);border-radius:1rem;font-size:.78rem;color:var(--ink)}
+  .pill:hover{border-color:var(--ink)}
+  .music .pill{margin-top:.6rem}
+
+  /* account panel */
+  .acct{position:fixed;left:calc(clamp(64px,6vw,96px) + 6px);top:50%;transform:translateY(-50%);width:17.5rem;max-height:84vh;overflow:auto;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:1rem;background:color-mix(in srgb,var(--base) 80%,transparent);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);z-index:50;font-size:.85rem;display:none;scrollbar-width:none}
+  .acct.open{display:block}
+  .acct h3{font-weight:400;font-size:.95rem;margin-bottom:.5rem}
+  .acct section + section{margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--line)}
+  .acct p{color:var(--soft);font-size:.78rem;line-height:1.45;margin-bottom:.4rem}
+  .acct input{width:100%;padding:.45rem 0;font-size:.88rem;border-bottom:1px solid var(--line)}
+  .acct input::placeholder{color:var(--soft)}
+  .acct .row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem}
+  .acct .msg{margin:.9rem 0 0;min-height:1em;color:var(--ink)}
 
   @media (max-width:900px){
     .stage{grid-template-columns:1fr 1.6fr;overflow:auto}
+    .stage{grid-template-columns:1fr 1.6fr !important}
     .c3,.c4{display:none}
+    .fold{display:none}
   }
 </style>
 </head>
@@ -157,14 +194,19 @@
   <button id="btnFocus" aria-label="Hide widgets" title="Hide widgets (F)">
     <svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M6 3v10"/></svg>
   </button>
+  <button id="btnAcct" aria-label="Account and connections" title="Account and connections">
+    <svg viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.6"/><path d="M2.8 13.6c.7-2.6 2.9-4 5.2-4s4.5 1.4 5.2 4"/></svg>
+  </button>
   <button id="btnMusic" aria-label="Change music" title="Change music">
     <svg viewBox="0 0 16 16"><path d="M6 12V4l6-1.5V10"/><circle cx="4.5" cy="12" r="1.5"/><circle cx="10.5" cy="10" r="1.5"/></svg>
   </button>
 </nav>
 
-<main class="stage">
+<aside class="acct" id="acct" aria-label="Account and connections"></aside>
+
+<main class="stage" id="stage">
   <!-- 1 · year + calendar -->
-  <section class="col c1">
+  <section class="col c1" data-name="Calendar">
     <div class="year" id="year"></div>
     <div class="cal">
       <div class="calhead">
@@ -179,7 +221,7 @@
   </section>
 
   <!-- 2 · clock + date -->
-  <section class="col c2">
+  <section class="col c2" data-name="Clock">
     <div class="clock" id="clock" aria-live="off"></div>
     <div class="datestamp">
       <span id="dow"></span><span class="sep">&middot;</span><span id="daymonth"></span>
@@ -187,7 +229,7 @@
   </section>
 
   <!-- 3 · to-do -->
-  <section class="col c3">
+  <section class="col c3" data-name="To-do">
     <div class="todo-head"><h2 style="font-weight:400;font-size:.95rem">To-do</h2><span class="lbl" id="count"></span></div>
     <div class="tabs" role="tablist" id="tabs">
       <button data-tab="today">Today</button>
@@ -207,7 +249,7 @@
   </section>
 
   <!-- 4 · palette, upcoming, music -->
-  <section class="col c4">
+  <section class="col c4" data-name="Upcoming">
     <button class="palette" id="palette" title="Click to change colors"></button>
     <div class="up" id="up"></div>
     <div class="music" id="music"></div>
@@ -278,14 +320,19 @@
   /* ---------- data ---------- */
   const seed = [
     {id:uid(), text:"IELTS Reading and Listening practice", done:false, scope:"today", due:"2026-09-30"},
-    {id:uid(), text:"Memorize NumPy and Colab commands",     done:false, scope:"week",  due:"2026-10-01"},
-    {id:uid(), text:"Leave for Informatics test at 06:50",   done:false, scope:"week",  due:"2026-10-01"},
-    {id:uid(), text:"Informatics test at 10:00",             done:false, scope:"week",  due:"2026-10-01"},
     {id:uid(), text:"IELTS Writing and Speaking practice",   done:false, scope:"week",  due:"2026-10-02"},
     {id:uid(), text:"IELTS test",                            done:false, scope:"week",  due:"2026-10-03"}
   ];
   let tasks = store.get("dash.tasks", null) || seed;
-  const save = () => store.set("dash.tasks", tasks);
+  // one-time cleanup of tasks that were removed from the default list
+  if (!store.get("dash.migrated.1", false)){
+    const gone = [/numpy/i, /^leave for informatics test/i, /^informatics test at/i];
+    tasks = tasks.filter(t => !gone.some(r => r.test(t.text)));
+    store.set("dash.tasks", tasks); store.set("dash.migrated.1", true);
+  }
+  let calEvents = [];              // read-only events from Google Calendar
+  const hooks = {};
+  const save = () => { store.set("dash.tasks", tasks); if (hooks.save) hooks.save(tasks); };
 
   let tab = store.get("dash.tab","all");
   let scopeNew = "today";
@@ -313,6 +360,7 @@
   function tick(){
     const d = new Date(), p = n => String(n).padStart(2,"0");
     $("#clock").innerHTML = p(d.getHours())+":"+p(d.getMinutes())+"<small>"+p(d.getSeconds())+"</small>";
+    updateProgress();
     if (iso(d)!==curDay){
       curDay = iso(d);
       view = {y:d.getFullYear(), m:d.getMonth()};
@@ -324,7 +372,7 @@
   function renderCal(){
     const {y,m} = view, todayISO = iso(new Date());
     const off = (new Date(y,m,1).getDay()+6)%7, dim = new Date(y,m+1,0).getDate();
-    const dots = new Set(tasks.filter(t=>t.due && !t.done).map(t=>t.due));
+    const dots = new Set(tasks.filter(t=>t.due && !t.done).map(t=>t.due).concat(calEvents.map(e=>e.due)));
     const g = $("#grid"); g.innerHTML = "";
     "MTWTFSS".split("").forEach(l=>{ const s=document.createElement("span"); s.className="wd"; s.textContent=l; g.append(s); });
     for (let i=0;i<off;i++) g.append(document.createElement("span"));
@@ -395,10 +443,10 @@
   /* ---------- upcoming ---------- */
   function renderUp(){
     const todayISO = iso(new Date());
-    let items = tasks.filter(t=>t.due && !t.done);
+    let items = tasks.filter(t=>t.due && !t.done).concat(calEvents);
     items = selDay ? items.filter(t=>t.due===selDay) : items.filter(t=>t.due>=todayISO);
-    items.sort((a,b)=>a.due.localeCompare(b.due));
-    items = items.slice(0,4);
+    items.sort((a,b)=>a.due.localeCompare(b.due) || (a.time||"").localeCompare(b.time||""));
+    items = items.slice(0,5);
     const box = $("#up"); box.innerHTML = "";
     const h = document.createElement("h3");
     const title = document.createElement("span");
@@ -411,6 +459,7 @@
       const r=document.createElement("div"); r.className="uprow";
       const w=document.createElement("span"); w.className="when"; w.textContent=rel(t.due);
       const x=document.createElement("span"); x.textContent=t.text;
+      if (t.time){ const tm=document.createElement("span"); tm.className="meta"; tm.style.cssText="display:block;font-size:.72rem;color:var(--soft)"; tm.textContent=t.time; x.append(tm); }
       r.append(w,x); box.append(r);
     });
   }
@@ -420,11 +469,32 @@
     const m = (u||"").match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(track|album|playlist|episode|show|artist)\/([A-Za-z0-9]+)/);
     return m ? "https://open.spotify.com/embed/"+m[1]+"/"+m[2]+"?utm_source=generator" : null;
   }
+  let nowPlaying = null, spotify = {configured:false, connected:false};
+  const act = (type, extra) => dispatchEvent(new CustomEvent("dash:action", {detail:Object.assign({type}, extra||{})}));
+  const mmss = ms => { const s=Math.max(0,Math.floor(ms/1000)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); };
+  function npProgress(){ return nowPlaying ? nowPlaying.progress + (nowPlaying.playing ? Date.now()-nowPlaying.ts : 0) : 0; }
+  function updateProgress(){
+    const bar = $("#npBar"); if (!bar || !nowPlaying) return;
+    bar.style.width = Math.min(100, npProgress()/Math.max(1,nowPlaying.duration)*100)+"%";
+  }
   function renderMusic(){
     const url = store.get("dash.music", null), box = $("#music"); box.innerHTML = "";
     const top = document.createElement("div"); top.className="top";
     const t = document.createElement("span"); t.textContent = "Music"; t.style.fontWeight = 400; t.style.fontSize = ".95rem";
     top.append(t);
+    if (nowPlaying){
+      box.append(top);
+      const a = document.createElement("a"); a.className="np"; a.href = nowPlaying.url||"#"; a.target="_blank"; a.rel="noopener";
+      const img = document.createElement("img"); img.alt = "Album cover"; if (nowPlaying.art) img.src = nowPlaying.art;
+      const info = document.createElement("div"); info.className="info";
+      const ttl = document.createElement("div"); ttl.className="ttl"; ttl.textContent = nowPlaying.title;
+      const art = document.createElement("div"); art.className="art"; art.textContent = nowPlaying.artist;
+      const bar = document.createElement("div"); bar.className="bar"; bar.innerHTML = '<i id="npBar"></i>';
+      const st = document.createElement("div"); st.className="state"; st.textContent = nowPlaying.playing ? "NOW PLAYING" : "PAUSED";
+      info.append(ttl, art, bar, st); a.append(img, info); box.append(a);
+      updateProgress();
+      return;
+    }
     if (url){
       const c = document.createElement("button"); c.textContent="Change"; c.onclick=()=>{ store.set("dash.music",null); renderMusic(); setTimeout(()=>{const i=$("#music input"); i&&i.focus();},0); };
       top.append(c); box.append(top);
@@ -443,10 +513,109 @@
         else { hint.textContent = "That doesn't look like a Spotify link. Copy one from Share in Spotify."; }
       });
       const hint = document.createElement("div"); hint.className="hint";
-      hint.textContent = "Works with playlists, albums, tracks and podcasts.";
+      hint.textContent = spotify.connected ? "Nothing playing right now. Start a song in Spotify, or paste a link." : "Works with playlists, albums, tracks and podcasts.";
       box.append(i, hint);
+      if (spotify.configured && !spotify.connected){
+        const b = document.createElement("button"); b.className="pill"; b.textContent="Show what I'm playing on Spotify";
+        b.onclick = () => act("spotify-connect"); box.append(b);
+      }
     }
   }
+
+  /* ---------- fold each section on its own ---------- */
+  const FR = ["1fr","2fr","1.15fr","1.15fr"];
+  let folded = store.get("dash.fold", [false,false,false,false]);
+  function paintFold(){
+    $("#stage").style.gridTemplateColumns = FR.map((f,i)=>folded[i]?"2.6rem":f).join(" ");
+    document.querySelectorAll(".col").forEach((c,i)=>{
+      c.classList.toggle("folded", !!folded[i]);
+      const b = c.querySelector(".fold");
+      b.setAttribute("aria-expanded", String(!folded[i]));
+      b.setAttribute("aria-label", (folded[i]?"Show ":"Hide ")+c.dataset.name);
+      b.title = (folded[i]?"Show ":"Hide ")+c.dataset.name;
+    });
+  }
+  document.querySelectorAll(".col").forEach((c,i)=>{
+    const b = document.createElement("button"); b.className="fold";
+    b.innerHTML = '<svg viewBox="0 0 16 16"><path d="M3 8h10"/><path class="v" d="M8 3v10"/></svg>';
+    b.onclick = () => { folded[i] = !folded[i]; store.set("dash.fold", folded); paintFold(); };
+    c.append(b);
+  });
+  paintFold();
+
+  /* ---------- account panel ---------- */
+  const acct = {configured:false, user:null, calendar:"off", events:0, busy:false};
+  const el = (tag, cls, text) => { const n=document.createElement(tag); if(cls) n.className=cls; if(text!=null) n.textContent=text; return n; };
+  const pill = (label, fn) => { const b=el("button","pill",label); b.onclick=fn; return b; };
+  function renderAcct(){
+    const p = $("#acct"), keep = p.querySelector(".msg") ? p.querySelector(".msg").textContent : "";
+    p.innerHTML = "";
+    const s1 = el("section"); s1.append(el("h3",null,"Account"));
+    if (!acct.configured){
+      s1.append(el("p",null,"Sync is off, so your tasks live only in this browser. Add your Firebase keys in firebase-config.js to save them to a database and sign in (see SETUP.md)."));
+    } else if (!acct.user){
+      s1.append(el("p",null,"Sign in to keep your tasks in the cloud and on every device."));
+      const em = el("input"); em.type="email"; em.placeholder="Email"; em.autocomplete="email"; em.setAttribute("aria-label","Email");
+      const pw = el("input"); pw.type="password"; pw.placeholder="Password"; pw.autocomplete="current-password"; pw.setAttribute("aria-label","Password");
+      pw.addEventListener("keydown", e => { if (e.key==="Enter") act("signin",{email:em.value.trim(),password:pw.value}); });
+      const row = el("div","row");
+      row.append(pill("Sign in", ()=>act("signin",{email:em.value.trim(),password:pw.value})),
+                 pill("Create account", ()=>act("signup",{email:em.value.trim(),password:pw.value})));
+      const row2 = el("div","row"); row2.append(pill("Continue with Google", ()=>act("google")));
+      s1.append(em, pw, row, row2);
+    } else {
+      s1.append(el("p",null,"Signed in as "+(acct.user.email||acct.user.name||"your account")+". Tasks sync to your database."));
+      const row = el("div","row"); row.append(pill("Sign out", ()=>act("signout"))); s1.append(row);
+    }
+    p.append(s1);
+    if (acct.configured){
+      const s2 = el("section"); s2.append(el("h3",null,"Google Calendar"));
+      if (!acct.user) s2.append(el("p",null,"Sign in first to connect your calendar."));
+      else if (acct.calendar==="on"){
+        s2.append(el("p",null,"Connected. "+acct.events+" upcoming event"+(acct.events===1?"":"s")+" shown in Upcoming and the month grid."));
+        const row = el("div","row"); row.append(pill("Refresh", ()=>act("calendar-refresh"))); s2.append(row);
+      } else {
+        s2.append(el("p",null,acct.calendar==="expired" ? "Google's access lapsed (it lasts about an hour). Reconnect to refresh events." : "Read-only access to show your events here."));
+        const row = el("div","row"); row.append(pill(acct.calendar==="expired"?"Reconnect":"Connect Google Calendar", ()=>act("calendar"))); s2.append(row);
+      }
+      p.append(s2);
+    }
+    const s3 = el("section"); s3.append(el("h3",null,"Spotify"));
+    if (!spotify.configured) s3.append(el("p",null,"Add a Spotify client ID in firebase-config.js to show the song that's playing, with its cover (see SETUP.md)."));
+    else if (spotify.connected){
+      s3.append(el("p",null,"Connected. The current song and album cover show in the Music section."));
+      const row = el("div","row"); row.append(pill("Disconnect", ()=>act("spotify-disconnect"))); s3.append(row);
+    } else {
+      s3.append(el("p",null,"Show what's playing, with album art."));
+      const row = el("div","row"); row.append(pill("Connect Spotify", ()=>act("spotify-connect"))); s3.append(row);
+    }
+    p.append(s3);
+    p.append(el("p","msg",keep));
+  }
+  function setMsg(t){ const m=$("#acct .msg"); if (m) m.textContent = t||""; }
+  $("#btnAcct").onclick = e => { e.stopPropagation(); $("#acct").classList.toggle("open"); $("#btnAcct").classList.toggle("on"); };
+  document.addEventListener("click", e => {
+    if (!$("#acct").classList.contains("open")) return;
+    if (!e.target.closest("#acct") && !e.target.closest("#btnAcct")){ $("#acct").classList.remove("open"); $("#btnAcct").classList.remove("on"); }
+  });
+
+  /* ---------- API for the sync modules (cloud.js, spotify.js) ---------- */
+  window.Dash = {
+    getTasks: () => tasks,
+    setTasks(arr){ tasks = arr; store.set("dash.tasks", tasks); renderTasks(); renderUp(); renderCal(); },
+    onSave(fn){ hooks.save = fn; },
+    setEvents(list){ calEvents = list||[]; acct.events = calEvents.length; renderUp(); renderCal(); renderAcct(); },
+    setAccount(patch){ Object.assign(acct, patch); renderAcct(); },
+    setSpotify(patch){ Object.assign(spotify, patch); renderAcct(); if (!nowPlaying) renderMusic(); },
+    setNowPlaying(np){
+      const same = nowPlaying && np && nowPlaying.id===np.id && nowPlaying.playing===np.playing;
+      nowPlaying = np;
+      if (same){ updateProgress(); return; }
+      renderMusic();
+    },
+    setMsg
+  };
+  renderAcct();
 
   /* ---------- rail + keys ---------- */
   $("#palette").onclick = cyclePalette;
@@ -457,6 +626,7 @@
     if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
     if (e.key==="p"||e.key==="P") cyclePalette();
     if (e.key==="f"||e.key==="F") $("#btnFocus").click();
+    if (e.key==="Escape" && $("#acct").classList.contains("open")){ $("#acct").classList.remove("open"); $("#btnAcct").classList.remove("on"); return; }
     if (e.key==="Escape" && selDay){ selDay=null; $("#newDue").value=""; renderCal(); renderUp(); }
   });
 
@@ -489,5 +659,7 @@
   tick(); setInterval(tick, 1000);
 })();
 </script>
+<script type="module" src="cloud.js"></script>
+<script type="module" src="spotify.js"></script>
 </body>
 </html>
