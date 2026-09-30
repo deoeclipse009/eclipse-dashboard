@@ -48,7 +48,6 @@
   .stage{
     position:fixed;left:clamp(64px,6vw,96px);right:4.5vw;top:9vh;bottom:8vh;
     display:grid;grid-template-columns:1fr 2fr 1.15fr 1.15fr;
-    transition:grid-template-columns .4s cubic-bezier(.2,.6,.2,1);
   }
   .col{position:relative;display:flex;flex-direction:column;min-height:0;min-width:0;padding:0 clamp(14px,1.5vw,26px);border-left:1px solid var(--line)}
   .col:last-child{border-right:1px solid var(--line)}
@@ -63,10 +62,9 @@
   .fold svg{width:.85rem;height:.85rem;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round}
   .fold .v{transition:opacity .2s}
   .col:not(.folded) .fold .v{opacity:0}
-  .col.folded{padding:0;align-items:center;overflow:hidden}
-  .col.folded > *:not(.fold){display:none}
-  .col.folded .fold{position:static;opacity:.7}
-  .col.folded::after{content:attr(data-name);writing-mode:vertical-rl;margin-top:1rem;font-size:.74rem;letter-spacing:.08em;color:var(--soft)}
+  .col > *:not(.fold){transition:opacity .3s ease}
+  .col.folded > *:not(.fold){opacity:0;pointer-events:none;visibility:hidden;transition:opacity .3s ease,visibility 0s .3s}
+  .col.folded .fold{opacity:.7}
 
   /* column 1: year + month grid */
   .year{font-size:.8rem;font-weight:400;letter-spacing:.02em}
@@ -169,7 +167,7 @@
 
   @media (max-width:900px){
     .stage{grid-template-columns:1fr 1.6fr;overflow:auto}
-    .stage{grid-template-columns:1fr 1.6fr !important}
+    .stage{grid-template-columns:1fr 1.6fr}
     .c3,.c4{display:none}
     .fold{display:none}
   }
@@ -283,38 +281,69 @@
     {name:"Pine & Ember",   hex:"#D9663B", mood:"Restless energy, push week", base:"#182420", c1:"#D9663B", c2:"#22322C", c3:"#3F8F6B", ink:"#F2ECE2", dark:1},
     {name:"Linen & Ink",    hex:"#3D4A5C", mood:"Quiet reset",               base:"#F4F1EA", c1:"#3D4A5C", c2:"#FAF8F2", c3:"#A9997E", ink:"#1B1E22"}
   ];
-  function isoWeek(d){
-    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    const day = (t.getUTCDay()+6)%7;
-    t.setUTCDate(t.getUTCDate()-day+3);
-    const firstThu = new Date(Date.UTC(t.getUTCFullYear(),0,4));
-    return 1 + Math.round((t-firstThu)/(7*864e5));
+  /* ---------- time-of-day themes (see docs/PRD-time-of-day-themes.md) ---------- */
+  // start = minutes after midnight. Night wraps past midnight to Dawn.
+  const PHASES = [
+    {name:"Dawn",        start:300,  mood:"Soft peach, slow start",        base:"#F3E6DE", c1:"#E8B49A", c2:"#FBF4EE", c3:"#C9CFE0", ink:"#2A211E"},
+    {name:"Morning",     start:480,  mood:"Fresh orange-white, clear",     base:"#F7EDE3", c1:"#EFA77A", c2:"#FEF9F3", c3:"#F3D3B6", ink:"#2B1F17"},
+    {name:"Midday",      start:720,  mood:"Bright orange, full light",     base:"#FAF1E6", c1:"#F08A4B", c2:"#FFFBF5", c3:"#F6C9A0", ink:"#2A1C12"},
+    {name:"Golden hour", start:960,  mood:"Amber and dusty rose",          base:"#F2DAC3", c1:"#E0743A", c2:"#FAE9D8", c3:"#C98B78", ink:"#2C1A11"},
+    {name:"Evening",     start:1170, mood:"Blue dusk, one ember",          base:"#1A1E2E", c1:"#C8663A", c2:"#262B40", c3:"#6F7FA8", ink:"#F4EEE8", dark:1},
+    {name:"Night",       start:1350, mood:"Deep navy, blue-white light",   base:"#0E1424", c1:"#2B3F7A", c2:"#17203A", c3:"#A9B8DA", ink:"#E9EEF8", dark:1}
+  ];
+  const BLEND_MIN = 30;
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const hx = h => [1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+  const mix = (a,b,t) => "#"+hx(a).map((v,i)=>Math.round(v+(hx(b)[i]-v)*t).toString(16).padStart(2,"0")).join("");
+  // ?time=14:30 freezes the clock for previewing a phase
+  const previewTime = (()=>{ const m=(new URLSearchParams(location.search).get("time")||"").match(/^(\d{1,2}):(\d{2})$/); return m ? (+m[1])*60+(+m[2]) : null; })();
+  const nowMin = () => { if (previewTime!=null) return previewTime; const d=new Date(); return d.getHours()*60+d.getMinutes()+d.getSeconds()/60; };
+  function autoPalette(){
+    const m = nowMin();
+    let i = PHASES.length-1;                                   // before Dawn = still Night
+    PHASES.forEach((p,k)=>{ if (m>=p.start) i=k; });
+    const cur = PHASES[i], nxt = PHASES[(i+1)%PHASES.length];
+    let end = nxt.start; if (end<=m) end += 1440;
+    const left = end-m;
+    // blend only inside one tone family; light<->dark switches use the fade instead
+    if (!reduceMotion && left<BLEND_MIN && !!cur.dark===!!nxt.dark){
+      const t = 1-left/BLEND_MIN;
+      const out = Object.assign({}, cur);
+      ["base","c1","c2","c3","ink"].forEach(k=>{ out[k] = mix(cur[k], nxt[k], t); });
+      return out;
+    }
+    return cur;
   }
-  let weekKey = isoWeek(new Date()) + "-" + new Date().getFullYear();
-  let palIdx = isoWeek(new Date()) % PALETTES.length;
-  const manualPal = store.get("dash.pal.manual", null);
-  const manualWeek = store.get("dash.pal.week", null);
-  if (manualPal!=null && manualWeek===weekKey) palIdx = manualPal;
 
-  function paintPalette(){
-    const p = PALETTES[palIdx], r = document.documentElement.style;
+  // palette mode: auto (follows the clock) or a pinned palette from PALETTES
+  let pin = store.get("dash.pal.pin", null);
+  if (pin!=null && !PALETTES[pin]) pin = null;
+  let applied = null, appliedDark = null;
+
+  function paintPalette(p){
+    const r = document.documentElement.style;
     r.setProperty("--base",p.base); r.setProperty("--c1",p.c1); r.setProperty("--c2",p.c2);
     r.setProperty("--c3",p.c3);   r.setProperty("--ink",p.ink);
     document.body.classList.toggle("dark", !!p.dark);
     $("#palette").innerHTML = "<b></b><br><span></span><br><span></span>";
     const s = $("#palette").children;
-    s[0].textContent = p.name; s[2].textContent = p.hex; s[4].textContent = p.mood;
+    s[0].textContent = p.name + (pin==null ? " · Auto" : " · Pinned");
+    s[2].textContent = p.hex || p.c1.toUpperCase(); s[4].textContent = p.mood;
+  }
+  function refreshPalette(){
+    const p = pin==null ? autoPalette() : PALETTES[pin];
+    const sig = JSON.stringify([p, pin]);
+    if (sig===applied) return;
+    const apply = () => { applied = sig; appliedDark = !!p.dark; paintPalette(p); };
+    if (applied!==null && appliedDark!==!!p.dark){              // light <-> dark: fade through
+      const bg = $("#bg"); bg.style.opacity = 0;
+      setTimeout(()=>{ apply(); bg.style.opacity = 1; }, 420);
+    } else apply();
   }
   function cyclePalette(){
-    const bg = $("#bg");
-    bg.style.opacity = 0;
-    setTimeout(()=>{
-      palIdx = (palIdx+1) % PALETTES.length;
-      store.set("dash.pal.manual", palIdx);
-      store.set("dash.pal.week", weekKey);
-      paintPalette();
-      bg.style.opacity = 1;
-    }, 420);
+    pin = pin==null ? 0 : (pin+1 < PALETTES.length ? pin+1 : null);   // Auto -> pins -> Auto
+    store.set("dash.pal.pin", pin);
+    refreshPalette();
   }
 
   /* ---------- data ---------- */
@@ -361,6 +390,7 @@
     const d = new Date(), p = n => String(n).padStart(2,"0");
     $("#clock").innerHTML = p(d.getHours())+":"+p(d.getMinutes())+"<small>"+p(d.getSeconds())+"</small>";
     updateProgress();
+    if (d.getSeconds()===0 || !applied) refreshPalette();
     if (iso(d)!==curDay){
       curDay = iso(d);
       view = {y:d.getFullYear(), m:d.getMonth()};
@@ -523,10 +553,8 @@
   }
 
   /* ---------- fold each section on its own ---------- */
-  const FR = ["1fr","2fr","1.15fr","1.15fr"];
   let folded = store.get("dash.fold", [false,false,false,false]);
   function paintFold(){
-    $("#stage").style.gridTemplateColumns = FR.map((f,i)=>folded[i]?"2.6rem":f).join(" ");
     document.querySelectorAll(".col").forEach((c,i)=>{
       c.classList.toggle("folded", !!folded[i]);
       const b = c.querySelector(".fold");
@@ -654,7 +682,7 @@
   })();
 
   /* ---------- go ---------- */
-  paintPalette(); renderDate(); renderCal(); renderTasks(); renderUp(); renderMusic();
+  refreshPalette(); renderDate(); renderCal(); renderTasks(); renderUp(); renderMusic();
   $("#scopeBtn").textContent = cap(scopeNew);
   tick(); setInterval(tick, 1000);
 })();
