@@ -31,6 +31,9 @@
   .b4{width:44vw;height:44vw;right:6vw;bottom:-18vw;background:var(--c1);opacity:.55;transform:translate(calc((var(--mx) - 50%) * -.02),calc((var(--my) - 50%) * -.02))}
   .wash{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 100%,color-mix(in srgb,var(--base) 88%,transparent),transparent 60%)}
   .grain{position:absolute;inset:0;background-image:var(--grain);background-size:240px;opacity:.6;mix-blend-mode:overlay;pointer-events:none}
+  .scrim{position:absolute;left:0;right:0;top:0;height:7rem;pointer-events:none;opacity:0;transition:opacity .45s ease;
+    background:linear-gradient(to bottom,color-mix(in srgb,var(--ink) 56%,transparent) 0,color-mix(in srgb,var(--ink) 56%,transparent) 38px,transparent 100%)}
+  body:not(.dark) .scrim{opacity:1}
   @media (prefers-reduced-motion:reduce){.blob{transition:none}}
 
   /* ---------- left rail ---------- */
@@ -84,12 +87,34 @@
   .day.sel{box-shadow:inset 0 0 0 1px var(--ink)}
   .day.has::after{content:"";position:absolute;left:50%;bottom:.2rem;width:3px;height:3px;margin-left:-1.5px;border-radius:50%;background:currentColor;opacity:.75}
 
+  /* launcher (column 1, under the year) */
+  .dock{margin-top:2.2rem}
+  .dock h3{font-weight:400;font-size:.95rem;margin-bottom:.7rem}
+  .dock .apps{display:flex;flex-wrap:wrap;gap:.4rem}
+  .dock a{display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;color:inherit;font-size:.82rem;transition:background .2s,border-color .2s}
+  .dock .apps a{padding:.28rem .75rem;border:1px solid var(--line);border-radius:1rem}
+  .dock .apps a:hover{border-color:var(--ink)}
+  .dock .cmds{margin-top:.9rem;display:flex;flex-direction:column}
+  .dock .cmds a{padding:.45rem .3rem;border-top:1px solid var(--line);border-radius:.4rem}
+  .dock .cmds a:first-child{border-top:0}
+  .dock .cmds a:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+  .dock .cmds a .dot{margin-left:auto}
+  .dock .cmds a::before{content:">_";font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72rem;color:var(--soft)}
+  .dock .hint{font-size:.68rem;color:var(--soft);margin-top:.7rem;line-height:1.4}
+
   /* column 2: big date, month, clock */
   .c2{container-type:inline-size;overflow:hidden}
   .clock{margin-top:auto;max-width:100%;font-weight:100;line-height:.82;letter-spacing:-.03em;font-size:min(20vh,11vw,44cqw);white-space:nowrap;font-variant-numeric:tabular-nums}
   .clock small{font-size:.28em;font-weight:200;margin-left:.3rem;color:var(--soft);letter-spacing:0;font-variant-numeric:tabular-nums}
-  .datestamp{margin-top:2.4vh;margin-bottom:auto;font-size:min(2.6vh,7.5cqw);font-weight:300;letter-spacing:.01em;color:var(--soft)}
+  .datestamp{margin-top:2.4vh;font-size:min(2.6vh,7.5cqw);font-weight:300;letter-spacing:.01em;color:var(--soft)}
   .datestamp .sep{margin:0 .55em;opacity:.6}
+  .c2extra{margin-top:2.2vh;margin-bottom:auto;font-size:min(1.9vh,5.4cqw);line-height:1.45}
+  .brief{color:var(--soft)}
+  .brief b{font-weight:400;color:var(--ink)}
+  .counts{margin-top:1.6vh;max-width:26em}
+  .counts .lbl{display:block;margin-bottom:.35rem}
+  .counts div.row{display:flex;justify-content:space-between;gap:1rem;padding:.3rem 0;border-top:1px solid var(--line);font-size:.88em}
+  .counts div.row span:last-child{color:var(--soft);white-space:nowrap}
   .datestamp #daymonth{color:var(--ink)}
 
   /* column 3: to-do */
@@ -153,6 +178,22 @@
   .pill{padding:.3rem .8rem;border:1px solid var(--line);border-radius:1rem;font-size:.78rem;color:var(--ink)}
   .pill:hover{border-color:var(--ink)}
   .music .pill{margin-top:.6rem}
+  .np-wrap .ctl{display:flex;align-items:center;gap:.3rem;margin-top:.5rem;margin-left:-.4rem}
+  .np-wrap .ctl button{width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;opacity:.65;transition:opacity .2s,background .2s}
+  .np-wrap .ctl button:hover{opacity:1;background:color-mix(in srgb,var(--ink) 10%,transparent)}
+  .np-wrap .ctl svg{width:1rem;height:1rem;fill:currentColor}
+  .np-wrap .ctl .main{border:1px solid var(--line);opacity:.95}
+  .dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:var(--line);margin-left:auto}
+  .dot.on{background:#3fb06b;box-shadow:0 0 0 3px color-mix(in srgb,#3fb06b 25%,transparent)}
+  .voice{position:fixed;left:50%;bottom:3.2vh;transform:translate(-50%,12px);max-width:min(38rem,88vw);padding:.7rem 1.1rem;border-radius:1.2rem;border:1px solid var(--line);background:color-mix(in srgb,var(--base) 78%,transparent);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);font-size:.9rem;line-height:1.4;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:60;display:flex;gap:.75rem;align-items:center}
+  .voice.show{opacity:1;transform:translate(-50%,0)}
+  .voice i{flex:none;width:.55rem;height:.55rem;border-radius:50%;background:var(--ink);opacity:.45}
+  .voice.listening i{background:#e5484d;opacity:1;animation:pulse 1.1s ease-in-out infinite}
+  .voice.thinking i{animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(1.55);opacity:.5}}
+  .acct label{display:block;font-size:.72rem;color:var(--soft);margin-top:.6rem}
+  .acct .chk2{display:flex;gap:.5rem;align-items:center;margin-top:.7rem;font-size:.78rem;color:var(--soft)}
+  .acct .chk2 input{width:auto}
 
   /* account panel */
   .acct{position:fixed;left:calc(clamp(64px,6vw,96px) + 6px);top:50%;transform:translateY(-50%);width:17.5rem;max-height:84vh;overflow:auto;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:1rem;background:color-mix(in srgb,var(--base) 80%,transparent);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);z-index:50;font-size:.85rem;display:none;scrollbar-width:none}
@@ -181,6 +222,7 @@
     <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i>
   </div>
   <div class="wash"></div>
+  <div class="scrim"></div>
   <div class="grain"></div>
 </div>
 
@@ -195,10 +237,15 @@
   <button id="btnAcct" aria-label="Account and connections" title="Account and connections">
     <svg viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.6"/><path d="M2.8 13.6c.7-2.6 2.9-4 5.2-4s4.5 1.4 5.2 4"/></svg>
   </button>
-  <button id="btnMusic" aria-label="Change music" title="Change music">
+  <button id="btnMic" aria-label="Voice command" title="Voice command (V)">
+    <svg viewBox="0 0 16 16"><rect x="6" y="2" width="4" height="7.5" rx="2"/><path d="M3.5 7.5a4.5 4.5 0 0 0 9 0M8 12v2"/></svg>
+  </button>
+  <button id="btnMusic" aria-label="Play or pause music" title="Play / pause">
     <svg viewBox="0 0 16 16"><path d="M6 12V4l6-1.5V10"/><circle cx="4.5" cy="12" r="1.5"/><circle cx="10.5" cy="10" r="1.5"/></svg>
   </button>
 </nav>
+
+<div class="voice" id="voice" role="status" aria-live="polite"><i></i><span id="voiceText"></span></div>
 
 <aside class="acct" id="acct" aria-label="Account and connections"></aside>
 
@@ -206,6 +253,25 @@
   <!-- 1 · year + calendar -->
   <section class="col c1" data-name="Calendar">
     <div class="year" id="year"></div>
+    <div class="dock" id="dock" aria-label="Launcher">
+      <h3>Launch</h3>
+      <div class="apps">
+        <a href="eclipse://app/claude">Claude</a>
+        <a href="eclipse://app/spotify">Spotify</a>
+        <a href="eclipse://app/notion">Notion</a>
+        <a href="eclipse://app/chrome">Chrome</a>
+        <a href="eclipse://link/github">GitHub</a>
+        <a href="eclipse://link/site">My site</a>
+        <a href="eclipse://folder/project">Project folder</a>
+      </div>
+      <div class="cmds">
+        <a href="eclipse://cmd/omniroute">OmniRoute<i class="dot" id="omniDot" title="OmniRoute status"></i></a>
+        <a href="eclipse://link/omniroute-ui">OmniRoute dashboard</a>
+        <a href="eclipse://cmd/omniroute-stop">Stop OmniRoute</a>
+        <a href="eclipse://cmd/claude-code">Claude Code</a>
+      </div>
+      <div class="hint">Needs the Eclipse Launcher app. See launcher/README.md.</div>
+    </div>
     <div class="cal">
       <div class="calhead">
         <span class="lbl" id="calLabel"></span>
@@ -224,6 +290,10 @@
     <div class="datestamp">
       <span id="dow"></span><span class="sep">&middot;</span><span id="daymonth"></span>
     </div>
+    <div class="c2extra">
+      <div class="brief" id="brief"></div>
+      <div class="counts" id="counts"></div>
+    </div>
   </section>
 
   <!-- 3 · to-do -->
@@ -237,7 +307,7 @@
     </div>
     <div class="list" id="list"></div>
     <div class="add">
-      <input class="txt" id="newText" type="text" placeholder="Add a task and press Enter" autocomplete="off" aria-label="New task">
+      <input class="txt" id="newText" type="text" placeholder="Add a task, e.g. IELTS test friday 10am, or study every day" autocomplete="off" aria-label="New task">
       <div class="addrow">
         <button class="scope" id="scopeBtn" title="Click to change when this task is for">Today</button>
         <input type="date" id="newDue" aria-label="Due date">
@@ -284,10 +354,10 @@
   /* ---------- time-of-day themes (see docs/PRD-time-of-day-themes.md) ---------- */
   // start = minutes after midnight. Night wraps past midnight to Dawn.
   const PHASES = [
-    {name:"Dawn",        start:300,  mood:"Soft peach, slow start",        base:"#F3E6DE", c1:"#E8B49A", c2:"#FBF4EE", c3:"#C9CFE0", ink:"#2A211E"},
-    {name:"Morning",     start:480,  mood:"Fresh orange-white, clear",     base:"#F7EDE3", c1:"#EFA77A", c2:"#FEF9F3", c3:"#F3D3B6", ink:"#2B1F17"},
-    {name:"Midday",      start:720,  mood:"Bright orange, full light",     base:"#FAF1E6", c1:"#F08A4B", c2:"#FFFBF5", c3:"#F6C9A0", ink:"#2A1C12"},
-    {name:"Golden hour", start:960,  mood:"Amber and dusty rose",          base:"#F2DAC3", c1:"#E0743A", c2:"#FAE9D8", c3:"#C98B78", ink:"#2C1A11"},
+    {name:"Dawn",        start:300,  mood:"Soft peach, slow start",        base:"#E6CBBF", c1:"#E3A38C", c2:"#F2DFD4", c3:"#A9AECB", ink:"#241A18"},
+    {name:"Morning",     start:480,  mood:"Fresh orange-white, clear",     base:"#EBCBAE", c1:"#E58E57", c2:"#F6E0CB", c3:"#DDA67C", ink:"#26180F"},
+    {name:"Midday",      start:720,  mood:"Bright orange, full light",     base:"#EEC59E", c1:"#E8782F", c2:"#F8DDBE", c3:"#DA9459", ink:"#24150A"},
+    {name:"Golden hour", start:960,  mood:"Amber and dusty rose",          base:"#DDA77C", c1:"#CB5F26", c2:"#EBC59F", c3:"#A4505F", ink:"#2A150C"},
     {name:"Evening",     start:1170, mood:"Blue dusk, one ember",          base:"#1A1E2E", c1:"#C8663A", c2:"#262B40", c3:"#6F7FA8", ink:"#F4EEE8", dark:1},
     {name:"Night",       start:1350, mood:"Deep navy, blue-white light",   base:"#0E1424", c1:"#2B3F7A", c2:"#17203A", c3:"#A9B8DA", ink:"#E9EEF8", dark:1}
   ];
@@ -379,6 +449,71 @@
     return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
   };
 
+  /* ---------- quick-add parser: "IELTS test friday 10am", "study every day" ---------- */
+  const DAYS = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+  const MONTHS = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+  const pad2 = n => String(n).padStart(2,"0");
+  const addDays = (s,n) => { const d=parse(s); d.setDate(d.getDate()+n); return iso(d); };
+  function nextWeekday(dow, from){            // next date strictly after `from` that falls on weekday `dow`
+    const d = parse(from); let diff = (dow-d.getDay()+7)%7; if (diff===0) diff = 7;
+    return addDays(from, diff);
+  }
+  function monthDay(m, d){
+    const now = new Date(), y = now.getFullYear();
+    let c = new Date(y, m, d); if (iso(c) < iso(now)) c = new Date(y+1, m, d);
+    return iso(c);
+  }
+  function quickParse(raw){
+    let t = " "+raw+" ";
+    const out = {text:raw, due:null, time:null, repeat:null};
+    const today = iso(new Date());
+    const take = (re, fn) => { const m = t.match(re); if (!m) return false; fn(m); t = t.replace(m[0]," "); return true; };
+    let dow = null;
+    const wd = "(sunday|monday|tuesday|wednesday|thursday|friday|saturday)";
+    if (!take(new RegExp("\\bevery\\s+"+wd+"\\b","i"), m=>{ out.repeat="weekly"; dow=DAYS.indexOf(m[1].toLowerCase()); }))
+      take(/\b(?:every\s+(day|week|month)|(daily|weekly|monthly))\b/i, m=>{
+        const w = (m[1]||m[2]).toLowerCase();
+        out.repeat = /^day|daily/.test(w) ? "daily" : /^week/.test(w) ? "weekly" : "monthly";
+      });
+    if (!take(/\b(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i, m=>{
+      let h = +m[1]%12; if (m[3].toLowerCase()==="pm") h += 12;
+      out.time = pad2(h)+":"+(m[2]||"00");
+    })) take(/\b(?:at\s+)?([01]?\d|2[0-3]):([0-5]\d)\b/, m=>{ out.time = pad2(+m[1])+":"+m[2]; });
+    take(/\b(\d{4}-\d{2}-\d{2})\b/, m=>{ out.due = m[1]; })
+    || take(/\bday after tomorrow\b/i, ()=>{ out.due = addDays(today,2); })
+    || take(/\b(?:tomorrow|tmrw)\b/i, ()=>{ out.due = addDays(today,1); })
+    || take(/\b(?:today|tonight)\b/i, ()=>{ out.due = today; })
+    || take(/\bin\s+(\d+)\s+(day|days|week|weeks)\b/i, m=>{ out.due = addDays(today, +m[1]*(/^week/i.test(m[2])?7:1)); })
+    || take(new RegExp("\\b(?:next\\s+|this\\s+|on\\s+)?"+wd+"\\b","i"), m=>{ out.due = nextWeekday(DAYS.indexOf(m[1].toLowerCase()), today); })
+    || take(/\b(?:on\s+)?(\d{1,2})(?:st|nd|rd|th)?\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b/i, m=>{ out.due = monthDay(MONTHS.indexOf(m[2].toLowerCase()), +m[1]); })
+    || take(/\b(?:on\s+)?(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+(\d{1,2})(?:st|nd|rd|th)?\b/i, m=>{ out.due = monthDay(MONTHS.indexOf(m[1].toLowerCase()), +m[2]); });
+    if (dow!=null && !out.due) out.due = nextWeekday(dow, today);
+    if (out.repeat && !out.due) out.due = today;
+    out.text = t.replace(/\s+/g," ").trim().replace(/^(?:to|remind me to)\s+/i,"").replace(/\s+(on|at|by|for|due|every)$/i,"").replace(/[,;:\s]+$/,"");
+    if (!out.text){ out.text = raw.trim(); out.due = null; out.time = null; out.repeat = null; }
+    return out;
+  }
+  const scopeFor = due => { if (!due) return "today"; const n = Math.round((parse(due)-parse(iso(new Date())))/864e5); return n<=0 ? "today" : n<=7 ? "week" : "month"; };
+  const makeTask = o => ({id:uid(), text:o.text, done:false, scope:o.scope||scopeFor(o.due), due:o.due||null, time:o.time||null, repeat:o.repeat||null, spawned:false});
+  function nextDue(t){
+    const today = iso(new Date());
+    let d = parse(t.due || today);
+    do {
+      if (t.repeat==="daily") d.setDate(d.getDate()+1);
+      else if (t.repeat==="weekly") d.setDate(d.getDate()+7);
+      else d.setMonth(d.getMonth()+1);
+    } while (iso(d) <= today);
+    return iso(d);
+  }
+  function toggleTask(t){
+    t.done = !t.done;
+    if (t.done && t.repeat && !t.spawned){            // repeating task: queue the next one
+      t.spawned = true;
+      tasks.push(makeTask({text:t.text, due:nextDue(t), time:t.time, repeat:t.repeat}));
+    }
+    save(); renderTasks(); renderUp(); renderCal();
+  }
+
   /* ---------- date + clock ---------- */
   function renderDate(){
     const d = new Date();
@@ -390,7 +525,7 @@
     const d = new Date(), p = n => String(n).padStart(2,"0");
     $("#clock").innerHTML = p(d.getHours())+":"+p(d.getMinutes())+"<small>"+p(d.getSeconds())+"</small>";
     updateProgress();
-    if (d.getSeconds()===0 || !applied) refreshPalette();
+    if (d.getSeconds()===0 || !applied){ refreshPalette(); renderExtras(); }
     if (iso(d)!==curDay){
       curDay = iso(d);
       view = {y:d.getFullYear(), m:d.getMonth()};
@@ -434,12 +569,13 @@
       const row = document.createElement("div"); row.className = "item"+(t.done?" done":"");
       const chk = document.createElement("button"); chk.className="chk";
       chk.setAttribute("aria-label", (t.done?"Mark not done: ":"Mark done: ")+t.text);
-      chk.onclick = () => { t.done=!t.done; save(); renderTasks(); renderUp(); renderCal(); };
+      chk.onclick = () => toggleTask(t);
       const body = document.createElement("div"); body.className="body";
       body.append(document.createTextNode(t.text));
       const meta = [];
       if (tab==="all") meta.push(cap(t.scope));
-      if (t.due) meta.push(rel(t.due));
+      if (t.due) meta.push(rel(t.due)+(t.time?" "+t.time:""));
+      if (t.repeat) meta.push("\u21bb "+cap(t.repeat));
       if (meta.length){ const m=document.createElement("span"); m.className="meta"; m.textContent=meta.join(", "); body.append(m); }
       const del = document.createElement("button"); del.className="del"; del.textContent="\u00d7";
       del.setAttribute("aria-label","Delete task: "+t.text);
@@ -448,13 +584,16 @@
     });
     const open = tasks.filter(t=>!t.done && (tab==="all"||t.scope===tab)).length;
     $("#count").textContent = open+" open";
+    renderExtras();
   }
   function addTask(){
     const inp = $("#newText"), text = inp.value.trim();
     if (!text) return;
-    tasks.push({id:uid(), text, done:false, scope:scopeNew, due:$("#newDue").value||null});
+    const q = quickParse(text);
+    const t = makeTask({text:q.text, due:q.due||$("#newDue").value||null, time:q.time, repeat:q.repeat, scope:q.due?null:scopeNew});
+    tasks.push(t);
     save(); inp.value = "";
-    if (tab!=="all" && tab!==scopeNew) tab = scopeNew;
+    if (tab!=="all" && tab!==t.scope) tab = t.scope;
     renderTasks(); renderUp(); renderCal();
   }
   $("#newText").addEventListener("keydown", e => { if(e.key==="Enter") addTask(); });
@@ -469,6 +608,42 @@
     if (tab!=="all"){ scopeNew = tab; $("#scopeBtn").textContent = cap(tab); }
     renderTasks();
   };
+
+  /* ---------- daily brief + key-date countdowns ---------- */
+  let weather = null;
+  const KEYRE = /\b(test|exam|quiz|deadline|interview|finals?|midterm|presentation)\b/i;
+  const daysUntil = s => Math.round((parse(s)-parse(iso(new Date())))/864e5);
+  function renderExtras(){
+    const now = new Date(), todayISO = iso(now), nowHM = pad2(now.getHours())+":"+pad2(now.getMinutes());
+    const todays = tasks.filter(t=>!t.done && t.due===todayISO).concat(calEvents.filter(e=>e.due===todayISO));
+    const brief = $("#brief"); brief.innerHTML = "";
+    const l1 = document.createElement("div"), n = todays.length;
+    const b = document.createElement("b"); b.textContent = n+(n===1?" thing":" things");
+    if (n){ l1.append(b, " today"); } else l1.textContent = "Nothing due today";
+    const nxt = todays.filter(x=>x.time && x.time>=nowHM).sort((a,c)=>a.time.localeCompare(c.time))[0];
+    if (nxt) l1.append(" · Next: "+nxt.text+" at "+nxt.time);
+    brief.append(l1);
+    if (weather){
+      const l2 = document.createElement("div"), w = [];
+      w.push(Math.round(weather.temp)+"° "+weather.desc);
+      if (weather.sunset && nowHM < weather.sunset) w.push("Sunset "+weather.sunset);
+      else if (weather.nextSunrise) w.push("Sunrise "+weather.nextSunrise);
+      l2.textContent = w.join(" · "); brief.append(l2);
+    }
+    const keys = tasks.filter(t=>!t.done && t.due && t.due>=todayISO && KEYRE.test(t.text))
+      .concat(calEvents.filter(e=>e.due>=todayISO && KEYRE.test(e.text)))
+      .sort((x,y)=>x.due.localeCompare(y.due) || (x.time||"").localeCompare(y.time||"")).slice(0,3);
+    const box = $("#counts"); box.innerHTML = "";
+    if (!keys.length) return;
+    const h = document.createElement("span"); h.className="lbl"; h.textContent="Key dates"; box.append(h);
+    keys.forEach(k=>{
+      const d = daysUntil(k.due), r = document.createElement("div"); r.className="row";
+      const a = document.createElement("span"); a.textContent = k.text;
+      const c = document.createElement("span");
+      c.textContent = d===0 ? (k.time ? "Today "+k.time : "Today") : d===1 ? "Tomorrow" : "in "+d+" days";
+      r.append(a,c); box.append(r);
+    });
+  }
 
   /* ---------- upcoming ---------- */
   function renderUp(){
@@ -494,62 +669,56 @@
     });
   }
 
-  /* ---------- music (Spotify embed) ---------- */
-  function embedUrl(u){
-    const m = (u||"").match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(track|album|playlist|episode|show|artist)\/([A-Za-z0-9]+)/);
-    return m ? "https://open.spotify.com/embed/"+m[1]+"/"+m[2]+"?utm_source=generator" : null;
-  }
-  let nowPlaying = null, spotify = {configured:false, connected:false};
+  /* ---------- music: now playing + controls (Spotify Web API, see spotify.js) ---------- */
+  let nowPlaying = null, spotify = {configured:false, connected:false, controls:true, msg:""};
   const act = (type, extra) => dispatchEvent(new CustomEvent("dash:action", {detail:Object.assign({type}, extra||{})}));
-  const mmss = ms => { const s=Math.max(0,Math.floor(ms/1000)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); };
   function npProgress(){ return nowPlaying ? nowPlaying.progress + (nowPlaying.playing ? Date.now()-nowPlaying.ts : 0) : 0; }
   function updateProgress(){
     const bar = $("#npBar"); if (!bar || !nowPlaying) return;
     bar.style.width = Math.min(100, npProgress()/Math.max(1,nowPlaying.duration)*100)+"%";
   }
+  const ICONS = {
+    prev:'<svg viewBox="0 0 16 16"><path d="M3 3h1.5v10H3zM13 3v10L5.5 8z"/></svg>',
+    next:'<svg viewBox="0 0 16 16"><path d="M11.5 3H13v10h-1.5zM3 3l7.5 5L3 13z"/></svg>',
+    play:'<svg viewBox="0 0 16 16"><path d="M4.5 2.5v11l9-5.5z"/></svg>',
+    pause:'<svg viewBox="0 0 16 16"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z"/></svg>'
+  };
   function renderMusic(){
-    const url = store.get("dash.music", null), box = $("#music"); box.innerHTML = "";
+    const box = $("#music"); box.innerHTML = "";
     const top = document.createElement("div"); top.className="top";
     const t = document.createElement("span"); t.textContent = "Music"; t.style.fontWeight = 400; t.style.fontSize = ".95rem";
-    top.append(t);
+    top.append(t); box.append(top);
     if (nowPlaying){
-      box.append(top);
+      const wrap = document.createElement("div"); wrap.className="np-wrap";
       const a = document.createElement("a"); a.className="np"; a.href = nowPlaying.url||"#"; a.target="_blank"; a.rel="noopener";
       const img = document.createElement("img"); img.alt = "Album cover"; if (nowPlaying.art) img.src = nowPlaying.art;
       const info = document.createElement("div"); info.className="info";
       const ttl = document.createElement("div"); ttl.className="ttl"; ttl.textContent = nowPlaying.title;
       const art = document.createElement("div"); art.className="art"; art.textContent = nowPlaying.artist;
       const bar = document.createElement("div"); bar.className="bar"; bar.innerHTML = '<i id="npBar"></i>';
-      const st = document.createElement("div"); st.className="state"; st.textContent = nowPlaying.playing ? "NOW PLAYING" : "PAUSED";
-      info.append(ttl, art, bar, st); a.append(img, info); box.append(a);
-      updateProgress();
-      return;
-    }
-    if (url){
-      const c = document.createElement("button"); c.textContent="Change"; c.onclick=()=>{ store.set("dash.music",null); renderMusic(); setTimeout(()=>{const i=$("#music input"); i&&i.focus();},0); };
-      top.append(c); box.append(top);
-      const f = document.createElement("iframe");
-      f.src = url; f.title = "Spotify player"; f.loading = "lazy";
-      f.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
-      box.append(f);
-    } else {
-      box.append(top);
-      const i = document.createElement("input");
-      i.type="text"; i.placeholder="Paste a Spotify link and press Enter"; i.setAttribute("aria-label","Spotify link");
-      i.addEventListener("keydown", e => {
-        if (e.key!=="Enter") return;
-        const emb = embedUrl(i.value);
-        if (emb){ store.set("dash.music", emb); renderMusic(); }
-        else { hint.textContent = "That doesn't look like a Spotify link. Copy one from Share in Spotify."; }
-      });
-      const hint = document.createElement("div"); hint.className="hint";
-      hint.textContent = spotify.connected ? "Nothing playing right now. Start a song in Spotify, or paste a link." : "Works with playlists, albums, tracks and podcasts.";
-      box.append(i, hint);
-      if (spotify.configured && !spotify.connected){
-        const b = document.createElement("button"); b.className="pill"; b.textContent="Show what I'm playing on Spotify";
-        b.onclick = () => act("spotify-connect"); box.append(b);
+      info.append(ttl, art, bar); a.append(img, info); wrap.append(a);
+      if (spotify.controls){
+        const ctl = document.createElement("div"); ctl.className="ctl";
+        const mk = (label, icon, cmd, cls) => { const b=document.createElement("button"); b.innerHTML=icon; b.setAttribute("aria-label",label); b.title=label; if(cls) b.className=cls; b.onclick=()=>act("spotify-cmd",{cmd}); return b; };
+        ctl.append(mk("Previous", ICONS.prev, "previous"), mk(nowPlaying.playing?"Pause":"Play", nowPlaying.playing?ICONS.pause:ICONS.play, "toggle", "main"), mk("Next", ICONS.next, "next"));
+        wrap.append(ctl);
+      } else {
+        const b = document.createElement("button"); b.className="pill"; b.textContent="Reconnect Spotify for controls"; b.onclick=()=>act("spotify-connect"); wrap.append(b);
       }
+      box.append(wrap); updateProgress();
+    } else if (spotify.connected){
+      const h = document.createElement("div"); h.className="hint"; h.textContent = "Nothing playing right now.";
+      const o = document.createElement("a"); o.href="eclipse://app/spotify"; o.className="pill"; o.textContent="Open Spotify"; o.style.cssText="display:inline-block;margin-top:.6rem;text-decoration:none";
+      box.append(h, o);
+    } else if (spotify.configured){
+      const h = document.createElement("div"); h.className="hint"; h.textContent = "Show what's playing, with album art and controls.";
+      const b = document.createElement("button"); b.className="pill"; b.textContent="Connect Spotify"; b.onclick=()=>act("spotify-connect");
+      box.append(h, b);
+    } else {
+      const h = document.createElement("div"); h.className="hint"; h.textContent = "Add a Spotify client ID in firebase-config.js to show what's playing (see SETUP.md).";
+      box.append(h);
     }
+    if (spotify.msg){ const m = document.createElement("div"); m.className="hint"; m.textContent = spotify.msg; box.append(m); }
   }
 
   /* ---------- fold each section on its own ---------- */
@@ -575,6 +744,14 @@
   const acct = {configured:false, user:null, calendar:"off", events:0, busy:false};
   const el = (tag, cls, text) => { const n=document.createElement(tag); if(cls) n.className=cls; if(text!=null) n.textContent=text; return n; };
   const pill = (label, fn) => { const b=el("button","pill",label); b.onclick=fn; return b; };
+  function field(label, key, placeholder, type){
+    const wrap = document.createElement("div");
+    const l = el("label",null,label), i = el("input");
+    i.type = type||"text"; i.placeholder = placeholder||""; i.value = store.get(key, "") || "";
+    i.setAttribute("aria-label", label);
+    i.addEventListener("change", () => store.set(key, i.value.trim()));
+    wrap.append(l, i); return wrap;
+  }
   function renderAcct(){
     const p = $("#acct"), keep = p.querySelector(".msg") ? p.querySelector(".msg").textContent : "";
     p.innerHTML = "";
@@ -618,6 +795,26 @@
       const row = el("div","row"); row.append(pill("Connect Spotify", ()=>act("spotify-connect"))); s3.append(row);
     }
     p.append(s3);
+
+    const s4 = el("section"); s4.append(el("h3",null,"Voice assistant"));
+    s4.append(el("p",null,"Press V or the mic button and speak. Claude runs through OmniRoute on this Mac, so no key is stored on the site. Start OmniRoute from the Launch section."));
+    s4.append(field("OmniRoute address","dash.omni.base","http://localhost:20128"));
+    s4.append(field("OmniRoute API key (only if you set one)","dash.omni.key","","password"));
+    s4.append(field("Model","dash.omni.model","auto"));
+    const sp = el("label","chk2"), cb = el("input"); cb.type="checkbox"; cb.checked = store.get("dash.voice.speak", true);
+    cb.onchange = () => store.set("dash.voice.speak", cb.checked);
+    sp.append(cb, document.createTextNode("Speak replies aloud")); s4.append(sp);
+    p.append(s4);
+
+    const s5 = el("section"); s5.append(el("h3",null,"Weather and sun times"));
+    const loc = store.get("dash.weather.loc", null);
+    s5.append(el("p",null, loc ? "Showing "+loc.name+"." : "Shows temperature and sunset under the date."));
+    const city = el("input"); city.type="text"; city.placeholder="City"; city.setAttribute("aria-label","City");
+    city.addEventListener("keydown", e => { if (e.key==="Enter") act("weather-city",{city:city.value.trim()}); });
+    const wr = el("div","row");
+    wr.append(pill("Set city", ()=>act("weather-city",{city:city.value.trim()})), pill("Use my location", ()=>act("weather-geo")));
+    s5.append(city, wr);
+    p.append(s5);
     p.append(el("p","msg",keep));
   }
   function setMsg(t){ const m=$("#acct .msg"); if (m) m.textContent = t||""; }
@@ -632,9 +829,34 @@
     getTasks: () => tasks,
     setTasks(arr){ tasks = arr; store.set("dash.tasks", tasks); renderTasks(); renderUp(); renderCal(); },
     onSave(fn){ hooks.save = fn; },
-    setEvents(list){ calEvents = list||[]; acct.events = calEvents.length; renderUp(); renderCal(); renderAcct(); },
+    setEvents(list){ calEvents = list||[]; acct.events = calEvents.length; renderUp(); renderCal(); renderAcct(); renderExtras(); },
     setAccount(patch){ Object.assign(acct, patch); renderAcct(); },
-    setSpotify(patch){ Object.assign(spotify, patch); renderAcct(); if (!nowPlaying) renderMusic(); },
+    setSpotify(patch){ Object.assign(spotify, patch); renderAcct(); renderMusic(); },
+    setWeather(w){ weather = w; renderExtras(); },
+    getEvents: () => calEvents,
+    getSetting: (k, d) => store.get(k, d),
+    setSetting: (k, v) => store.set(k, v),
+    addTask(o){
+      const t = makeTask({text:o.text, due:o.due, time:o.time, repeat:o.repeat});
+      tasks.push(t); save(); renderTasks(); renderUp(); renderCal(); return t;
+    },
+    completeTask(id){ const t = tasks.find(x=>x.id===id && !x.done); if (!t) return false; toggleTask(t); return true; },
+    launchIds: () => [...document.querySelectorAll("#dock a[href^='eclipse://']")].map(a=>a.getAttribute("href").slice(10)+" ("+a.textContent.trim()+")"),
+    launch(kind, id){
+      const a = document.querySelector('#dock a[href="eclipse://'+kind+'/'+id+'"]');
+      if (!a) return false; a.click(); return true;
+    },
+    setOmniStatus(on){ const d = $("#omniDot"); if (d) d.classList.toggle("on", !!on); },
+    setMic(on){ document.body.classList.toggle("listening", !!on); $("#btnMic").classList.toggle("on", !!on); },
+    voice(v){
+      const box = $("#voice"); clearTimeout(box._t);
+      if (!v || v.state==="idle"){ box.classList.remove("show","listening","thinking"); return; }
+      box.classList.add("show");
+      box.classList.toggle("listening", v.state==="listening");
+      box.classList.toggle("thinking", v.state==="thinking");
+      $("#voiceText").textContent = v.text || (v.state==="listening" ? "Listening\u2026" : v.state==="thinking" ? "Thinking\u2026" : "");
+      if (v.state==="done" || v.state==="error") box._t = setTimeout(()=>box.classList.remove("show"), v.state==="error" ? 7000 : 8000);
+    },
     setNowPlaying(np){
       const same = nowPlaying && np && nowPlaying.id===np.id && nowPlaying.playing===np.playing;
       nowPlaying = np;
@@ -649,11 +871,17 @@
   $("#palette").onclick = cyclePalette;
   $("#btnPalette").onclick = cyclePalette;
   $("#btnFocus").onclick = () => { document.body.classList.toggle("focus"); $("#btnFocus").classList.toggle("on"); };
-  $("#btnMusic").onclick = () => { store.set("dash.music",null); renderMusic(); setTimeout(()=>{const i=$("#music input"); i&&i.focus();},0); };
+  $("#btnMusic").onclick = () => {
+    if (spotify.connected) act("spotify-cmd", {cmd:"toggle"});
+    else if (spotify.configured) act("spotify-connect");
+    else { $("#acct").classList.add("open"); $("#btnAcct").classList.add("on"); }
+  };
+  $("#btnMic").onclick = () => act("voice-toggle");
   document.addEventListener("keydown", e => {
     if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
     if (e.key==="p"||e.key==="P") cyclePalette();
     if (e.key==="f"||e.key==="F") $("#btnFocus").click();
+    if (e.key==="v"||e.key==="V") act("voice-toggle");
     if (e.key==="Escape" && $("#acct").classList.contains("open")){ $("#acct").classList.remove("open"); $("#btnAcct").classList.remove("on"); return; }
     if (e.key==="Escape" && selDay){ selDay=null; $("#newDue").value=""; renderCal(); renderUp(); }
   });
@@ -689,5 +917,7 @@
 </script>
 <script type="module" src="cloud.js"></script>
 <script type="module" src="spotify.js"></script>
+<script type="module" src="weather.js"></script>
+<script type="module" src="voice.js"></script>
 </body>
 </html>

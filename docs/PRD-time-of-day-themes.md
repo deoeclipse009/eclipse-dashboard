@@ -22,16 +22,16 @@ Six phases. Each uses the existing five color roles: `base` (background), `c1`/`
 
 | Phase | Local time | Tone | base | c1 | c2 | c3 | ink | Mood |
 |---|---|---|---|---|---|---|---|---|
-| Dawn | 05:00–08:00 | light | `#F3E6DE` | `#E8B49A` | `#FBF4EE` | `#C9CFE0` | `#2A211E` | Soft peach, slow start |
-| Morning | 08:00–12:00 | light | `#F7EDE3` | `#EFA77A` | `#FEF9F3` | `#F3D3B6` | `#2B1F17` | Fresh orange-white, clear |
-| Midday | 12:00–16:00 | light | `#FAF1E6` | `#F08A4B` | `#FFFBF5` | `#F6C9A0` | `#2A1C12` | Bright orange, full light (main theme) |
-| Golden hour | 16:00–19:30 | light | `#F2DAC3` | `#E0743A` | `#FAE9D8` | `#C98B78` | `#2C1A11` | Amber and dusty rose |
+| Dawn | 05:00–08:00 | light | `#E6CBBF` | `#E3A38C` | `#F2DFD4` | `#A9AECB` | `#241A18` | Soft peach, slow start |
+| Morning | 08:00–12:00 | light | `#EBCBAE` | `#E58E57` | `#F6E0CB` | `#DDA67C` | `#26180F` | Fresh orange-white, clear |
+| Midday | 12:00–16:00 | light | `#EEC59E` | `#E8782F` | `#F8DDBE` | `#DA9459` | `#24150A` | Bright orange, full light (main theme) |
+| Golden hour | 16:00–19:30 | light | `#DDA77C` | `#CB5F26` | `#EBC59F` | `#A4505F` | `#2A150C` | Amber and dusty rose |
 | Evening | 19:30–22:30 | dark | `#1A1E2E` | `#C8663A` | `#262B40` | `#6F7FA8` | `#F4EEE8` | Blue dusk, one ember of orange |
 | Night | 22:30–05:00 | dark | `#0E1424` | `#2B3F7A` | `#17203A` | `#A9B8DA` | `#E9EEF8` | Deep navy with blue-white light |
 
 Design direction: premium and minimal. Orange is the main theme, always softened with white (orange-white, never saturated), with low-saturation neighbors and no more than one strong accent per phase. Night uses deep navy blended with pale blue-white.
 
-Contrast of `ink` on `base` (WCAG): Dawn 12.9, Morning 13.9, Midday 14.8, Golden 12.3, Evening 14.4, Night 15.8. All pass AA and AAA.
+Contrast of `ink` on `base` (WCAG): Dawn 11.1, Morning 11.2, Midday 11.1, Golden 8.2, Evening 14.4, Night 15.8. All pass AA and AAA.
 
 Night is deliberately the dimmest so the screen does not glow in a dark room.
 
@@ -70,3 +70,6 @@ Night is deliberately the dimmest so the screen does not glow in a dark room.
 2. Implement schedule and blending behind the existing `paintPalette()`.
 3. Review each phase live using a temporary "preview time" control, then remove it.
 4. Ship to GitHub Pages.
+
+## 9. Menu bar legibility (revision)
+Light phases were deepened to mid-tone orange, and they get a soft dark gradient across the top so white macOS menu-bar text stays readable (white on that strip is about 5:1 or better).

@@ -47,7 +47,8 @@ async function init(){
 
   /* ----- tasks <-> Firestore: users/{uid}/tasks/{taskId} ----- */
   let uid = null, unsub = null, remote = new Map(), wasSignedIn = false;
-  const sig = t => JSON.stringify([t.text, !!t.done, t.scope, t.due || null]);
+  const sig = t => JSON.stringify([t.text, !!t.done, t.scope, t.due || null, t.time || null, t.repeat || null, !!t.spawned]);
+  const data = t => ({text:t.text, done:!!t.done, scope:t.scope, due:t.due || null, time:t.time || null, repeat:t.repeat || null, spawned:!!t.spawned});
   const col = () => fsM.collection(db, "users", uid, "tasks");
 
   async function push(tasks){
@@ -56,7 +57,7 @@ async function init(){
       const batch = fsM.writeBatch(db), ids = new Set();
       tasks.forEach(t => {
         ids.add(t.id);
-        if (remote.get(t.id) !== sig(t)) batch.set(fsM.doc(col(), t.id), {text:t.text, done:!!t.done, scope:t.scope, due:t.due || null});
+        if (remote.get(t.id) !== sig(t)) batch.set(fsM.doc(col(), t.id), data(t));
       });
       remote.forEach((_, id) => { if (!ids.has(id)) batch.delete(fsM.doc(col(), id)); });
       await batch.commit();
