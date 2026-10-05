@@ -1,0 +1,8 @@
+{
+  "name": "eclipse-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "node dev-server.mjs" },
+  "dependencies": { "@libsql/client": "^0.15.0" },
+  "engines": { "node": ">=20" }
+}

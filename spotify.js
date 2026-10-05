@@ -1,6 +1,6 @@
 // Shows the song playing on the user's Spotify account, with album art.
 // Uses Authorization Code + PKCE, so no client secret is needed in the browser.
-import { spotifyClientId } from "./firebase-config.js";
+import { spotifyClientId } from "./config.js";
 
 const D = window.Dash;
 const ID = (spotifyClientId || "").trim();

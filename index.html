@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#B7ADE0">
+<link rel="manifest" href="manifest.json">
 <title>Dashboard</title>
 <style>
   :root{
@@ -195,6 +200,23 @@
   .acct .chk2{display:flex;gap:.5rem;align-items:center;margin-top:.7rem;font-size:.78rem;color:var(--soft)}
   .acct .chk2 input{width:auto}
 
+  /* sign-in gate (first visit on a device) */
+  body.locked .stage, body.locked .rail{opacity:0;pointer-events:none;filter:blur(14px)}
+  .stage,.rail{transition:opacity .5s ease,filter .5s ease}
+  .gate{position:fixed;inset:0;z-index:200;display:none;place-items:center;padding:1.5rem;background:color-mix(in srgb,var(--base) 35%,transparent);-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px)}
+  .gate.show{display:grid}
+  .gate form{width:min(21rem,100%);padding:2rem 1.8rem 1.6rem;border:1px solid var(--line);border-radius:1.2rem;background:color-mix(in srgb,var(--base) 70%,transparent);box-shadow:0 2rem 4rem -2rem color-mix(in srgb,var(--ink) 40%,transparent)}
+  .gate h1{font-weight:200;font-size:2.1rem;letter-spacing:-.02em;line-height:1}
+  .gate .sub{margin:.55rem 0 1.4rem;font-size:.85rem;color:var(--soft)}
+  .gate input{width:100%;padding:.6rem 0;font-size:.95rem;border-bottom:1px solid var(--line);margin-top:.35rem}
+  .gate input::placeholder{color:var(--soft)}
+  .gate input:focus{border-bottom-color:var(--ink)}
+  .gate .primary{width:100%;margin-top:1.4rem;padding:.7rem 1rem;border-radius:2rem;background:var(--ink);color:var(--base);font-size:.9rem;font-weight:400;transition:opacity .2s}
+  .gate .primary:disabled{opacity:.55;cursor:default}
+  .gate .link{display:block;margin:.9rem auto 0;font-size:.78rem;color:var(--soft)}
+  .gate .link:hover{color:var(--ink)}
+  .gate .gmsg{min-height:1.1em;margin-top:.8rem;font-size:.78rem;line-height:1.4;color:var(--ink);text-align:center}
+
   /* account panel */
   .acct{position:fixed;left:calc(clamp(64px,6vw,96px) + 6px);top:50%;transform:translateY(-50%);width:17.5rem;max-height:84vh;overflow:auto;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:1rem;background:color-mix(in srgb,var(--base) 80%,transparent);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);z-index:50;font-size:.85rem;display:none;scrollbar-width:none}
   .acct.open{display:block}
@@ -206,15 +228,86 @@
   .acct .row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem}
   .acct .msg{margin:.9rem 0 0;min-height:1em;color:var(--ink)}
 
+  /* ---------- mobile: phone layout ---------- */
   @media (max-width:900px){
-    .stage{grid-template-columns:1fr 1.6fr;overflow:auto}
-    .stage{grid-template-columns:1fr 1.6fr}
-    .c3,.c4{display:none}
+    html{font-size:clamp(13px,2vw,16px)}
+    body{overflow:auto;height:auto;min-height:100vh;min-height:100dvh}
+    .rail{display:none}
+    .cursor-glow{display:none}
     .fold{display:none}
+    .stage{
+      position:relative;left:0;right:0;top:0;bottom:auto;
+      display:flex;flex-direction:column;gap:0;
+      padding:env(safe-area-inset-top,1.2rem) 1.2rem calc(env(safe-area-inset-bottom,0px) + 1rem);
+    }
+    .col{border-left:0 !important;border-right:0 !important;padding:1.2rem 0}
+    .col + .col{border-top:1px solid var(--line)}
+    .col.folded > *:not(.fold){opacity:1;pointer-events:auto;visibility:visible}
+
+    /* mobile nav bar at bottom */
+    .mobile-nav{
+      position:fixed;bottom:0;left:0;right:0;z-index:80;
+      display:flex;justify-content:space-around;align-items:center;
+      padding:.55rem 0 calc(.55rem + env(safe-area-inset-bottom,0px));
+      background:color-mix(in srgb,var(--base) 82%,transparent);
+      -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);
+      border-top:1px solid var(--line)
+    }
+    .mobile-nav button{
+      width:2.6rem;height:2.6rem;display:grid;place-items:center;
+      opacity:.55;transition:opacity .2s;background:none;border:0;color:inherit
+    }
+    .mobile-nav button:hover,.mobile-nav button.on{opacity:1}
+    .mobile-nav svg{width:1.15rem;height:1.15rem;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+
+    /* clock: smaller on mobile */
+    .clock{font-size:min(18vw,5rem) !important}
+    .datestamp{font-size:min(4vw,1rem) !important}
+    .c2extra{font-size:min(3.5vw,.9rem) !important}
+
+    /* calendar grid */
+    .grid{font-size:.85rem}
+    .day{height:2.2rem}
+
+    /* dock */
+    .dock{margin-top:1.2rem}
+    .dock .apps{gap:.35rem}
+    .dock .apps a{font-size:.78rem;padding:.22rem .6rem}
+    .dock .cmds a{padding:.5rem .3rem}
+
+    /* to-do */
+    .c3,.c4{display:block !important}
+    .body{font-size:.9rem}
+    .add input.txt{font-size:.9rem}
+    .addrow{flex-wrap:wrap}
+
+    /* upcoming + music */
+    .up{margin-top:1.2rem}
+    .music{margin-top:1.5rem}
+    .np img{width:4rem;height:4rem}
+
+    /* palette text */
+    .palette{font-size:.72rem}
+
+    /* acct panel full-width on mobile */
+    .acct{left:1rem;right:1rem;width:auto;max-width:none;top:auto;bottom:0;transform:none;max-height:70vh;border-radius:1rem 1rem 0 0}
+
+    /* voice bar */
+    .voice{max-width:92vw;bottom:calc(3.6rem + env(safe-area-inset-bottom,0px))}
+
+    /* bg stays fixed */
+    .bg{position:fixed}
+  }
+
+  /* very small phones */
+  @media (max-width:400px){
+    .stage{padding-left:.8rem;padding-right:.8rem}
+    .clock{font-size:15vw !important}
+    .dock .apps a{font-size:.72rem;padding:.18rem .5rem}
   }
 </style>
 </head>
-<body>
+<body class="locked">
 <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
 
 <div class="bg" id="bg">
@@ -244,6 +337,19 @@
     <svg viewBox="0 0 16 16"><path d="M6 12V4l6-1.5V10"/><circle cx="4.5" cy="12" r="1.5"/><circle cx="10.5" cy="10" r="1.5"/></svg>
   </button>
 </nav>
+
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <form id="gateForm" novalidate>
+    <h1 id="gateTitle">Dashboard</h1>
+    <p class="sub" id="gateSub">Sign in to open your dashboard.</p>
+    <input type="email" id="gateEmail" name="email" placeholder="Email" autocomplete="username" aria-label="Email">
+    <input type="password" id="gatePass" name="password" placeholder="Password" autocomplete="current-password" aria-label="Password">
+    <input type="text" id="gateCode" placeholder="Invite code" autocomplete="off" aria-label="Invite code" hidden>
+    <button class="primary" type="submit" id="gateGo">Sign in</button>
+    <button class="link" type="button" id="gateSwitch">Create an account</button>
+    <div class="gmsg" id="gateMsg" role="status"></div>
+  </form>
+</div>
 
 <div class="voice" id="voice" role="status" aria-live="polite"><i></i><span id="voiceText"></span></div>
 
@@ -395,6 +501,8 @@
     r.setProperty("--base",p.base); r.setProperty("--c1",p.c1); r.setProperty("--c2",p.c2);
     r.setProperty("--c3",p.c3);   r.setProperty("--ink",p.ink);
     document.body.classList.toggle("dark", !!p.dark);
+    const tc = document.querySelector('meta[name="theme-color"]');
+    if (tc) tc.setAttribute("content", p.base);
     $("#palette").innerHTML = "<b></b><br><span></span><br><span></span>";
     const s = $("#palette").children;
     s[0].textContent = p.name + (pin==null ? " · Auto" : " · Pinned");
@@ -412,16 +520,12 @@
   }
   function cyclePalette(){
     pin = pin==null ? 0 : (pin+1 < PALETTES.length ? pin+1 : null);   // Auto -> pins -> Auto
-    store.set("dash.pal.pin", pin);
+    setSetting("dash.pal.pin", pin);
     refreshPalette();
   }
 
   /* ---------- data ---------- */
-  const seed = [
-    {id:uid(), text:"IELTS Reading and Listening practice", done:false, scope:"today", due:"2026-09-30"},
-    {id:uid(), text:"IELTS Writing and Speaking practice",   done:false, scope:"week",  due:"2026-10-02"},
-    {id:uid(), text:"IELTS test",                            done:false, scope:"week",  due:"2026-10-03"}
-  ];
+  const seed = [];
   let tasks = store.get("dash.tasks", null) || seed;
   // one-time cleanup of tasks that were removed from the default list
   if (!store.get("dash.migrated.1", false)){
@@ -429,8 +533,16 @@
     tasks = tasks.filter(t => !gone.some(r => r.test(t.text)));
     store.set("dash.tasks", tasks); store.set("dash.migrated.1", true);
   }
+  // one-time clear of old seed tasks (IELTS)
+  if (!store.get("dash.migrated.2", false)){
+    const oldSeed = [/^IELTS Reading/i, /^IELTS Writing/i, /^IELTS test$/i];
+    tasks = tasks.filter(t => !oldSeed.some(r => r.test(t.text)));
+    store.set("dash.tasks", tasks); store.set("dash.migrated.2", true);
+  }
   let calEvents = [];              // read-only events from Google Calendar
   const hooks = {};
+  // settings listed in api/settings.js follow the signed-in account; everything else stays on this device
+  const setSetting = (k, v) => { store.set(k, v); if (hooks.setting) hooks.setting(k, v); };
   const save = () => { store.set("dash.tasks", tasks); if (hooks.save) hooks.save(tasks); };
 
   let tab = store.get("dash.tab","all");
@@ -715,7 +827,7 @@
       const b = document.createElement("button"); b.className="pill"; b.textContent="Connect Spotify"; b.onclick=()=>act("spotify-connect");
       box.append(h, b);
     } else {
-      const h = document.createElement("div"); h.className="hint"; h.textContent = "Add a Spotify client ID in firebase-config.js to show what's playing (see SETUP.md).";
+      const h = document.createElement("div"); h.className="hint"; h.textContent = "Add a Spotify client ID in config.js to show what's playing (see SETUP.md).";
       box.append(h);
     }
     if (spotify.msg){ const m = document.createElement("div"); m.className="hint"; m.textContent = spotify.msg; box.append(m); }
@@ -735,7 +847,7 @@
   document.querySelectorAll(".col").forEach((c,i)=>{
     const b = document.createElement("button"); b.className="fold";
     b.innerHTML = '<svg viewBox="0 0 16 16"><path d="M3 8h10"/><path class="v" d="M8 3v10"/></svg>';
-    b.onclick = () => { folded[i] = !folded[i]; store.set("dash.fold", folded); paintFold(); };
+    b.onclick = () => { folded[i] = !folded[i]; setSetting("dash.fold", folded); paintFold(); };
     c.append(b);
   });
   paintFold();
@@ -749,7 +861,7 @@
     const l = el("label",null,label), i = el("input");
     i.type = type||"text"; i.placeholder = placeholder||""; i.value = store.get(key, "") || "";
     i.setAttribute("aria-label", label);
-    i.addEventListener("change", () => store.set(key, i.value.trim()));
+    i.addEventListener("change", () => setSetting(key, i.value.trim()));
     wrap.append(l, i); return wrap;
   }
   function renderAcct(){
@@ -757,25 +869,20 @@
     p.innerHTML = "";
     const s1 = el("section"); s1.append(el("h3",null,"Account"));
     if (!acct.configured){
-      s1.append(el("p",null,"Sync is off, so your tasks live only in this browser. Add your Firebase keys in firebase-config.js to save them to a database and sign in (see SETUP.md)."));
+      s1.append(el("p",null,"Sync is off, so your tasks live only in this browser. Set apiBase in config.js to save them to your database and sign in (see SETUP.md)."));
     } else if (!acct.user){
-      s1.append(el("p",null,"Sign in to keep your tasks in the cloud and on every device."));
-      const em = el("input"); em.type="email"; em.placeholder="Email"; em.autocomplete="email"; em.setAttribute("aria-label","Email");
-      const pw = el("input"); pw.type="password"; pw.placeholder="Password"; pw.autocomplete="current-password"; pw.setAttribute("aria-label","Password");
-      pw.addEventListener("keydown", e => { if (e.key==="Enter") act("signin",{email:em.value.trim(),password:pw.value}); });
-      const row = el("div","row");
-      row.append(pill("Sign in", ()=>act("signin",{email:em.value.trim(),password:pw.value})),
-                 pill("Create account", ()=>act("signup",{email:em.value.trim(),password:pw.value})));
-      const row2 = el("div","row"); row2.append(pill("Continue with Google", ()=>act("google")));
-      s1.append(em, pw, row, row2);
+      s1.append(el("p",null,"You're not signed in."));
+      const row = el("div","row"); row.append(pill("Sign in", ()=>lock())); s1.append(row);
     } else {
-      s1.append(el("p",null,"Signed in as "+(acct.user.email||acct.user.name||"your account")+". Tasks sync to your database."));
-      const row = el("div","row"); row.append(pill("Sign out", ()=>act("signout"))); s1.append(row);
+      s1.append(el("p",null,"Signed in as "+(acct.user.email||"your account")+". This device stays signed in for about 90 days, and tasks sync to your database."));
+      const row = el("div","row");
+      row.append(pill("Sign out", ()=>act("signout")), pill("Sign out everywhere", ()=>act("signout-all")));
+      s1.append(row);
     }
     p.append(s1);
-    if (acct.configured){
+    if (acct.calendarConfigured){
       const s2 = el("section"); s2.append(el("h3",null,"Google Calendar"));
-      if (!acct.user) s2.append(el("p",null,"Sign in first to connect your calendar."));
+      if (acct.configured && !acct.user) s2.append(el("p",null,"Sign in first to connect your calendar."));
       else if (acct.calendar==="on"){
         s2.append(el("p",null,"Connected. "+acct.events+" upcoming event"+(acct.events===1?"":"s")+" shown in Upcoming and the month grid."));
         const row = el("div","row"); row.append(pill("Refresh", ()=>act("calendar-refresh"))); s2.append(row);
@@ -786,7 +893,7 @@
       p.append(s2);
     }
     const s3 = el("section"); s3.append(el("h3",null,"Spotify"));
-    if (!spotify.configured) s3.append(el("p",null,"Add a Spotify client ID in firebase-config.js to show the song that's playing, with its cover (see SETUP.md)."));
+    if (!spotify.configured) s3.append(el("p",null,"Add a Spotify client ID in config.js to show the song that's playing, with its cover (see SETUP.md)."));
     else if (spotify.connected){
       s3.append(el("p",null,"Connected. The current song and album cover show in the Music section."));
       const row = el("div","row"); row.append(pill("Disconnect", ()=>act("spotify-disconnect"))); s3.append(row);
@@ -802,7 +909,7 @@
     s4.append(field("OmniRoute API key (only if you set one)","dash.omni.key","","password"));
     s4.append(field("Model","dash.omni.model","auto"));
     const sp = el("label","chk2"), cb = el("input"); cb.type="checkbox"; cb.checked = store.get("dash.voice.speak", true);
-    cb.onchange = () => store.set("dash.voice.speak", cb.checked);
+    cb.onchange = () => setSetting("dash.voice.speak", cb.checked);
     sp.append(cb, document.createTextNode("Speak replies aloud")); s4.append(sp);
     p.append(s4);
 
@@ -824,7 +931,35 @@
     if (!e.target.closest("#acct") && !e.target.closest("#btnAcct")){ $("#acct").classList.remove("open"); $("#btnAcct").classList.remove("on"); }
   });
 
-  /* ---------- API for the sync modules (cloud.js, spotify.js) ---------- */
+  /* ---------- sign-in gate ---------- */
+  let gateMode = "signin";
+  function paintGate(){
+    const up = gateMode==="signup";
+    $("#gateSub").textContent = up ? "Create your account with your invite code." : "Sign in to open your dashboard.";
+    $("#gateGo").textContent = up ? "Create account" : "Sign in";
+    $("#gateSwitch").textContent = up ? "I already have an account" : "Create an account";
+    $("#gateCode").hidden = !up;
+    $("#gatePass").autocomplete = up ? "new-password" : "current-password";
+  }
+  function lock(msg){
+    document.body.classList.add("locked"); $("#gate").classList.add("show");
+    $("#gateMsg").textContent = msg||""; paintGate();
+    setTimeout(()=>{ const i=$("#gateEmail"); i && i.focus(); }, 50);
+  }
+  function unlock(){
+    document.body.classList.remove("locked"); $("#gate").classList.remove("show");
+    $("#gatePass").value = ""; $("#gateCode").value = "";
+  }
+  $("#gateSwitch").onclick = () => { gateMode = gateMode==="signin" ? "signup" : "signin"; $("#gateMsg").textContent=""; paintGate(); };
+  $("#gateForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const email = $("#gateEmail").value.trim(), password = $("#gatePass").value;
+    if (!email || !password){ $("#gateMsg").textContent = "Enter your email and password."; return; }
+    act(gateMode==="signup" ? "register" : "login", {email, password, code:$("#gateCode").value.trim()});
+  });
+  setTimeout(()=>{ if (!window.__syncReady) unlock(); }, 5000);   // never leave the page locked if sync.js fails to load
+
+  /* ---------- API for the sync modules (sync.js, calendar.js, spotify.js) ---------- */
   window.Dash = {
     getTasks: () => tasks,
     setTasks(arr){ tasks = arr; store.set("dash.tasks", tasks); renderTasks(); renderUp(); renderCal(); },
@@ -835,7 +970,17 @@
     setWeather(w){ weather = w; renderExtras(); },
     getEvents: () => calEvents,
     getSetting: (k, d) => store.get(k, d),
-    setSetting: (k, v) => store.set(k, v),
+    setSetting,
+    onSetting(fn){ hooks.setting = fn; },
+    applySettings(obj){
+      Object.keys(obj||{}).forEach(k => store.set(k, obj[k]));
+      pin = store.get("dash.pal.pin", null); if (pin!=null && !PALETTES[pin]) pin = null;
+      folded = store.get("dash.fold", [false,false,false,false]);
+      refreshPalette(); paintFold(); renderAcct();
+    },
+    lock, unlock,
+    gateMsg(t){ $("#gateMsg").textContent = t||""; },
+    gateBusy(b){ $("#gateGo").disabled = !!b; },
     addTask(o){
       const t = makeTask({text:o.text, due:o.due, time:o.time, repeat:o.repeat});
       tasks.push(t); save(); renderTasks(); renderUp(); renderCal(); return t;
@@ -909,13 +1054,61 @@
     loop();
   })();
 
+  /* ---------- mobile nav ---------- */
+  const mNav = $("#mobileNav");
+  if (mNav){
+    mNav.querySelectorAll("[data-section]").forEach(b => {
+      b.onclick = () => {
+        const sec = $("."+b.dataset.section);
+        if (sec) sec.scrollIntoView({behavior:"smooth",block:"start"});
+        mNav.querySelectorAll("button").forEach(x => x.classList.remove("on"));
+        b.classList.add("on");
+      };
+    });
+    const ma = $("#mobileAcct");
+    if (ma) ma.onclick = e => { e.stopPropagation(); $("#acct").classList.toggle("open"); ma.classList.toggle("on"); };
+    // highlight current section on scroll
+    const cols = [...document.querySelectorAll(".col")];
+    const navBtns = [...mNav.querySelectorAll("[data-section]")];
+    let scrollT;
+    window.addEventListener("scroll", () => {
+      clearTimeout(scrollT);
+      scrollT = setTimeout(() => {
+        const mid = innerHeight * 0.35;
+        let active = cols[0];
+        cols.forEach(c => { if (c.getBoundingClientRect().top <= mid) active = c; });
+        const cls = [...active.classList].find(c => /^c\d$/.test(c));
+        navBtns.forEach(b => b.classList.toggle("on", b.dataset.section === cls));
+      }, 80);
+    }, {passive:true});
+  }
+
   /* ---------- go ---------- */
   refreshPalette(); renderDate(); renderCal(); renderTasks(); renderUp(); renderMusic();
   $("#scopeBtn").textContent = cap(scopeNew);
   tick(); setInterval(tick, 1000);
 })();
 </script>
-<script type="module" src="cloud.js"></script>
+<nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
+  <button data-section="c2" aria-label="Clock">
+    <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>
+  </button>
+  <button data-section="c1" aria-label="Calendar">
+    <svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 2v2.5M10.5 2v2.5"/></svg>
+  </button>
+  <button data-section="c3" aria-label="To-do">
+    <svg viewBox="0 0 16 16"><path d="M4 4h8M4 8h8M4 12h5"/><circle cx="2" cy="4" r=".7" fill="currentColor"/><circle cx="2" cy="8" r=".7" fill="currentColor"/><circle cx="2" cy="12" r=".7" fill="currentColor"/></svg>
+  </button>
+  <button data-section="c4" aria-label="Music & upcoming">
+    <svg viewBox="0 0 16 16"><path d="M6 12V4l6-1.5V10"/><circle cx="4.5" cy="12" r="1.5"/><circle cx="10.5" cy="10" r="1.5"/></svg>
+  </button>
+  <button id="mobileAcct" aria-label="Account">
+    <svg viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.6"/><path d="M2.8 13.6c.7-2.6 2.9-4 5.2-4s4.5 1.4 5.2 4"/></svg>
+  </button>
+</nav>
+
+<script type="module" src="sync.js"></script>
+<script type="module" src="calendar.js"></script>
 <script type="module" src="spotify.js"></script>
 <script type="module" src="weather.js"></script>
 <script type="module" src="voice.js"></script>

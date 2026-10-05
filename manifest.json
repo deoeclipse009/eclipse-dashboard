@@ -1,0 +1,17 @@
+{
+  "name": "Eclipse Dashboard",
+  "short_name": "Dashboard",
+  "description": "Personal dashboard with clock, calendar, to-do, music and weather",
+  "start_url": "/eclipse-dashboard/",
+  "display": "standalone",
+  "background_color": "#B7ADE0",
+  "theme_color": "#B7ADE0",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231d1838'/><circle cx='50' cy='50' r='28' fill='none' stroke='%23B7ADE0' stroke-width='3'/><path d='M50 28V50l14 8' stroke='%23B7ADE0' stroke-width='3' stroke-linecap='round' fill='none'/></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
