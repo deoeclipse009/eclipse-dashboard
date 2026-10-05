@@ -1,13 +1,20 @@
 // Small helpers shared by every endpoint: CORS, JSON, rate limiting.
 import { db, ready_ } from "./db.js";
 
-const origins = () => (process.env.ALLOWED_ORIGINS || "https://deoeclipse009.github.io,http://localhost:8765,http://localhost:3000")
+const origins = () => (process.env.ALLOWED_ORIGINS || "https://deoeclipse009.github.io,https://eclipse-deo-dashboard.vercel.app,http://localhost:8765,http://localhost:3000")
   .split(",").map(s => s.trim()).filter(Boolean);
 
 export function cors(req, res) {
   const o = req.headers.origin;
   res.setHeader("Vary", "Origin");
-  if (o && origins().includes(o)) {
+  let allowed = false;
+  if (o) {
+    try {
+      const u = new URL(o);
+      allowed = origins().includes(o) || u.hostname.endsWith(".vercel.app");
+    } catch {}
+  }
+  if (allowed) {
     res.setHeader("Access-Control-Allow-Origin", o);
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
