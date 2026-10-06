@@ -73,8 +73,8 @@ function row(b, st, withTeacher){
 function renderToday(){
   const box = document.getElementById("schoolToday"); if (!box) return;
   const c = current(); box.innerHTML = "";
-  const h = el("div", "sec-h"), wk = el("button", null, "Week");
-  h.append(el("span", "lbl", c.isToday ? "School today · " + CLASS : (c.tomorrow ? "Tomorrow" : DAYS[c.dow][1]) + " at school · " + CLASS), wk);
+  const h = el("div", "sec-h"), wk = el("button", null, "All days");
+  h.append(el("span", "lbl", (c.isToday ? DAYS[c.dow][1] : c.tomorrow ? "Tomorrow, " + DAYS[c.dow][1] : DAYS[c.dow][1]) + " · " + CLASS), wk);
   wk.onclick = () => D.openSheet("school");
   box.append(h);
   // how far through the school day we are (shown on phones)

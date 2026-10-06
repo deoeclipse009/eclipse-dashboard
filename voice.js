@@ -85,17 +85,17 @@ async function geminiFindModel(key){
 /* ---------- what the model is told ---------- */
 function systemPrompt(){
   const bot = get("dash.ai.botname", "Eclipse"), name = get("dash.ai.name", "Deo"), about = get("dash.ai.about", "");
-  return `You are ${bot}, the personal assistant inside ${name ? name + "'s" : "the user's"} dashboard, which they use as a second brain: to-do list, calendar, school timetable and scholarship applications.
+  return `You are ${bot}, the personal assistant inside ${name ? name + "'s" : "the user's"} dashboard, which they use as a second brain: to-do list, calendar, school timetable and college prep (scholarships, universities, tests such as the SAT).
 You are in a live voice conversation. What you write in "reply" is read aloud, so answer the way a sharp, warm friend would talk: one to three short sentences, plain words, no markdown, no lists, no emoji. Answer in the language the user speaks (English or Indonesian).${name ? "\nCall the user " + name + " now and then, not in every reply." : ""}${about ? "\nWhat the user told you about themselves: " + about : ""}
 
 Reply with ONLY one JSON object, no prose around it, no code fences:
 {"reply": "<what to say aloud>", "actions": [ ... ]}
 Allowed actions:
-{"type":"add_task","text":"<task text>","due":"YYYY-MM-DD or null","time":"HH:MM or null","repeat":"daily|weekly|monthly or null"}
+{"type":"add_task","text":"<task text>","due":"YYYY-MM-DD or null","time":"HH:MM or null","repeat":"daily|weekly|monthly or null","priority":"high|medium|low or null"}
 {"type":"complete_task","id":"<id from tasks>"}
-{"type":"add_scholarship","name":"<scholarship name>","deadline":"YYYY-MM-DD or null","note":"<short note or null>"}
-{"type":"set_scholarship_status","id":"<id from scholarships>","status":"researching|preparing|applied|interview|awarded|closed"}
-{"type":"open","view":"home|tasks|school|scholarships"}
+{"type":"add_college_item","name":"<name>","kind":"Scholarship|University|Test","deadline":"YYYY-MM-DD or null","note":"<short note or null>"}
+{"type":"set_college_status","id":"<id from college>","status":"planning|preparing|submitted|interview|done|dropped"}
+{"type":"open","view":"home|tasks|school|college"}
 {"type":"spotify","cmd":"play|pause|toggle|next|previous"}
 {"type":"launch","kind":"app|cmd|link|folder","id":"<id>"}   (only ids listed in "launchers", written as "kind/id (label)")
 When the user asks you to add things to their to-do list, add them: one add_task action per item (up to 12 in one reply), each with a short clear text, and a due date or time only if they gave one.
@@ -106,10 +106,10 @@ function context(spoken){
   return {
     spoken,
     now:now.toString(), today:now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()),
-    tasks:D.getTasks().filter(t => !t.done).slice(0, 60).map(t => ({id:t.id, text:t.text, due:t.due, time:t.time || null, repeat:t.repeat || null})),
+    tasks:D.getTasks().filter(t => !t.done).slice(0, 60).map(t => ({id:t.id, text:t.text, due:t.due, time:t.time || null, repeat:t.repeat || null, priority:D.prioOf(t)})),
     events:D.getEvents().slice(0, 40).map(e => ({text:e.text, due:e.due, time:e.time || null})),
     school:window.School ? window.School.context() : null,
-    scholarships:window.Scholar ? window.Scholar.context() : [],
+    college:window.Scholar ? window.Scholar.context() : [],
     launchers:D.launchIds()
   };
 }
@@ -121,15 +121,16 @@ function run(a){
     const text = String(a.text || "").trim().slice(0, 200); if (!text) return null;
     D.addTask({
       text, due:/^\d{4}-\d{2}-\d{2}$/.test(a.due) ? a.due : null, time:/^([01]\d|2[0-3]):[0-5]\d$/.test(a.time) ? a.time : null,
-      repeat:["daily","weekly","monthly"].includes(a.repeat) ? a.repeat : null
+      repeat:["daily","weekly","monthly"].includes(a.repeat) ? a.repeat : null,
+      priority:{low:1, medium:2, high:3}[a.priority] || 0
     });
     return "Added " + text;
   }
   if (a.type === "complete_task") return D.completeTask(String(a.id)) ? "Marked done" : null;
-  if (a.type === "add_scholarship") return window.Scholar && window.Scholar.add(a) ? "Scholarship added" : null;
-  if (a.type === "set_scholarship_status") return window.Scholar && window.Scholar.setStatus(a.id, a.status) ? "Status updated" : null;
-  if (a.type === "open" && ["home","tasks","school","scholarships"].includes(a.view)){
-    const v = a.view === "scholarships" ? "scholar" : a.view;
+  if (a.type === "add_college_item") return window.Scholar && window.Scholar.add(a) ? "Added to college prep" : null;
+  if (a.type === "set_college_status") return window.Scholar && window.Scholar.setStatus(a.id, a.status) ? "Status updated" : null;
+  if (a.type === "open" && ["home","tasks","school","college"].includes(a.view)){
+    const v = a.view === "college" ? "scholar" : a.view;
     if (D.isPhone()) D.setView(v); else if (v === "school" || v === "scholar") D.openSheet(v);
     return "Opened " + a.view;
   }

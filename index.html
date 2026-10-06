@@ -144,6 +144,22 @@
   .list{flex:1;min-height:0;overflow:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:.15rem}
   .list::-webkit-scrollbar{display:none}
   .item{display:flex;align-items:flex-start;gap:.7rem;padding:.42rem 0;position:relative}
+  .body{cursor:pointer}
+  .ptag{flex:none;align-self:center;padding:.1rem .5rem;border:1px solid var(--line);border-radius:1rem;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+  .ptag.p2{border-color:var(--ink);color:var(--ink)}
+  .ptag.p3{background:var(--ink);border-color:var(--ink);color:var(--base)}
+  .item.done .ptag{opacity:.4}
+  .edit{display:grid;grid-template-columns:1fr 1fr;gap:.5rem .9rem;padding:.1rem 0 .8rem 1.65rem}
+  .edit label{min-width:0;font-size:.7rem;color:var(--soft)}
+  .edit input{display:block;width:100%;padding:.3rem 0;font-size:.85rem;color:var(--ink);border-bottom:1px solid var(--line);border-radius:0;color-scheme:light}
+  body.dark .edit input{color-scheme:dark}
+  .edit .prio{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;font-size:.7rem;color:var(--soft)}
+  .edit .prio span{margin-right:.3rem}
+  .edit .prio button{padding:.2rem .65rem;border:1px solid var(--line);border-radius:1rem;font-size:.72rem;color:var(--soft)}
+  .edit .prio button:hover{border-color:var(--ink);color:var(--ink)}
+  .edit .prio button.on{background:var(--ink);border-color:var(--ink);color:var(--base)}
+  .edit .prio .ok{margin-left:auto}
+  .studio{display:none}
   .chk{flex:none;width:.95rem;height:.95rem;margin-top:.18rem;border:1px solid var(--ink);border-radius:50%;position:relative;transition:background .2s}
   .item.done .chk{background:var(--ink)}
   .item.done .chk::after{content:"";position:absolute;left:.27rem;top:.12rem;width:.22rem;height:.42rem;border:solid var(--base);border-width:0 1.2px 1.2px 0;transform:rotate(40deg)}
@@ -305,6 +321,11 @@
   .srow .st.s-applied,.srow .st.s-interview{border-color:var(--ink)}
   .srow .st.s-awarded{background:var(--ink);border-color:var(--ink);color:var(--base)}
   .srow .del{opacity:.45}
+  .srow .when{position:relative}
+  .srow .pick{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+  .srow .pick::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
+  .sform select{display:block;width:100%;padding:.4rem 0;font-size:1rem;color:var(--ink);border-bottom:1px solid var(--line);border-radius:0;-webkit-appearance:none;appearance:none}
+  .sform select option{color:#111;background:#fff}
   .srow.closed .main,.srow.closed .when{opacity:.5}
   .mobile-nav,.mhead{display:none}
   @media (hover:none){.del{opacity:.45}}
@@ -356,7 +377,8 @@
     html{font-size:16px;height:auto}
     body{overflow:visible;height:auto;min-height:100vh;min-height:100dvh;font-weight:400;position:relative;
       --soft:color-mix(in srgb,var(--ink) 66%,transparent);--line:color-mix(in srgb,var(--ink) 13%,transparent);
-      --page:#fff;--card:#fff;--edge:color-mix(in srgb,var(--ink) 10%,transparent);
+      --page:#EFEDE8;--card:#FAF9F6;--edge:color-mix(in srgb,var(--ink) 7%,transparent);
+      --glass:color-mix(in srgb,#fff 58%,transparent);
       --shadow:0 .4rem 1.2rem -1rem color-mix(in srgb,var(--ink) 30%,transparent);background:var(--page)}
     body.dark{--page:color-mix(in srgb,var(--base) 58%,#000);--card:color-mix(in srgb,var(--base) 88%,var(--ink));--edge:transparent;--shadow:none}
     .rail,.fold,.dock,.palette,.sheet-x,.year,.scrim,.orb-home,#mPalette,.wk{display:none}
@@ -400,11 +422,15 @@
     .c2top{display:contents}
     .hi{order:1;align-self:flex-start;margin-top:1.3rem;font-size:2.05rem;font-weight:300;letter-spacing:-.035em;line-height:1.12}
     .hi b{display:block;font-weight:700}
-    .timebox{order:2;display:flex;flex-direction:column;margin-top:1.15rem;padding:1rem 1.25rem 1.05rem;border-radius:1.5rem;background:var(--ink);color:var(--base)}
-    .datestamp{position:static;margin:0;font-size:.85rem;font-weight:400;color:color-mix(in srgb,var(--base) 78%,transparent)}
+    .timebox{order:2;display:flex;flex-direction:row-reverse;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.15rem;padding:.95rem 1.25rem;border-radius:1.6rem;
+      background:var(--glass);border:1px solid color-mix(in srgb,#fff 75%,transparent);-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 .8rem 1.8rem -1.2rem rgba(0,0,0,.3)}
+    .datestamp{position:static;display:flex;flex-direction:column;align-items:flex-end;margin:0;font-size:.9rem;font-weight:400;line-height:1.3;color:var(--soft)}
+    .datestamp .sep{display:none}
+    .datestamp #dow{font-size:1.02rem;font-weight:600;color:var(--ink)}
     .datestamp #daymonth{color:inherit}
-    .clock{align-self:flex-end;margin:.35rem 0 0;font-size:2.9rem;font-weight:500;letter-spacing:-.03em;line-height:1}
-    .clock small{font-size:.42em;font-weight:400;margin-left:.35rem;color:color-mix(in srgb,var(--base) 60%,transparent)}
+    .clock{margin:0;font-size:3.1rem;font-weight:600;letter-spacing:-.045em;line-height:1}
+    .clock small{display:none}
     .brief{order:3;align-self:stretch;margin-top:1.9rem;padding:.35rem 1.15rem;font-size:.95rem;line-height:1.4;color:var(--ink)}
     .brief div{padding:.7rem 0;white-space:normal}
     .brief div + div{border-top:1px solid var(--line)}
@@ -426,6 +452,7 @@
     .cls .tm{width:6.3rem;font-size:.86rem}
     .cls.now .nm{font-weight:600}
     .uprow{padding:.6rem 0;font-size:.95rem}
+    .uprow .when{width:6rem}
     .fund{margin-top:.7rem}
     .fund .big{font-size:3rem;font-weight:500;letter-spacing:-.04em}
     .fund .nm{font-size:1rem;font-weight:500}
@@ -456,6 +483,17 @@
     .body .meta{font-size:.8rem;margin-top:.15rem}
     .del{width:2.75rem;height:2.75rem;margin-right:-.7rem;font-size:1.4rem}
     .empty{font-size:.95rem;padding:.7rem 0}
+    .ptag{font-size:.66rem;padding:.16rem .55rem}
+    .edit{padding:.1rem 0 1rem 2.35rem;gap:.7rem .9rem}
+    .edit label{font-size:.76rem}
+    .edit input{font-size:16px;padding:.4rem 0}
+    .edit .prio{font-size:.78rem;gap:.35rem}
+    .edit .prio span{flex-basis:100%}
+    .edit .prio button{padding:.4rem .85rem;font-size:.8rem}
+    .studio{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-top:.7rem;padding:.9rem 1.15rem;border:1px solid var(--edge);border-radius:1.5rem;background:var(--card);box-shadow:var(--shadow)}
+    .studio span{font-size:1.02rem;font-weight:500}
+    .studio div{display:flex;gap:.4rem}
+    .studio a{text-decoration:none;white-space:nowrap;padding:.45rem .9rem;border-color:transparent;background:color-mix(in srgb,var(--ink) 8%,transparent)}
 
     /* school: day by day instead of the wide grid, month calendar underneath */
     #school{order:-1}
@@ -477,16 +515,16 @@
     .day{height:2.6rem;border-radius:1.3rem}
     .day.today{font-weight:600}
     .times{grid-template-columns:1fr 1fr}
-    .times input,.sform input{font-size:16px}
+    .times input,.sform input,.sform select{font-size:16px}
 
     /* scholarships: one card per application */
     .sform{margin-top:1.9rem;grid-template-columns:1fr 1fr;gap:.7rem 1rem}
     .sform .wide{grid-column:1 / -1}
     .sform .act{margin-bottom:0}
     .srow{flex-wrap:wrap;gap:.6rem .8rem;border-top:0}
-    .srow .main{flex:1 1 60%}
+    .srow .main{flex:1 1 70%}
     .srow .main b{font-weight:500;font-size:1.05rem;white-space:normal}
-    .srow .when{order:3;flex:1;text-align:left;font-size:.86rem}
+    .srow .when{order:3;flex:1 1 50%;text-align:left;font-size:.86rem}
     .srow .when small{display:inline;margin-left:.5rem}
     .srow .st{order:4;font-size:.8rem;padding:.45rem .95rem;border-color:transparent;background:color-mix(in srgb,var(--ink) 8%,transparent)}
     .srow .st.s-applied,.srow .st.s-interview{box-shadow:inset 0 0 0 1.5px var(--ink)}
@@ -495,13 +533,15 @@
 
     /* bottom bar: a solid capsule with the assistant blob in the middle */
     .mobile-nav{position:fixed;left:.9rem;right:.9rem;bottom:calc(env(safe-area-inset-bottom,0px) + .7rem);z-index:80;
-      display:grid;grid-template-columns:1fr 1fr 4.4rem 1fr 1fr;align-items:center;padding:.3rem .4rem;border-radius:2rem;
-      background:var(--ink);color:var(--base);box-shadow:0 1rem 2rem -1rem color-mix(in srgb,#000 55%,transparent);transition:opacity .5s ease,filter .5s ease}
+      display:grid;grid-template-columns:1fr 1fr 4.4rem 1fr 1fr;align-items:center;padding:.3rem .4rem;border-radius:2rem;color:var(--ink);
+      background:var(--glass);border:1px solid color-mix(in srgb,#fff 75%,transparent);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(0,0,0,.04),0 1rem 2rem -1rem rgba(0,0,0,.32),0 0 0 .5px rgba(0,0,0,.07);transition:opacity .5s ease,filter .5s ease}
     .mobile-nav button{display:flex;flex-direction:column;align-items:center;gap:.2rem;min-height:3rem;justify-content:center;
       font-size:.64rem;font-weight:500;letter-spacing:.02em;opacity:.5;transition:opacity .2s;-webkit-tap-highlight-color:transparent}
     .mobile-nav button.on{opacity:1}
+    .mobile-nav button{color:var(--ink)}
     .mobile-nav .talk{opacity:1}
-    .mobile-nav .talk i{width:3.4rem;height:3.4rem;margin:-1.25rem 0 0;box-shadow:0 0 0 .3rem var(--page)}
+    .mobile-nav .talk i{width:3.4rem;height:3.4rem;margin:-1.25rem 0 0;box-shadow:0 0 0 .26rem rgba(255,255,255,.9),0 .5rem 1.1rem -.4rem rgba(0,0,0,.3)}
     .mobile-nav .talk:active i{transform:scale(.92)}
 
     /* assistant pop-up: a sheet over the page */
@@ -619,8 +659,8 @@
         <a href="eclipse://app/orion">Orion</a>
         <a href="eclipse://app/spotify">Spotify</a>
         <a href="eclipse://link/github">GitHub</a>
-        <a href="eclipse://link/studio-site">Studio website</a>
-        <a href="eclipse://link/studio-dash">Studio dashboard</a>
+        <a href="https://eclipsestudioweb.com" target="_blank" rel="noopener">Studio website</a>
+        <a href="https://control.eclipsestudioweb.com" target="_blank" rel="noopener">Studio control</a>
       </div>
       <div class="cmds">
         <a href="eclipse://cmd/claude-code">Claude Code</a>
@@ -652,7 +692,7 @@
     <div class="tiles" id="tiles">
       <button data-go="task"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2"/><path d="M8 5.2v5.6M5.2 8h5.6"/></svg><small>Add</small><b>Task</b></button>
       <button data-go="talk"><svg viewBox="0 0 16 16"><rect x="6" y="2" width="4" height="7.5" rx="2"/><path d="M3.5 7.5a4.5 4.5 0 0 0 9 0M8 12v2"/></svg><small>Ask</small><b>Eclipse</b></button>
-      <button data-go="school"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2"/><path d="M5.4 8.2l1.800 1.800 3.400-3.800"/></svg><small>See</small><b>Week</b></button>
+      <button data-go="school"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2"/><path d="M5.4 8.2l1.800 1.800 3.400-3.800"/></svg><small>Open</small><b>School</b></button>
     </div>
     <div class="c2extra">
       <div class="classes" id="schoolToday"></div>
@@ -692,11 +732,15 @@
     <div class="counts" id="counts"></div>
     <div class="fund" id="scholarCard"></div>
     <div class="music" id="music"></div>
+    <div class="studio">
+      <span>Eclipse Studio</span>
+      <div><a class="pill" href="https://eclipsestudioweb.com" target="_blank" rel="noopener">Website</a><a class="pill" href="https://control.eclipsestudioweb.com" target="_blank" rel="noopener">Control room</a></div>
+    </div>
   </section>
 
   <!-- school timetable + scholarship tracker: pop-up sheets on a computer, their own views on a phone -->
   <section class="sheet" id="school" aria-label="School timetable"><div class="sheet-in" id="schoolBody"></div></section>
-  <section class="sheet" id="scholar" aria-label="Scholarship tracker"><div class="sheet-in" id="scholarBody"></div></section>
+  <section class="sheet" id="scholar" aria-label="College prep"><div class="sheet-in" id="scholarBody"></div></section>
 </main>
 
 <nav class="mobile-nav" id="mobileNav" aria-label="Sections">
@@ -704,7 +748,7 @@
   <button data-view="tasks"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M5.4 8.2l1.8 1.8 3.4-3.8"/></svg>To-do</button>
   <button class="talk" id="mTalk" aria-label="Talk to your assistant"><i class="blobby"></i></button>
   <button data-view="school"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10.5" rx="1.5"/><path d="M2 6.5h12M6 6.5v7M10 6.5v7"/></svg>School</button>
-  <button data-view="scholar"><svg viewBox="0 0 16 16"><path d="M1.5 6.2 8 3l6.5 3.2L8 9.4z"/><path d="M4.3 7.8v3c1 .9 2.3 1.4 3.7 1.4s2.7-.5 3.7-1.4v-3M14.5 6.2v3.3"/></svg>Scholar</button>
+  <button data-view="scholar"><svg viewBox="0 0 16 16"><path d="M1.5 6.2 8 3l6.5 3.2L8 9.4z"/><path d="M4.3 7.8v3c1 .9 2.3 1.4 3.7 1.4s2.7-.5 3.7-1.4v-3M14.5 6.2v3.3"/></svg>College</button>
 </nav>
 
 <script>
@@ -768,7 +812,7 @@
     return cur;
   }
 
-  const PHONE_PALETTE = {name:"Paper", hex:"#F08A4B", mood:"White, black and a warm header", base:"#FFFFFF", c1:"#F08A4B", c2:"#FFF6EE", c3:"#F7C9A3", ink:"#151515"}, phoneQ = matchMedia("(max-width:900px)");
+  const PHONE_PALETTE = {name:"Paper", hex:"#F08A4B", mood:"White, black and a warm header", base:"#EFEDE8", c1:"#EE8B4E", c2:"#FBF5EE", c3:"#F6CBA8", ink:"#1B1A18"}, phoneQ = matchMedia("(max-width:900px)");
   phoneQ.addEventListener("change", () => refreshPalette());
   // palette mode: auto (follows the clock) or a pinned palette from PALETTES
   let pin = store.get("dash.pal.pin", null);
@@ -823,7 +867,16 @@
   const hooks = {};
   // settings listed in api/settings.js follow the signed-in account; everything else stays on this device
   const setSetting = (k, v) => { store.set(k, v); if (hooks.setting) hooks.setting(k, v); };
-  const save = () => { store.set("dash.tasks", tasks); if (hooks.save) hooks.save(tasks); };
+  const save = () => { store.set("dash.tasks", tasks); if (hooks.save) hooks.save(tasks); prunePrio(); };
+  // priorities live beside the tasks (as a synced setting keyed by task id), so the task database stays as it is
+  const PRIO = ["None","Low","Medium","High"];
+  let prios = store.get("dash.task.prio", {}) || {}, editing = null;
+  const prioOf = t => { const n = prios[t.id]; return n===1 || n===2 || n===3 ? n : 0; };
+  function setPrio(id, n){ if (n) prios[id] = n; else delete prios[id]; setSetting("dash.task.prio", prios); }
+  function prunePrio(){
+    const ids = new Set(tasks.map(t=>t.id)), gone = Object.keys(prios).filter(id=>!ids.has(id));
+    if (gone.length){ gone.forEach(id=>delete prios[id]); setSetting("dash.task.prio", prios); }
+  }
 
   let tab = store.get("dash.tab","all");
   let scopeNew = "today";
@@ -953,7 +1006,7 @@
   function renderTasks(){
     document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on", b.dataset.tab===tab));
     const shown = tasks.filter(t => tab==="all" || t.scope===tab)
-      .sort((a,b)=> (a.done-b.done) || (a.due||"9999").localeCompare(b.due||"9999"));
+      .sort((a,b)=> (a.done-b.done) || (prioOf(b)-prioOf(a)) || (a.due||"9999").localeCompare(b.due||"9999") || (a.time||"99").localeCompare(b.time||"99"));
     const list = $("#list"); list.innerHTML = "";
     if (!shown.length){
       const e = document.createElement("div"); e.className="empty";
@@ -966,20 +1019,48 @@
       chk.setAttribute("aria-label", (t.done?"Mark not done: ":"Mark done: ")+t.text);
       chk.onclick = () => toggleTask(t);
       const body = document.createElement("div"); body.className="body";
+      body.setAttribute("role","button"); body.tabIndex = 0; body.setAttribute("aria-expanded", String(editing===t.id));
+      body.title = "Set date, time and priority";
+      body.onclick = () => { editing = editing===t.id ? null : t.id; renderTasks(); };
+      body.onkeydown = e => { if (e.key==="Enter" || e.key===" "){ e.preventDefault(); body.onclick(); } };
       body.append(document.createTextNode(t.text));
       const meta = [];
-      if (tab==="all") meta.push(cap(t.scope));
+      if (tab==="all" && !t.due) meta.push(cap(t.scope));
       if (t.due) meta.push(rel(t.due)+(t.time?" "+t.time:""));
       if (t.repeat) meta.push("\u21bb "+cap(t.repeat));
       if (meta.length){ const m=document.createElement("span"); m.className="meta"; m.textContent=meta.join(", "); body.append(m); }
       const del = document.createElement("button"); del.className="del"; del.textContent="\u00d7";
       del.setAttribute("aria-label","Delete task: "+t.text);
       del.onclick = () => { tasks = tasks.filter(x=>x.id!==t.id); save(); renderTasks(); renderUp(); renderCal(); };
-      row.append(chk, body, del); list.append(row);
+      row.append(chk, body);
+      if (prioOf(t)){ const tag = document.createElement("span"); tag.className = "ptag p"+prioOf(t); tag.textContent = PRIO[prioOf(t)]; row.append(tag); }
+      row.append(del); list.append(row);
+      if (editing===t.id) list.append(editor(t));
     });
     const open = tasks.filter(t=>!t.done && (tab==="all"||t.scope===tab)).length;
     $("#count").textContent = open+" open";
     renderExtras();
+  }
+  // the little panel under a task: date, time, priority
+  function editor(t){
+    const box = document.createElement("div"); box.className = "edit";
+    const after = () => { save(); renderTasks(); renderUp(); renderCal(); };
+    const mk = (label, type, value, set) => {
+      const l = document.createElement("label"), i = document.createElement("input");
+      l.textContent = label; i.type = type; i.value = value || ""; i.onchange = () => { set(i.value); after(); };
+      l.append(i); box.append(l);
+    };
+    mk("Date", "date", t.due, v => { t.due = /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null; if (t.due) t.scope = scopeFor(t.due); else t.time = null; });
+    mk("Time", "time", t.time, v => { t.time = /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null; if (t.time && !t.due){ t.due = iso(new Date()); t.scope = "today"; } });
+    const pr = document.createElement("div"); pr.className = "prio";
+    const lab = document.createElement("span"); lab.textContent = "Priority"; pr.append(lab);
+    PRIO.forEach((name, n) => {
+      const b = document.createElement("button"); b.textContent = name; b.className = prioOf(t)===n ? "on" : "";
+      b.onclick = () => { setPrio(t.id, n); renderTasks(); }; pr.append(b);
+    });
+    const ok = document.createElement("button"); ok.className = "ok on"; ok.textContent = "Done";
+    ok.onclick = () => { editing = null; renderTasks(); }; pr.append(ok);
+    box.append(pr); return box;
   }
   function addTask(){
     const inp = $("#newText"), text = inp.value.trim();
@@ -1328,6 +1409,7 @@
   /* ---------- API for the sync modules (sync.js, calendar.js, spotify.js) ---------- */
   window.Dash = {
     getTasks: () => tasks,
+    prioOf: t => PRIO[prioOf(t)].toLowerCase(),
     setTasks(arr){ tasks = arr; store.set("dash.tasks", tasks); renderTasks(); renderUp(); renderCal(); },
     onSave(fn){ hooks.save = fn; },
     setEvents(list){ calEvents = list||[]; acct.events = calEvents.length; renderUp(); renderCal(); renderAcct(); renderExtras(); },
@@ -1342,6 +1424,7 @@
       Object.keys(obj||{}).forEach(k => store.set(k, obj[k]));
       pin = store.get("dash.pal.pin", null); if (pin!=null && !PALETTES[pin]) pin = null;
       folded = store.get("dash.fold", [false,false,false,false]);
+      prios = store.get("dash.task.prio", {}) || {}; renderTasks();
       refreshPalette(); paintFold(); renderAcct(); paintGreeting();
       dispatchEvent(new CustomEvent("dash:settings"));
     },
@@ -1350,7 +1433,7 @@
     gateBusy(b){ $("#gateGo").disabled = !!b; },
     addTask(o){
       const t = makeTask({text:o.text, due:o.due, time:o.time, repeat:o.repeat});
-      tasks.push(t); save(); renderTasks(); renderUp(); renderCal(); return t;
+      tasks.push(t); if (o.priority) setPrio(t.id, o.priority); save(); renderTasks(); renderUp(); renderCal(); return t;
     },
     completeTask(id){ const t = tasks.find(x=>x.id===id && !x.done); if (!t) return false; toggleTask(t); return true; },
     launchIds: () => phone.matches ? [] : [...document.querySelectorAll("#dock a[href^='eclipse://']")].map(a=>a.getAttribute("href").slice(10)+" ("+a.textContent.trim()+")"),

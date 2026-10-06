@@ -4,7 +4,7 @@ import { route, json, body } from "./_lib/http.js";
 import { requireUser } from "./_lib/auth.js";
 
 const ALLOWED = ["dash.weather.loc", "dash.voice.speak", "dash.omni.base", "dash.omni.model", "dash.pal.pin", "dash.fold",
-  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.scholar"];
+  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.scholar", "dash.task.prio", "dash.college.seeded"];
 
 export default route(["GET", "PUT"], async (req, res) => {
   const a = await requireUser(req, res, json); if (!a) return;

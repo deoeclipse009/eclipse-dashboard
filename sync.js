@@ -5,7 +5,7 @@ const D = window.Dash;
 const base = String(apiBase || "").replace(/\/+$/, "");
 const K = { token: "dash.token", user: "dash.user", dirty: "dash.dirty" };
 const SYNCED = ["dash.weather.loc", "dash.voice.speak", "dash.omni.base", "dash.omni.model", "dash.pal.pin", "dash.fold",
-  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.scholar"];
+  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.scholar", "dash.task.prio", "dash.college.seeded"];
 
 const ls = {
   get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
