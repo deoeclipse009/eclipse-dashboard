@@ -152,10 +152,14 @@ const cvHome = $("orbHomeCanvas"), cvPop = $("orbCanvas");
 let canvas = null, ctx = null;
 function pickCanvas(){ const c = D.isPhone() ? cvPop : cvHome; if (c !== canvas){ canvas = c; ctx = c.getContext("2d"); } }
 const still = matchMedia("(prefers-reduced-motion: reduce)");
+// one colour for the blob everywhere: the theme's accent, lifted a little on dark themes so it stays visible
+const hx = h => { const m = /^#?([0-9a-f]{6})$/i.exec(h.trim()); return m ? [0, 2, 4].map(i => parseInt(m[1].slice(i, i + 2), 16)) : [136, 136, 136]; };
+const blend = (a, b, t) => "rgb(" + hx(a).map((x, i) => Math.round(x + (hx(b)[i] - x) * t)).join(",") + ")";
 function readColors(now){
   if (colors && now - colorsAt < 1000) return colors;
-  const s = getComputedStyle(document.documentElement), g = k => s.getPropertyValue(k).trim() || "#888";
-  colorsAt = now; return colors = {c1:g("--c1"), c3:g("--c3"), ink:g("--ink"), base:g("--base")};
+  const s = getComputedStyle(document.documentElement), g = k => s.getPropertyValue(k).trim() || "#888888";
+  const c1 = g("--c1"), c3 = g("--c3"), ink = g("--ink"), dark = document.body.classList.contains("dark");
+  colorsAt = now; return colors = {a:dark ? blend(c1, ink, .32) : c1, b:dark ? blend(c1, c3, .5) : blend(c1, c3, .45)};
 }
 function shape(cx, cy, R, amp, t, seed){
   const N = 72, pts = [];
@@ -188,30 +192,17 @@ function frame(ms){
   pulse *= .93;
   level += (target - level) * (target > level ? .35 : .12);
   const quiet = still.matches;
-  const speed = state === "thinking" ? 2.6 : state === "idle" ? .45 : 1.1;
+  const speed = state === "thinking" ? 2.6 : state === "idle" ? .5 : 1.1;
   const tt = quiet ? 0 : t * speed;
   const breathe = quiet ? 0 : Math.sin(t * (state === "thinking" ? 4.2 : 1.4)) * (state === "thinking" ? .035 : .018);
-  const R = Math.min(w, h) * .25 * (state === "thinking" ? .82 : 1) * (1 + breathe + level * .22);
-  const amp = (state === "thinking" ? .09 : state === "idle" ? .035 : .05) + level * .2;
+  const R = Math.min(w, h) * .3 * (state === "thinking" ? .84 : 1) * (1 + breathe + level * .2);
+  const amp = (state === "thinking" ? .1 : state === "idle" ? .055 : .06) + level * .18;
   const cx = w / 2, cy = h / 2;
   ctx.clearRect(0, 0, w, h);
-  // glow, two soft halos, two drifting hairline rings, then the body with a highlight
-  ctx.save(); ctx.shadowColor = c.c1; ctx.shadowBlur = R * (.7 + level * .6); ctx.globalAlpha = .55; ctx.fillStyle = c.c1;
-  shape(cx, cy, R * .92, amp, tt, 0); ctx.fill(); ctx.restore();
-  ctx.globalAlpha = .14 + level * .12; ctx.fillStyle = c.c1; shape(cx, cy, R * (1.34 + level * .25), amp * 1.9, tt * .7, 4.2); ctx.fill();
-  ctx.globalAlpha = .26 + level * .15; ctx.fillStyle = c.c3; shape(cx, cy, R * (1.15 + level * .12), amp * 1.4, tt * .85, 1.7); ctx.fill();
-  ctx.lineWidth = dpr; ctx.strokeStyle = c.ink;
-  ctx.globalAlpha = .34; shape(cx, cy, R * (1.5 + level * .2), amp * 1.3 + .025, -tt * .5, 2.9); ctx.stroke();
-  ctx.globalAlpha = .16; shape(cx, cy, R * (1.68 + level * .3), amp * 1.6 + .04, tt * .35, 5.3); ctx.stroke();
-  ctx.globalAlpha = 1;
-  const g = ctx.createRadialGradient(cx - R * .35, cy - R * .42, R * .08, cx, cy, R * 1.25);
-  g.addColorStop(0, c.c3); g.addColorStop(.38, c.c1); g.addColorStop(1, c.ink);
+  // just the blob: one soft shape in the accent colour, with a barely-there shift from one side to the other
+  const g = ctx.createRadialGradient(cx - R * .3, cy - R * .35, R * .1, cx, cy, R * 1.3);
+  g.addColorStop(0, c.a); g.addColorStop(1, c.b);
   ctx.fillStyle = g; shape(cx, cy, R, amp, tt, 0); ctx.fill();
-  ctx.save(); ctx.clip();
-  const hl = ctx.createRadialGradient(cx - R * .38, cy - R * .5, 0, cx - R * .38, cy - R * .5, R * .75);
-  hl.addColorStop(0, "rgba(255,255,255,.42)"); hl.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = hl; ctx.fillRect(cx - R * 1.4, cy - R * 1.4, R * 2.8, R * 2.8);
-  ctx.restore();
 }
 function startBlob(){ if (!raf) raf = requestAnimationFrame(frame); }
 function stopBlob(){ cancelAnimationFrame(raf); raf = 0; }

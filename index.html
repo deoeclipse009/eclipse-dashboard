@@ -110,7 +110,7 @@
   .c2{container-type:inline-size;overflow:hidden}
   /* three zones: assistant on top, clock exactly in the middle, lists underneath (the outer two share the spare height) */
   .c2top{order:1;flex:1 1 0;min-height:0;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;align-content:start;column-gap:.4rem;align-items:center;padding-right:1.8rem}
-  .orb-home{grid-row:1 / span 2;width:12.5rem;aspect-ratio:1;margin:-1.1rem -1.9rem -1.9rem -1.5rem;border-radius:50%;-webkit-tap-highlight-color:transparent;transition:transform .3s ease}
+  .orb-home{grid-row:1 / span 2;width:9rem;aspect-ratio:1;margin:-1.5rem -1.3rem -1.5rem -1.7rem;border-radius:50%;-webkit-tap-highlight-color:transparent;transition:transform .3s ease}
   .orb-home:hover{transform:scale(1.06)}
   .orb-home canvas{display:block;width:100%;height:100%}
   .hi{align-self:end;font-size:1.05rem;font-weight:400;line-height:1.3}
@@ -204,7 +204,7 @@
   .dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:var(--line);margin-left:auto}
   .dot.on{background:#3fb06b;box-shadow:0 0 0 3px color-mix(in srgb,#3fb06b 25%,transparent)}
   /* assistant: a small blob in the corner (bottom bar on a phone) opens a pop-up to talk or type (see voice.js) */
-  .blobby{display:block;background:radial-gradient(circle at 32% 28%,var(--c1),var(--ink) 72%);border-radius:58% 42% 47% 53% / 46% 55% 45% 54%;animation:blobmorph 9s ease-in-out infinite}
+  .blobby{display:block;background:radial-gradient(circle at 34% 30%,var(--c1),color-mix(in srgb,var(--c1) 55%,var(--c3)));border-radius:58% 42% 47% 53% / 46% 55% 45% 54%;animation:blobmorph 9s ease-in-out infinite}
   @keyframes blobmorph{
     33%{border-radius:44% 56% 58% 42% / 57% 44% 56% 43%}
     66%{border-radius:53% 47% 41% 59% / 42% 58% 44% 56%}
@@ -356,9 +356,9 @@
     html{font-size:16px;height:auto}
     body{overflow:visible;height:auto;min-height:100vh;min-height:100dvh;font-weight:400;position:relative;
       --soft:color-mix(in srgb,var(--ink) 66%,transparent);--line:color-mix(in srgb,var(--ink) 13%,transparent);
-      --page:color-mix(in srgb,var(--c2) 62%,#fff);--card:color-mix(in srgb,var(--c2) 16%,#fff);
-      --shadow:0 .5rem 1.4rem -1rem color-mix(in srgb,var(--ink) 35%,transparent);background:var(--page)}
-    body.dark{--page:color-mix(in srgb,var(--base) 58%,#000);--card:color-mix(in srgb,var(--base) 88%,var(--ink));--shadow:none}
+      --page:#fff;--card:#fff;--edge:color-mix(in srgb,var(--ink) 10%,transparent);
+      --shadow:0 .4rem 1.2rem -1rem color-mix(in srgb,var(--ink) 30%,transparent);background:var(--page)}
+    body.dark{--page:color-mix(in srgb,var(--base) 58%,#000);--card:color-mix(in srgb,var(--base) 88%,var(--ink));--edge:transparent;--shadow:none}
     .rail,.fold,.dock,.palette,.sheet-x,.year,.scrim,.orb-home,#mPalette,.wk{display:none}
 
     /* gradient header */
@@ -368,8 +368,8 @@
     .b2{width:80vw;height:80vw;right:-25vw;top:-10vw}
     .b3{width:90vw;height:90vw;left:5vw;bottom:-55vw}
     .b4{width:70vw;height:70vw;right:-10vw;bottom:-45vw}
-    .wash{background:color-mix(in srgb,var(--base) 30%,transparent)}
-    .grain{opacity:.45}
+    .wash{background:linear-gradient(to bottom,color-mix(in srgb,var(--base) 12%,transparent),color-mix(in srgb,var(--base) 55%,transparent))}
+    .grain{opacity:.4}
 
     .mhead{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + .8rem) 1.1rem 0;transition:opacity .5s ease,filter .5s ease}
     .mhead h1{font-size:1.05rem;font-weight:600;letter-spacing:-.02em}
@@ -389,7 +389,7 @@
     .sheet .sub{margin:.3rem 0 0;font-size:.9rem;color:var(--ink);opacity:.75}
 
     /* cards */
-    .brief,.counts,.classes,.up,.fund,.music,.cal,.add,.list,.dv,.sform,.srow{margin-top:.7rem;padding:1.05rem 1.15rem;border-radius:1.5rem;background:var(--card);box-shadow:var(--shadow);max-width:none}
+    .brief,.counts,.classes,.up,.fund,.music,.cal,.add,.list,.dv,.sform,.srow{margin-top:.7rem;padding:1.05rem 1.15rem;border:1px solid var(--edge);border-radius:1.5rem;background:var(--card);box-shadow:var(--shadow);max-width:none}
     .counts{order:-1}
     .counts .lbl,.sec-h .lbl,.up h3 > span,.fund h3 > span,.music .top span,.calhead .lbl{font-size:1.02rem !important;font-weight:500 !important;letter-spacing:-.01em;color:var(--ink)}
     .sec-h,.up h3,.fund h3,.music .top{margin-bottom:.7rem;align-items:center}
@@ -410,7 +410,7 @@
     .brief div + div{border-top:1px solid var(--line)}
     .brief b{font-weight:600}
     .tiles{order:4;display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:.7rem}
-    .tiles button{position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;min-height:5.6rem;padding:.85rem .95rem;border-radius:1.4rem;background:var(--card);box-shadow:var(--shadow);text-align:left}
+    .tiles button{position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;min-height:5.6rem;padding:.85rem .95rem;border:1px solid var(--edge);border-radius:1.4rem;background:var(--card);box-shadow:var(--shadow);text-align:left}
     .tiles svg{position:absolute;top:.8rem;right:.8rem;width:1.25rem;height:1.25rem}
     .tiles small{font-size:.72rem;color:var(--soft)}
     .tiles b{font-size:1.05rem;font-weight:500;letter-spacing:-.01em}
@@ -419,7 +419,7 @@
     .c2extra::before{display:none}
     .counts div.row{padding:.6rem 0;font-size:.95rem}
     .daybar{display:block;height:.55rem;margin:.1rem 0 .9rem;border-radius:1rem;background:color-mix(in srgb,var(--ink) 9%,transparent);overflow:hidden}
-    .daybar i{display:block;height:100%;border-radius:1rem;background:linear-gradient(90deg,var(--c1),var(--c3))}
+    .daybar i{display:block;height:100%;border-radius:1rem;background:var(--ink)}
     .cls{padding:.5rem 0 .5rem 1.3rem;font-size:.97rem}
     .cls::before{top:1.5rem;bottom:-.6rem}
     .cls::after{top:.88rem}
@@ -443,7 +443,7 @@
     .addrow input[type=date]{font-size:1rem}
     .addrow .go{width:2.4rem;height:2.4rem;border-radius:50%;background:var(--ink);color:var(--base);font-size:1.4rem;opacity:1}
     .tabs{order:2;gap:.4rem;margin:.9rem 0 0;font-size:.9rem}
-    .tabs button{padding:.45rem 1rem;border:0;border-radius:2rem;background:var(--card);font-weight:500;opacity:1;color:var(--soft)}
+    .tabs button{padding:.45rem 1rem;border:1px solid var(--edge);border-radius:2rem;background:var(--card);font-weight:500;opacity:1;color:var(--soft)}
     .tabs button.on{background:var(--ink);color:var(--base)}
     .list{order:3;overflow:visible;flex:none;gap:0;padding:.35rem 1.15rem}
     .item{padding:.85rem 0;gap:.9rem;align-items:center;border-radius:0}
@@ -461,7 +461,7 @@
     #school{order:-1}
     .dv{display:block;margin-top:1.9rem}
     .dv .tabs{margin:0 0 .6rem;gap:.15rem;justify-content:space-between}
-    .dv .tabs button{padding:.42rem .62rem;font-size:.86rem;background:none}
+    .dv .tabs button{padding:.42rem .62rem;font-size:.86rem;background:none;border-color:transparent}
     .dv .tabs button.on{background:var(--ink)}
     .dv .cls{padding:.6rem 0 .6rem 1.3rem;font-size:1rem}
     .dv .cls::before{top:1.6rem}
@@ -501,7 +501,7 @@
       font-size:.64rem;font-weight:500;letter-spacing:.02em;opacity:.5;transition:opacity .2s;-webkit-tap-highlight-color:transparent}
     .mobile-nav button.on{opacity:1}
     .mobile-nav .talk{opacity:1}
-    .mobile-nav .talk i{width:3.4rem;height:3.4rem;margin:-1.25rem 0 0;background:radial-gradient(circle at 32% 28%,var(--c3),var(--c1) 75%);box-shadow:0 0 0 .3rem var(--page)}
+    .mobile-nav .talk i{width:3.4rem;height:3.4rem;margin:-1.25rem 0 0;box-shadow:0 0 0 .3rem var(--page)}
     .mobile-nav .talk:active i{transform:scale(.92)}
 
     /* assistant pop-up: a sheet over the page */
@@ -768,7 +768,7 @@
     return cur;
   }
 
-  const PHONE_PALETTE = PALETTES.find(p => p.name==="Pine & Ember"), phoneQ = matchMedia("(max-width:900px)");
+  const PHONE_PALETTE = {name:"Paper", hex:"#F08A4B", mood:"White, black and a warm header", base:"#FFFFFF", c1:"#F08A4B", c2:"#FFF6EE", c3:"#F7C9A3", ink:"#151515"}, phoneQ = matchMedia("(max-width:900px)");
   phoneQ.addEventListener("change", () => refreshPalette());
   // palette mode: auto (follows the clock) or a pinned palette from PALETTES
   let pin = store.get("dash.pal.pin", null);
@@ -788,7 +788,7 @@
     s[2].textContent = p.hex || p.c1.toUpperCase(); s[4].textContent = p.mood;
   }
   function refreshPalette(){
-    // phones always use one look (Pine & Ember); the time-of-day themes and pinned palettes are for the computer
+    // phones always use one light look (white and black with a warm header); time-of-day themes and pinned palettes are for the computer
     const p = phoneQ.matches ? PHONE_PALETTE : pin==null ? autoPalette() : PALETTES[pin];
     const sig = JSON.stringify([p, pin]);
     if (sig===applied) return;
