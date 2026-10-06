@@ -31,8 +31,6 @@ const WEEK = {
   4: [[1,1,"BIng",["S","Fff"]], [2,2,"B.Jawa",["Cc"]], [3,4,"PJOK",["J"]], [5,6,"TKA 2",["Ss"]], [7,8,"TKA1",["K"]]],
   5: [[1,2,"MAT",["X","Ddd"]], [3,4,"XIIM3",["Pp"]], [5,6,"BIng",["S"]], [7,8,"PKn",["Ss"]]]
 };
-// kind of subject, used for the colour of each block
-const TONE = {MAT:"sci", FIS:"sci", KIM:"sci", BIO:"sci", "B. Indo":"lang", "B.Jawa":"lang", BIng:"lang", Ielts:"lang", "TKA 2":"prep", TKA1:"prep"};
 const DAYS = {1:["Senin","Monday"], 2:["Selasa","Tuesday"], 3:["Rabu","Wednesday"], 4:["Kamis","Thursday"], 5:["Jumat","Friday"]};
 const LAST = Math.max(...Object.values(WEEK).flat().map(b => b[1]));      // last period that is ever used
 
@@ -48,7 +46,7 @@ const dot = t => t.replace(":", ".");
 function blocks(dow){
   const T = times();
   return (WEEK[dow] || []).map(b => ({
-    p0:b[0], p1:b[1], code:b[2], name:SUBJECTS[b[2]] || b[2], tone:TONE[b[2]] || "", teachers:b[3].map(c => TEACHERS[c] || c),
+    p0:b[0], p1:b[1], code:b[2], name:SUBJECTS[b[2]] || b[2], teachers:b[3].map(c => TEACHERS[c] || c),
     from:T[b[0]-1][0], to:T[b[1]-1][1]
   }));
 }
@@ -62,7 +60,7 @@ function current(){
 const stateOf = (b, c) => !c.isToday ? "" : c.t >= b.to ? "past" : c.t >= b.from ? "now" : "";
 
 function row(b, st, withTeacher){
-  const r = el("div", "cls" + (b.tone ? " t-" + b.tone : "") + (st ? " " + st : ""));
+  const r = el("div", "cls" + (st ? " " + st : ""));
   const nm = el("span", "nm", b.name);
   if (withTeacher) nm.append(el("small", null, b.teachers.join(" / ")));
   r.title = b.name + " · " + b.teachers.join(" / ");
@@ -79,6 +77,11 @@ function renderToday(){
   h.append(el("span", "lbl", c.isToday ? "School today · " + CLASS : (c.tomorrow ? "Tomorrow" : DAYS[c.dow][1]) + " at school · " + CLASS), wk);
   wk.onclick = () => D.openSheet("school");
   box.append(h);
+  // how far through the school day we are (shown on phones)
+  const mins = t => +t.slice(0,2) * 60 + +t.slice(3), first = c.list[0], last = c.list[c.list.length - 1];
+  const bar = el("div", "daybar"), fill = el("i");
+  fill.style.width = (c.isToday ? Math.max(0, Math.min(100, (mins(c.t) - mins(first.from)) / (mins(last.to) - mins(first.from)) * 100)) : 0) + "%";
+  bar.append(fill); box.append(bar);
   c.list.forEach(b => box.append(row(b, stateOf(b, c), false)));
 }
 
@@ -102,7 +105,7 @@ function renderWeek(){
     const put = (p0, p1, node) => { node.style.gridRow = i + 2; node.style.gridColumn = (p0 + 1) + " / span " + (p1 - p0 + 1); g.append(node); };
     blocks(+d).forEach(b => {
       if (b.p0 > next) put(next, b.p0 - 1, el("div", "cell free"));
-      const cell = el("div", "cell" + (b.tone ? " t-" + b.tone : "") + (+d === todayDow ? " on" : "") + (+d === c.dow && stateOf(b, c) === "now" ? " now" : ""));
+      const cell = el("div", "cell" + (+d === todayDow ? " on" : "") + (+d === c.dow && stateOf(b, c) === "now" ? " now" : ""));
       cell.title = b.name + " · " + b.teachers.join(" / ") + " · " + dot(b.from) + " – " + dot(b.to);
       cell.append(el("b", null, b.code));
       if (b.name.replace(/\s/g, "") !== b.code.replace(/\s/g, "")) cell.append(el("span", null, b.name));
@@ -112,11 +115,6 @@ function renderWeek(){
     if (next <= LAST) put(next, LAST, el("div", "cell free"));
   });
   box.append(g);
-  const lg = el("div", "legend");
-  [["sci","Science and maths"], ["lang","Languages"], ["prep","TKA"], ["","Everything else"]].forEach(k => {
-    const item = el("span"), sw = el("i", k[0] ? "t-" + k[0] : ""); item.append(sw, document.createTextNode(k[1])); lg.append(item);
-  });
-  box.append(lg);
 
   // day by day (phone)
   const dv = el("div", "dv"), tabs = el("div", "tabs");

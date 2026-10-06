@@ -1,5 +1,6 @@
-// The assistant: a pop-up with a blob that moves with your voice and with its own. It opens from the blob in the
-// corner (bottom bar on a phone) or the V key, and only listens while it is open.
+// The assistant: a blob that moves with your voice and with its own, plus a small pop-up for the conversation.
+// On a computer the blob sits at the top of the clock column; on a phone it is in the bottom bar and the pop-up.
+// It opens on a click or the V key, and only listens while it is open.
 // Speech is turned into text by the browser, sent to the model you picked in the account panel
 // (Claude, ChatGPT, Gemini, or OmniRoute on this Mac), and the answer is read aloud.
 // The model can only answer with a few fixed actions, and each one is checked here before anything happens.
@@ -146,8 +147,10 @@ function parseReply(raw){
 
 /* ---------- the blob ---------- */
 // state: idle | listening | thinking | speaking. `level` (0..1) is how loud the current voice is.
-let state = "idle", level = 0, target = 0, pulse = 0, raf = 0, colors = null, colorsAt = 0;
-const canvas = $("orbCanvas"), ctx = canvas && canvas.getContext("2d");
+let state = "idle", level = 0, target = 0, pulse = 0, raf = 0, colors = null, colorsAt = 0, skip = 0;
+const cvHome = $("orbHomeCanvas"), cvPop = $("orbCanvas");
+let canvas = null, ctx = null;
+function pickCanvas(){ const c = D.isPhone() ? cvPop : cvHome; if (c !== canvas){ canvas = c; ctx = c.getContext("2d"); } }
 const still = matchMedia("(prefers-reduced-motion: reduce)");
 function readColors(now){
   if (colors && now - colorsAt < 1000) return colors;
@@ -172,6 +175,8 @@ function shape(cx, cy, R, amp, t, seed){
 }
 function frame(ms){
   raf = requestAnimationFrame(frame);
+  pickCanvas();
+  if (!open && (D.isPhone() || ++skip % 2)) return;      // resting: nothing to draw on a phone, half the frame rate on a computer
   const dpr = Math.min(2, devicePixelRatio || 1), w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
   if (!w || !h) return;
   if (canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
@@ -198,7 +203,7 @@ function frame(ms){
   g.addColorStop(0, c.c1); g.addColorStop(1, c.ink);
   ctx.fillStyle = g; shape(cx, cy, R, amp, tt, 0); ctx.fill();
 }
-function startBlob(){ if (ctx && !raf) raf = requestAnimationFrame(frame); }
+function startBlob(){ if (!raf) raf = requestAnimationFrame(frame); }
 function stopBlob(){ cancelAnimationFrame(raf); raf = 0; }
 
 /* ---------- microphone loudness (for the blob only) ---------- */
@@ -351,6 +356,11 @@ function openOrb(){
   open = true; session++;
   $("orbName").textContent = get("dash.ai.botname", "Eclipse");
   $("orbYou").textContent = ""; $("orbAi").textContent = ""; offerBrowser(false);
+  if (!D.isPhone()){                                   // computer: the pop-up hangs under the blob, inside the clock column
+    const r = $("orbHome").getBoundingClientRect(), col = $("orbHome").closest(".col").getBoundingClientRect(), s = $("orb").style;
+    s.setProperty("--ox", Math.round(r.left + r.width * .21) + "px"); s.setProperty("--oy", Math.round(r.bottom - r.height * .1) + "px");
+    s.setProperty("--ow", Math.round(Math.min(380, col.right - r.left - r.width * .21 - 16)) + "px");
+  }
   $("orb").classList.add("open"); document.body.classList.add("talking");
   D.toggleAcct(false);
   unlockSpeech(); startBlob(); openMic();
@@ -364,7 +374,7 @@ function closeOrb(){
   $("orb").classList.remove("open"); document.body.classList.remove("talking");
   $("orbInput").blur(); $("orbState").textContent = "";
   state = "idle";
-  setTimeout(() => { if (!open) stopBlob(); }, 350);
+  setTimeout(() => { if (!open && D.isPhone()) stopBlob(); }, 350);
 }
 
 /* ---------- OmniRoute status light (launcher, computer only) ---------- */
@@ -376,11 +386,12 @@ async function ping(){
   clearTimeout(timer);
 }
 
-if (D && ctx){
+if (D && cvHome && cvPop){
   addEventListener("dash:action", e => { if (e.detail.type === "voice-toggle") (open ? closeOrb : openOrb)(); });
   $("orbClose").onclick = $("orbShade").onclick = closeOrb;
-  $("orbBlob").onclick = () => {
-    if (state === "listening" && rec){ try { rec.stop(); } catch(e){} }     // stop early: send what was heard
+  $("orbHome").onclick = $("orbBlob").onclick = () => {
+    if (!open) openOrb();
+    else if (state === "listening" && rec){ try { rec.stop(); } catch(e){} }     // stop early: send what was heard
     else if (state === "thinking") return;
     else { session++; listen(); }                                          // idle: start; speaking: interrupt and listen
   };
@@ -395,6 +406,8 @@ if (D && ctx){
     else if (e.key === " " && !/^(INPUT|BUTTON)$/.test(document.activeElement.tagName)){ e.preventDefault(); $("orbBlob").click(); }
   });
   if (window.speechSynthesis) speechSynthesis.getVoices();                 // warm the voice list
+  if (!D.isPhone()) startBlob();
+  addEventListener("resize", () => { if (!D.isPhone()) startBlob(); });
   // opened from the "Open in browser to talk" button: go straight into talk mode
   if (location.hash === "#talk"){ window.history.replaceState(null, "", location.pathname + location.search); setTimeout(openOrb, 600); }
   ping(); setInterval(ping, 8000);
