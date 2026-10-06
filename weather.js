@@ -32,11 +32,11 @@ async function setCity(city){
 }
 
 function useMyLocation(){
-  if (!navigator.geolocation) return D.setMsg("This browser can't share your location. Use a city instead.");
+  if (!navigator.geolocation) return D.setMsg("Location isn't available in this window. Type your city above and press Set city.");
   navigator.geolocation.getCurrentPosition(pos => {
     D.setSetting("dash.weather.loc", {name:"Your location", lat:pos.coords.latitude, lon:pos.coords.longitude});
     D.setMsg("Location set."); D.setAccount({}); load();
-  }, () => D.setMsg("Location was blocked. Use a city instead."), {timeout:10000});
+  }, () => D.setMsg("Location isn't available in this window. Type your city above and press Set city."), {timeout:10000});
 }
 
 if (D){

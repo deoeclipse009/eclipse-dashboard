@@ -52,11 +52,11 @@ Google's browser token lasts about an hour. The dashboard renews it quietly; if 
 
 1. Go to https://aistudio.google.com/apikey, sign in with your Google account and press **Create API key**. This key is separate from a Gemini app subscription; the free tier is enough for a personal assistant.
 2. On the dashboard open the person icon > **Assistant**, leave **Answers come from** on **Gemini**, and paste the key into **Gemini API key**. Do this once on each device (the key is kept in that browser only and is never synced).
-3. Press **Talk** next to the date (or **V**, or the blob in the phone's bottom bar) and speak: "add dentist friday at 3pm", "what's on today", "I got 7 in reading", "next song". Press **End** or Esc to stop. Nothing listens until you press Talk.
+3. Click the blob in the bottom-right corner (or press **V**; on a phone, tap the blob in the bottom bar) and speak or type: "add dentist friday at 3pm", "what's on today", "next song". Close the pop-up or press Esc to stop. Nothing listens while it is closed.
 
 Claude, ChatGPT and OmniRoute are also in the **Answers come from** list. For OmniRoute, run `./launcher/install.sh` once, click **OmniRoute** in the Launch section (the dot turns green), and pick "OmniRoute on this Mac".
 
-Speech-to-text is done by the browser (Chrome or Safari) and needs the microphone allowed. The assistant can add or complete tasks, log an IELTS score, open a view, open launcher buttons and control Spotify. It can't delete anything.
+Speech-to-text is done by the browser (Chrome or Safari) and needs the microphone allowed. The assistant can add or complete tasks, track a scholarship, open a view, open launcher buttons and control Spotify. It can't delete anything.
 
 ## 6. Weather and sun times
 
@@ -70,5 +70,5 @@ Person icon > **Weather and sun times**: type a city and press Set (Open-Meteo, 
 
 | Data | Where |
 |---|---|
-| Account, hashed password, devices, tasks, weather city, theme choice, folded sections, assistant profile, lesson times, IELTS scores | Your Turso database |
+| Account, hashed password, devices, tasks, weather city, theme choice, folded sections, assistant profile, lesson times, scholarships | Your Turso database |
 | Spotify and Google tokens, AI provider API keys, OmniRoute address/key | This device only (browser storage) |

@@ -15,6 +15,7 @@ Only the ids listed at the top of `launcher.applescript`:
 |---|---|
 | `eclipse://app/claude` `antigravity` `orion` `spotify` | Opens that app |
 | `eclipse://link/github` `studio-site` `studio-dash` `omniroute-ui` | Opens that web address (this repo, the two Eclipse Studio repos, the OmniRoute page) |
+| `eclipse://link/talk` | Opens the dashboard in your browser in talk mode (for when the wallpaper window has no microphone) |
 | `eclipse://cmd/omniroute` | Terminal: `omniroute serve` (allows the dashboard site to call it) |
 | `eclipse://cmd/omniroute-stop` | Terminal: `omniroute stop` |
 | `eclipse://cmd/claude-code` | Terminal: `cd ~ && claude` |

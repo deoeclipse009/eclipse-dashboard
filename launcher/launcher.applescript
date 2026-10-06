@@ -5,7 +5,7 @@
 
 property allowedApps : {{"claude", "Claude"}, {"antigravity", "Antigravity"}, {"orion", "Orion"}, {"spotify", "Spotify"}}
 
-property allowedLinks : {{"github", "https://github.com/deoeclipse009/eclipse-dashboard"}, {"studio-site", "https://github.com/deoeclipse009/eclipse-studio-website"}, {"studio-dash", "https://github.com/deoeclipse009/eclipse-studio-dashboard"}, {"omniroute-ui", "http://localhost:20128"}}
+property allowedLinks : {{"github", "https://github.com/deoeclipse009/eclipse-dashboard"}, {"studio-site", "https://github.com/deoeclipse009/eclipse-studio-website"}, {"studio-dash", "https://github.com/deoeclipse009/eclipse-studio-dashboard"}, {"omniroute-ui", "http://localhost:20128"}, {"talk", "https://deoeclipse009.github.io/eclipse-dashboard/#talk"}}
 
 -- folders are relative to your home folder
 property allowedFolders : {}

@@ -8,6 +8,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#B7ADE0">
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap">
 <title>Dashboard</title>
 <style>
   :root{
@@ -17,7 +20,7 @@
   html{font-size:clamp(12px,1.55vh,17px);height:100%}
   body{
     height:100%;overflow:hidden;color:var(--ink);background:var(--base);
-    font-family:-apple-system,"SF Pro Display","Helvetica Neue",Inter,system-ui,sans-serif;
+    font-family:Geist,-apple-system,"SF Pro Display","Helvetica Neue",Inter,system-ui,sans-serif;
     font-weight:300;-webkit-font-smoothing:antialiased;
     --line:color-mix(in srgb,var(--ink) 30%,transparent);
     --soft:color-mix(in srgb,var(--ink) 62%,transparent);
@@ -42,10 +45,6 @@
   @media (prefers-reduced-motion:reduce){.blob{transition:none}}
 
   /* ---------- left rail ---------- */
-  .cursor-glow{position:fixed;left:0;top:0;width:14px;height:14px;margin:-7px;border-radius:50%;background:color-mix(in srgb,var(--ink) 70%,transparent);pointer-events:none;z-index:999;mix-blend-mode:difference;transform:translate(-100px,-100px);transition:width .1s ease-out,height .1s ease-out,margin .1s ease-out,opacity .15s;opacity:.55;will-change:transform}
-  .cursor-glow.hover{width:34px;height:34px;margin:-17px;opacity:.9}
-  .cursor-glow.down{width:10px;height:10px;margin:-5px}
-  @media (hover:none),(pointer:coarse){.cursor-glow{display:none}}
   .rail{position:fixed;left:clamp(14px,2vw,30px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1.1rem;align-items:center}
   .rail button{width:1.9rem;height:1.9rem;display:grid;place-items:center;opacity:.5;transition:opacity .2s}
   .rail button:hover,.rail button.on{opacity:1}
@@ -111,13 +110,10 @@
   .c2{container-type:inline-size;overflow:hidden}
   .clock{margin-top:auto;max-width:100%;font-weight:100;line-height:.82;letter-spacing:-.03em;font-size:min(20vh,11vw,44cqw);white-space:nowrap;font-variant-numeric:tabular-nums}
   .clock small{font-size:.28em;font-weight:200;margin-left:.3rem;color:var(--soft);letter-spacing:0;font-variant-numeric:tabular-nums}
-  .hello{display:flex;align-items:flex-start;gap:.5em;margin-top:1.6vh;font-size:min(1.9vh,5.4cqw);line-height:1.45}
-  .hello-t{flex:1;min-width:0}
-  .datestamp{font-size:1.28em;font-weight:300;letter-spacing:.01em;color:var(--soft)}
+  .datestamp{margin-top:2.4vh;font-size:min(2.6vh,7.5cqw);font-weight:300;letter-spacing:.01em;color:var(--soft)}
   .datestamp .sep{margin:0 .55em;opacity:.6}
-  .c2extra,.convo{margin-top:1.6vh;margin-bottom:auto;font-size:min(1.9vh,5.4cqw);line-height:1.45}
-  body.talking .c2extra,body:not(.talking) .convo{display:none}
-  .brief{margin-top:.35em;color:var(--soft)}
+  .c2extra{margin-top:1.8vh;margin-bottom:auto;font-size:min(1.9vh,5.4cqw);line-height:1.45}
+  .brief{color:var(--soft)}
   .brief .hi{font-size:1.2em;font-weight:400;color:var(--ink)}
   .brief b{font-weight:400;color:var(--ink)}
   .counts{margin-top:1.6vh;max-width:26em}
@@ -194,22 +190,38 @@
   .np-wrap .ctl .main{border:1px solid var(--line);opacity:.95}
   .dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:var(--line);margin-left:auto}
   .dot.on{background:#3fb06b;box-shadow:0 0 0 3px color-mix(in srgb,#3fb06b 25%,transparent)}
-  /* assistant: the blob lives next to the date; it only listens after you press Talk (see voice.js) */
-  .orb-blob{flex:none;width:7.4em;aspect-ratio:1;margin:-1.5em -1.4em -1.4em -1.5em;border-radius:50%;-webkit-tap-highlight-color:transparent;transition:width .45s cubic-bezier(.2,.7,.2,1)}
-  body.talking .orb-blob{width:10em}
+  /* assistant: a small blob in the corner (bottom bar on a phone) opens a pop-up to talk or type (see voice.js) */
+  .blobby{display:block;background:radial-gradient(circle at 32% 28%,var(--c1),var(--ink) 72%);border-radius:58% 42% 47% 53% / 46% 55% 45% 54%;animation:blobmorph 9s ease-in-out infinite}
+  @keyframes blobmorph{
+    33%{border-radius:44% 56% 58% 42% / 57% 44% 56% 43%}
+    66%{border-radius:53% 47% 41% 59% / 42% 58% 44% 56%}
+  }
+  @media (prefers-reduced-motion:reduce){.blobby{animation:none}}
+  .orb-fab{position:fixed;right:4.5vw;bottom:1.9vh;z-index:60;width:2.9rem;height:2.9rem;transition:transform .25s ease,opacity .5s ease,filter .5s ease}
+  .orb-fab i{width:100%;height:100%;box-shadow:0 .5rem 1.2rem -.5rem color-mix(in srgb,var(--ink) 70%,transparent)}
+  .orb-fab:hover{transform:scale(1.08)}
+  body.talking .orb-fab{transform:scale(.8);opacity:.5}
+  body.locked .orb-fab{opacity:0;pointer-events:none}
+  .orb-shade{display:none}
+  .orb{position:fixed;z-index:150;right:4.5vw;bottom:calc(1.9vh + 3.6rem);width:min(22rem,90vw);padding:1.3rem 1.5rem 1.2rem;
+    display:flex;flex-direction:column;align-items:center;text-align:center;border:1px solid var(--line);border-radius:1.4rem;
+    background:color-mix(in srgb,var(--base) 88%,transparent);-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px);
+    box-shadow:0 2rem 4rem -1.5rem color-mix(in srgb,var(--ink) 45%,transparent);
+    opacity:0;visibility:hidden;transform:translateY(.7rem) scale(.97);transform-origin:bottom right;transition:opacity .25s ease,transform .25s ease,visibility 0s .25s}
+  .orb.open{opacity:1;visibility:visible;transform:none;transition:opacity .25s ease,transform .25s ease}
+  .orb-x{position:absolute;top:.45rem;right:.55rem;width:2.4rem;height:2.4rem;font-size:1.3rem;font-weight:300;line-height:1;opacity:.55}
+  .orb-x:hover{opacity:1}
+  .orb-name,.orb-state{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);min-height:1.1em}
+  .orb-blob{flex:none;width:10.5rem;aspect-ratio:1;margin:-.5rem 0 -.9rem;border-radius:50%;-webkit-tap-highlight-color:transparent}
   .orb-blob canvas{display:block;width:100%;height:100%}
-  .talkbar{display:flex;align-items:center;gap:.8em;margin-top:.75em}
-  .talk-btn{display:inline-flex;align-items:center;gap:.5em;padding:.34em .95em .34em .8em;border-radius:2em;background:var(--ink);color:var(--base);font-size:.88em;font-weight:400;transition:opacity .2s}
-  .talk-btn:hover{opacity:.85}
-  .talk-btn svg{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round}
-  body.talking .talk-btn{background:none;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
-  .orb-state{font-size:.72em;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
-  .convo .you{min-height:1.4em;font-size:.9em;color:var(--soft)}
-  .convo .ai{margin-top:.3em;min-height:2.7em;max-height:8.2em;overflow:auto;scrollbar-width:none;font-size:1.25em;line-height:1.35;color:var(--ink)}
-  .orb-type{display:flex;align-items:center;max-width:26em;margin-top:.8em;border-bottom:1px solid var(--line)}
-  .orb-type input{flex:1;min-width:0;padding:.5em 0;font-size:1em}
+  .orb .you{margin-top:.7rem;min-height:1.3em;font-size:.84rem;line-height:1.35;color:var(--soft)}
+  .orb .ai{margin-top:.35rem;min-height:2.9em;max-height:9.5rem;overflow:auto;scrollbar-width:none;font-size:1.05rem;line-height:1.4}
+  .orb-open{margin-top:.7rem;text-decoration:none;font-size:.8rem}
+  .orb-open[hidden]{display:none}
+  .orb-type{display:flex;align-items:center;width:100%;margin-top:.8rem;border-bottom:1px solid var(--line)}
+  .orb-type input{flex:1;min-width:0;padding:.5rem 0;font-size:.95rem}
   .orb-type input::placeholder{color:var(--soft)}
-  .orb-type button{width:2.2em;height:2.2em;font-size:1.1em;opacity:.6}
+  .orb-type button{width:2.3rem;height:2.3rem;font-size:1.1rem;opacity:.6}
   .orb-type button:hover{opacity:1}
 
   /* school: today's classes (column 2) + the week sheet. Each class is a filled block, tinted by kind of subject. */
@@ -222,87 +234,80 @@
   .sec-h .lbl{color:var(--ink);font-size:.8em;font-weight:400}
   .sec-h button{font-size:.76em;color:var(--soft)}
   .sec-h button:hover{color:var(--ink)}
-  .cls{display:flex;gap:.9em;align-items:center;margin-top:.28em;padding:.4em .75em .4em .9em;border-radius:.6em;font-size:.9em;line-height:1.25;
-    background:color-mix(in srgb,var(--tone) 24%,transparent);box-shadow:inset 3px 0 0 var(--tone)}
-  .cls .tm{flex:none;width:6.3em;font-weight:400;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
-  .cls .nm{flex:1;min-width:0;font-weight:400;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .cls .nm small{display:block;font-size:.8em;font-weight:300;color:color-mix(in srgb,var(--ink) 72%,transparent);overflow:hidden;text-overflow:ellipsis}
-  .cls em{flex:none;font-style:normal;font-size:.7em;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:.15em .65em;border-radius:1em;background:var(--base);color:var(--ink)}
-  .cls.past{opacity:.38}
-  .cls.now{background:var(--ink);box-shadow:0 .7em 1.4em -.8em var(--ink)}
-  .cls.now .tm,.cls.now .nm{color:var(--base)}
-  .cls.now .nm small{color:color-mix(in srgb,var(--base) 75%,transparent)}
+  .cls{display:flex;gap:.9em;align-items:center;margin-top:.22em;padding:.34em .7em .34em .85em;border-radius:.5em;font-size:.9em;line-height:1.25;
+    background:color-mix(in srgb,var(--tone) 10%,transparent);box-shadow:inset 2px 0 0 color-mix(in srgb,var(--tone) 75%,transparent)}
+  .cls .tm{flex:none;width:6.3em;color:var(--soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .cls .nm{flex:1;min-width:0;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cls .nm small{display:block;font-size:.8em;color:var(--soft);overflow:hidden;text-overflow:ellipsis}
+  .cls em{flex:none;font-style:normal;font-size:.68em;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:.15em .65em;border-radius:1em;background:var(--ink);color:var(--base)}
+  .cls.past{opacity:.4}
+  .cls.now{background:color-mix(in srgb,var(--ink) 17%,transparent);box-shadow:inset 2px 0 0 var(--ink)}
+  .cls.now .tm{color:var(--ink)}
+  .cls.now .nm{font-weight:500}
   .sheet{display:none}
   .sheet-in{position:relative}
   .sheet h2{font-weight:200;font-size:2.1rem;letter-spacing:-.02em;line-height:1}
   .sheet .sub{margin-top:.5rem;font-size:.82rem;color:var(--soft);line-height:1.45}
   .sheet-x{position:absolute;top:.9rem;right:1rem;width:2.2rem;height:2.2rem;font-size:1.4rem;font-weight:200;line-height:1;opacity:.55}
   .sheet-x:hover{opacity:1}
-  .wk{display:grid;grid-template-columns:5rem repeat(var(--n,8),minmax(0,1fr));gap:.4rem;margin-top:1.5rem}
+  .wk{display:grid;grid-template-columns:4.6rem repeat(var(--n,8),minmax(0,1fr));gap:.3rem;margin-top:1.5rem}
   .wk > *{min-width:0}
-  .wk .ph{padding:.1rem 0 .35rem;text-align:center;font-size:.95rem;font-weight:400}
-  .wk .ph small{display:block;margin-top:.1rem;font-size:.66rem;font-weight:300;color:color-mix(in srgb,var(--ink) 75%,transparent);font-variant-numeric:tabular-nums;white-space:nowrap}
-  .wk .dn{display:flex;align-items:center;justify-content:center;border-radius:.7rem;font-size:.9rem;font-weight:400}
-  .wk .dn.on{background:var(--ink);color:var(--base);font-weight:500}
-  .wk .cell{display:flex;flex-direction:column;justify-content:center;gap:.14rem;min-height:5rem;padding:.6rem .8rem .6rem .9rem;border-radius:.7rem;
-    background:color-mix(in srgb,var(--tone) 22%,transparent);box-shadow:inset 3px 0 0 var(--tone);transition:background .2s,transform .2s}
-  .wk .cell b{font-weight:500;font-size:1.08rem;letter-spacing:.005em}
-  .wk .cell span{font-size:.68rem;color:color-mix(in srgb,var(--ink) 80%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .wk .cell.on{background:color-mix(in srgb,var(--tone) 36%,transparent)}
-  .wk .cell:not(.free):not(.now):hover{background:color-mix(in srgb,var(--tone) 46%,transparent)}
-  .wk .cell.free{background:none;box-shadow:inset 0 0 0 1px var(--line);opacity:.5}
-  .wk .cell.now{background:var(--ink);color:var(--base);box-shadow:0 .9rem 1.8rem -1rem var(--ink)}
-  .wk .cell.now span{color:inherit;opacity:.75}
-  .legend{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;margin-top:1rem;font-size:.74rem;color:var(--soft)}
-  .legend i{display:inline-block;width:.7rem;height:.7rem;margin-right:.4rem;border-radius:.2rem;background:var(--tone);vertical-align:-.05rem}
+  .wk .ph{padding:.1rem 0 .35rem;text-align:center;font-size:.88rem}
+  .wk .ph small{display:block;margin-top:.1rem;font-size:.64rem;color:var(--soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .wk .dn{display:flex;align-items:center;padding-left:.2rem;font-size:.88rem;color:var(--soft)}
+  .wk .dn.on{color:var(--ink);font-weight:500}
+  .wk .cell{display:flex;flex-direction:column;justify-content:center;gap:.12rem;min-height:4.7rem;padding:.55rem .75rem .55rem .85rem;border-radius:.55rem;
+    background:color-mix(in srgb,var(--tone) 9%,transparent);box-shadow:inset 2px 0 0 color-mix(in srgb,var(--tone) 70%,transparent);transition:background .2s}
+  .wk .cell b{font-weight:400;font-size:1.02rem}
+  .wk .cell span{font-size:.67rem;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wk .cell.on{background:color-mix(in srgb,var(--tone) 17%,transparent)}
+  .wk .cell:not(.free):hover{background:color-mix(in srgb,var(--tone) 24%,transparent)}
+  .wk .cell.free{background:none;box-shadow:none}
+  .wk .cell.now{background:color-mix(in srgb,var(--ink) 20%,transparent);box-shadow:inset 0 0 0 1px var(--ink)}
+  .wk .cell.now b{font-weight:500}
+  .legend{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;margin-top:1rem;font-size:.72rem;color:var(--soft)}
+  .legend i{display:inline-block;width:.18rem;height:.75rem;margin-right:.45rem;border-radius:.1rem;background:var(--tone);vertical-align:-.1rem}
   .dv{display:none}
   .times{display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:.3rem 1.4rem;margin-top:1rem}
   .times label{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--soft);border-bottom:1px solid var(--line);padding:.25rem 0}
   .times input{flex:1;min-width:0;font-size:.85rem;color:var(--ink);color-scheme:light}
-  body.dark .times input,body.dark .tform input[type=date]{color-scheme:dark}
+  body.dark .times input,body.dark .sform input[type=date]{color-scheme:dark}
   .sheet .foot{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.1rem}
 
-  /* IELTS tracker: summary card (column 4) + the log sheet */
-  .score{margin-top:4vh}
-  .score h3{font-weight:400;font-size:.95rem;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem}
-  .score h3 button{font-size:.72rem;color:var(--soft)}
-  .score h3 button:hover{color:var(--ink)}
-  .score .row{display:flex;align-items:flex-end;gap:1rem;width:100%;text-align:left}
-  .score .big{font-size:2.9rem;font-weight:100;line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-  .score .side{flex:1;min-width:0}
-  .score .note{font-size:.72rem;color:var(--soft);line-height:1.4}
-  .spark{display:block;width:100%;height:2.2rem;overflow:visible}
-  .spark path{fill:none;stroke:currentColor;stroke-width:1.2;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
-  .spark .tg{stroke-dasharray:2 4;opacity:.45}
-  .skills{display:grid;grid-template-columns:repeat(4,1fr);margin-top:1.4rem;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-  .skills div{padding:.8rem .2rem .7rem .8rem;border-left:1px solid var(--line)}
-  .skills div:first-child{border-left:0;padding-left:0}
-  .skills b{display:block;font-weight:200;font-size:1.7rem;line-height:1;font-variant-numeric:tabular-nums}
-  .skills span{display:block;margin-top:.3rem;font-size:.72rem;color:var(--soft)}
-  .tform{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.4rem 1rem;margin-top:1.4rem}
-  .tform label{font-size:.72rem;color:var(--soft)}
-  .tform input{display:block;width:100%;padding:.4rem 0;font-size:1rem;color:var(--ink);border-bottom:1px solid var(--line)}
-  .tform input:focus{border-bottom-color:var(--ink)}
-  .tform input::placeholder{color:var(--soft);opacity:.6}
-  .tform .wide{grid-column:span 2}
-  .tform .act{grid-column:span 2;display:flex;align-items:flex-end;justify-content:flex-end;gap:.5rem}
-  .tmsg{min-height:1.2em;margin-top:.6rem;font-size:.78rem;color:var(--soft)}
-  .erow{display:flex;align-items:center;gap:.8rem;padding:.5rem 0;border-top:1px solid var(--line);font-size:.88rem}
-  .erow .when{flex:none;width:5.2rem;color:var(--soft)}
-  .erow .vals{flex:1;min-width:0;color:var(--soft);font-size:.82rem;font-variant-numeric:tabular-nums}
-  .erow .ov{flex:none;width:2.4rem;text-align:right;font-weight:400;font-variant-numeric:tabular-nums}
-  .erow .del{opacity:.45}
-  .trackhead{display:flex;align-items:flex-end;gap:1.4rem;margin-top:1.3rem}
-  .trackhead .big{font-size:4.6rem;font-weight:100;line-height:.85;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
-  .trackhead .side{flex:1;min-width:0}
-  .trackhead .tgt{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--soft);margin-bottom:.4rem}
-  .trackhead .tgt input{width:3.2rem;padding:.1rem 0;color:var(--ink);border-bottom:1px solid var(--line);font-size:.9rem}
+  /* scholarships: summary card (column 4) + the tracker sheet (see scholar.js) */
+  .fund{margin-top:4vh}
+  .fund h3{font-weight:400;font-size:.95rem;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem}
+  .fund h3 button{font-size:.72rem;color:var(--soft)}
+  .fund h3 button:hover{color:var(--ink)}
+  .fund .row{display:flex;align-items:flex-end;gap:.9rem;width:100%;text-align:left}
+  .fund .big{font-size:2.9rem;font-weight:200;line-height:.86;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+  .fund .side{flex:1;min-width:0}
+  .fund .nm{font-size:.88rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fund .note{font-size:.72rem;color:var(--soft);line-height:1.4}
+  .sform{display:grid;grid-template-columns:2fr 1fr;gap:.6rem 1.2rem;margin-top:1.4rem}
+  .sform label{font-size:.72rem;color:var(--soft);min-width:0}
+  .sform input{display:block;width:100%;padding:.4rem 0;font-size:1rem;color:var(--ink);border-bottom:1px solid var(--line);border-radius:0;color-scheme:light}
+  .sform input:focus{border-bottom-color:var(--ink)}
+  .sform input::placeholder{color:var(--soft);opacity:.7}
+  .sform .act{grid-column:1 / -1;display:flex;align-items:center;justify-content:flex-end;gap:1rem;margin-bottom:.8rem}
+  .smsg{font-size:.78rem;color:var(--soft)}
+  .srow{display:flex;align-items:center;gap:.9rem;padding:.7rem 0;border-top:1px solid var(--line);font-size:.92rem}
+  .srow .main{flex:1;min-width:0}
+  .srow .main b{display:block;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .srow .main a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:.2em}
+  .srow small{display:block;font-size:.76rem;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .srow .when{flex:none;text-align:right;font-size:.82rem;font-variant-numeric:tabular-nums}
+  .srow .st{flex:none;min-width:6.6rem;padding:.28rem .7rem;font-size:.74rem;text-align:center}
+  .srow .st.s-applied,.srow .st.s-interview{border-color:var(--ink)}
+  .srow .st.s-awarded{background:var(--ink);border-color:var(--ink);color:var(--base)}
+  .srow .del{opacity:.45}
+  .srow.closed .main,.srow.closed .when{opacity:.5}
   .mobile-nav,.mhead{display:none}
   @media (hover:none){.del{opacity:.45}}
   @media (min-width:901px){
     .sheet.open{display:grid;position:fixed;inset:0;z-index:70;place-items:center;padding:5vh 5vw;background:color-mix(in srgb,var(--base) 35%,transparent);-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px)}
     .sheet-in{width:min(70rem,100%);max-height:100%;overflow:auto;scrollbar-width:none;padding:2rem 2.2rem 1.8rem;border:1px solid var(--line);border-radius:1.2rem;background:color-mix(in srgb,var(--base) 88%,transparent);box-shadow:0 2rem 4rem -2rem color-mix(in srgb,var(--ink) 40%,transparent)}
-    #track .sheet-in{width:min(38rem,100%)}
+    #scholar .sheet-in{width:min(46rem,100%)}
   }
   .acct label{display:block;font-size:.72rem;color:var(--soft);margin-top:.6rem}
   .acct .chk2{display:flex;gap:.5rem;align-items:center;margin-top:.7rem;font-size:.78rem;color:var(--soft)}
@@ -343,121 +348,154 @@
   /* ---------- phone: one view at a time, switched from the bottom bar ---------- */
   @media (max-width:900px){
     html{font-size:16px;height:auto}
-    body{overflow:visible;height:auto;min-height:100vh;min-height:100dvh}
-    .rail,.cursor-glow,.fold,.dock,.palette,.sheet-x{display:none}
+    body{overflow:visible;height:auto;min-height:100vh;min-height:100dvh;font-weight:400;
+      --soft:color-mix(in srgb,var(--ink) 72%,transparent);--card:color-mix(in srgb,var(--base) 55%,transparent)}
+    .rail,.fold,.dock,.palette,.sheet-x,.orb-fab,.year,.datestamp,.scrim{display:none}
+    /* calmer background than on a computer, so text never sits on a bright patch */
     .bg{position:fixed}
-    .blur-field{filter:blur(70px)}
+    .blur-field{filter:blur(70px);opacity:.75}
     .b1{width:110vw;height:110vw}.b2{width:95vw;height:95vw}.b3{width:120vw;height:120vw}.b4{width:80vw;height:80vw}
+    .wash{background:color-mix(in srgb,var(--base) 62%,transparent)}
+    .grain{opacity:.35}
 
     .mhead{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;
-      padding:calc(env(safe-area-inset-top,0px) + .7rem) .65rem 0 1.25rem;transition:opacity .5s ease,filter .5s ease}
-    .mhead h1{font-size:.8rem;font-weight:400;letter-spacing:.02em;color:var(--ink)}
+      padding:calc(env(safe-area-inset-top,0px) + .6rem) .65rem 0 1.25rem;transition:opacity .5s ease,filter .5s ease}
+    .mhead h1{font-size:.88rem;font-weight:500;letter-spacing:0;color:var(--soft)}
     .mhead div{display:flex}
-    .mhead button{width:2.75rem;height:2.75rem;display:grid;place-items:center;opacity:.65}
+    .mhead button{width:2.75rem;height:2.75rem;display:grid;place-items:center;opacity:.75}
     .mhead button.on{opacity:1}
-    .mhead svg,.mobile-nav svg{width:1.2rem;height:1.2rem;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+    .mhead svg,.mobile-nav svg{width:1.25rem;height:1.25rem;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 
     .stage{position:relative;left:auto;right:auto;top:auto;bottom:auto;display:flex;flex-direction:column;
-      padding:0 1.25rem calc(env(safe-area-inset-bottom,0px) + 7.5rem)}
+      padding:0 1.1rem calc(env(safe-area-inset-bottom,0px) + 7.5rem)}
     .stage > *{display:none}
     body[data-view=home] .c2,body[data-view=home] .c4,body[data-view=tasks] .c3,
-    body[data-view=school] #school,body[data-view=school] .c1,body[data-view=track] #track{display:flex}
+    body[data-view=school] #school,body[data-view=school] .c1,body[data-view=scholar] #scholar{display:flex}
     .col{border:0 !important;padding:0;min-height:0}
     .col.folded > *:not(.fold),body.focus .c3 > *,body.focus .c4 > *{opacity:1;pointer-events:auto;visibility:visible}
     .sheet{flex-direction:column}
-    .sheet h2{margin-top:1.4rem;font-size:2.6rem}
+    .sheet h2,.todo-head h2{margin-top:.9rem;font-weight:600 !important;font-size:2.1rem !important;letter-spacing:-.035em;line-height:1.05}
+    .sheet .sub{font-size:.9rem}
+
+    /* shared card look for every block */
+    .counts,.classes,.up,.fund,.music,.cal,.add,.list,.dv,.sform{margin-top:.75rem;padding:1rem 1.05rem;border:1px solid var(--line);border-radius:1.25rem;background:var(--card);max-width:none}
+    .counts:empty{display:none}
+    .counts .lbl,.sec-h .lbl,.up h3 > span,.fund h3 > span,.music .top span,.calhead .lbl{font-size:.74rem !important;font-weight:600 !important;letter-spacing:.09em;text-transform:uppercase;color:var(--soft)}
+    .sec-h,.up h3,.fund h3,.music .top{margin-bottom:.6rem}
+    .sec-h button,.up h3 button,.fund h3 button{font-size:.82rem;font-weight:500;color:var(--ink);padding:.3rem 0 .3rem .8rem}
 
     /* home */
     .c2{overflow:visible}
-    .clock{margin-top:1.6rem;font-size:min(27vw,8.5rem)}
-    .hello{margin-top:1.1rem;font-size:.98rem;gap:.6rem}
-    .datestamp{font-size:1.1em}
-    .orb-blob{width:8rem;margin:-1.4rem -1.3rem -1.4rem -1.2rem}
-    body.talking .orb-blob{width:9.6rem}
-    .talk-btn{padding:.55em 1.15em .55em 1em;font-size:.9rem}
-    .c2extra,.convo{margin:1.4rem 0 0;font-size:.98rem}
-    .convo .ai{max-height:none}
-    .counts,.classes{max-width:none;margin-top:1.6rem}
-    .counts div.row{padding:.55em 0}
-    .cls{padding:.6em .8em .6em .95em;margin-top:.35em}
-    .up,.score,.music{margin-top:2.2rem}
-    .uprow{padding:.6rem 0;font-size:.95rem}
+    .clock{margin-top:.5rem;font-size:min(24vw,6.4rem);font-weight:300;letter-spacing:-.05em;line-height:.92}
+    .clock small{font-size:.2em;font-weight:500;letter-spacing:0;margin-left:.5rem}
+    .c2extra{margin:1rem 0 0;font-size:1rem;line-height:1.45}
+    .brief{padding:0 .15rem .35rem}
+    .brief .hi{margin-bottom:.3rem;font-size:1.55rem;font-weight:600;letter-spacing:-.03em;line-height:1.2}
+    .brief b{font-weight:600}
+    .counts div.row{padding:.5rem 0;font-size:.95rem}
+    .counts div.row:first-of-type{border-top:0;padding-top:0}
+    .cls{margin-top:.3rem;padding:.55rem .8rem .55rem .9rem;font-size:.95rem;border-radius:.7rem}
+    .cls .tm{font-size:.86em}
+    .uprow{padding:.55rem 0;font-size:.95rem}
+    .fund .big{font-size:3.2rem;font-weight:300}
+    .fund .nm{font-size:1rem;font-weight:500}
+    .fund .note,.music .hint{font-size:.84rem}
     .np img{width:4.4rem;height:4.4rem}
     .np-wrap .ctl button{width:2.75rem;height:2.75rem}
 
     /* to-do: the add box sits on top so the keyboard never covers it */
-    .c3{padding-top:1.4rem}
-    .todo-head{padding-right:0}
-    .todo-head h2{font-weight:200 !important;font-size:2.6rem !important;letter-spacing:-.02em;line-height:1}
-    .add{order:1;margin-top:1.3rem;padding:0 0 .9rem;border-top:0;border-bottom:1px solid var(--line)}
+    .c3{padding-top:0}
+    .todo-head{padding-right:.2rem;align-items:flex-end}
+    .todo-head .lbl{font-size:.85rem;font-weight:500}
+    .add{order:1;margin-top:1rem;padding:.6rem 1.05rem .7rem}
     .add input.txt{font-size:1rem;padding:.5rem 0}
-    .addrow{font-size:.85rem;margin-top:.6rem}
-    .addrow .scope{padding:.35rem .8rem}
+    .addrow{font-size:.85rem;margin-top:.3rem}
+    .addrow .scope{padding:.35rem .85rem;font-weight:500}
     .addrow input[type=date]{font-size:1rem}
-    .addrow .go{width:2.75rem;height:2.75rem;margin-right:-.6rem;font-size:1.5rem}
-    .tabs{order:2;gap:1.5rem;margin:1.1rem 0 .5rem;font-size:.95rem}
-    .tabs button{padding:.45rem 0}
-    .list{order:3;overflow:visible;flex:none}
-    .item{padding:.7rem 0;gap:.9rem;align-items:center}
-    .chk{width:1.4rem;height:1.4rem;margin-top:0}
+    .addrow .go{width:2.75rem;height:2.75rem;margin-right:-.6rem;font-size:1.6rem}
+    .tabs{order:2;gap:.4rem;margin:1rem 0 0;font-size:.9rem}
+    .tabs button{padding:.4rem .95rem;border:1px solid transparent;border-radius:2rem;font-weight:500;opacity:.6}
+    .tabs button.on{opacity:1;background:var(--ink);color:var(--base);border-color:var(--ink)}
+    .list{order:3;overflow:visible;flex:none;gap:0;padding:.3rem 1.05rem}
+    .item{padding:.8rem 0;gap:.9rem;align-items:center;border-radius:0}
+    .item + .item{border-top:1px solid var(--line)}
+    .chk{width:1.45rem;height:1.45rem;margin-top:0;border-width:1.5px}
     .chk::before{content:"";position:absolute;inset:-.7rem}
-    .item.done .chk::after{left:.46rem;top:.2rem;width:.3rem;height:.62rem;border-width:0 1.5px 1.5px 0}
-    .body{font-size:1rem}
-    .body .meta{font-size:.78rem;margin-top:.15rem}
+    .item.done .chk::after{left:.46rem;top:.2rem;width:.3rem;height:.62rem;border-width:0 1.6px 1.6px 0}
+    .body{font-size:1rem;line-height:1.35}
+    .body .meta{font-size:.8rem;margin-top:.15rem}
     .del{width:2.75rem;height:2.75rem;margin-right:-.7rem;font-size:1.4rem}
-    .empty{font-size:.95rem;padding:.8rem 0}
+    .empty{font-size:.95rem;padding:.7rem 0}
 
     /* school: day by day instead of the wide grid, month calendar underneath */
     #school{order:-1}
-    .wk{display:none}
-    .dv{display:block;margin-top:.6rem}
-    .dv .cls{font-size:1rem;padding:.7rem .9rem .7rem 1rem;margin-top:.45rem;border-radius:.8rem}
-    .dv .cls .tm{font-size:.84rem;width:6.1rem}
+    .wk,.legend{display:none}
+    .dv{display:block;margin-top:1rem}
+    .dv .tabs{margin:0 0 .7rem;gap:.15rem;justify-content:space-between}
+    .dv .tabs button{padding:.4rem .62rem;font-size:.86rem}
+    .dv .cls{font-size:1rem;padding:.65rem .85rem .65rem .95rem;margin-top:.4rem}
     .dv .cls .nm{white-space:normal}
-    .c1{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid var(--line) !important}
-    .year{display:none}
-    .cal{margin-top:0}
-    .grid{font-size:.95rem;row-gap:.2rem}
-    .day{height:2.75rem}
-    .calhead button{width:2.75rem;height:2.75rem;font-size:1.4rem}
+    .sheet .foot{margin-top:.8rem}
+    .c1{margin-top:0}
+    .cal{padding-bottom:.7rem}
+    .calhead{margin-bottom:.4rem}
+    .calhead button{width:2.75rem;height:2.5rem;font-size:1.4rem}
+    .grid{font-size:.95rem;row-gap:.15rem}
+    .wd{font-weight:600;font-size:.72rem;color:var(--soft)}
+    .day{height:2.6rem;border-radius:.7rem}
+    .day.today{font-weight:600}
     .times{grid-template-columns:1fr 1fr}
+    .times input,.sform input{font-size:16px}
 
-    /* tracker */
-    .trackhead .big{font-size:5.4rem}
-    .tform input,.trackhead .tgt input,.times input,.orb-type input{font-size:16px}
-    .tform{grid-template-columns:repeat(4,minmax(0,1fr))}
+    /* scholarships */
+    .sform{grid-template-columns:1fr 1fr;gap:.7rem 1rem}
+    .sform .wide{grid-column:1 / -1}
+    .sform .act{margin-bottom:0}
+    .srow{flex-wrap:wrap;gap:.5rem .8rem;padding:.9rem .15rem}
+    .srow .main{flex:1 1 60%}
+    .srow .main b{font-weight:500;font-size:1.02rem;white-space:normal}
+    .srow .when{order:3;flex:1;text-align:left}
+    .srow .when small{display:inline;margin-left:.5rem}
+    .srow .st{order:4;font-size:.8rem;padding:.45rem .9rem}
+    .srow .del{order:2}
 
-    /* bottom bar with the talk blob in the middle */
+    /* bottom bar with the assistant blob in the middle */
     .mobile-nav{position:fixed;left:.75rem;right:.75rem;bottom:calc(env(safe-area-inset-bottom,0px) + .6rem);z-index:80;
       display:grid;grid-template-columns:1fr 1fr 4.4rem 1fr 1fr;align-items:center;padding:.3rem .35rem;
-      border:1px solid var(--line);border-radius:1.7rem;background:color-mix(in srgb,var(--base) 76%,transparent);
+      border:1px solid var(--line);border-radius:1.7rem;background:color-mix(in srgb,var(--base) 82%,transparent);
       -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);transition:opacity .5s ease,filter .5s ease}
     .mobile-nav button{display:flex;flex-direction:column;align-items:center;gap:.22rem;min-height:3rem;justify-content:center;
-      font-size:.64rem;letter-spacing:.04em;opacity:.5;transition:opacity .2s;-webkit-tap-highlight-color:transparent}
+      font-size:.66rem;font-weight:500;letter-spacing:.02em;opacity:.55;transition:opacity .2s;-webkit-tap-highlight-color:transparent}
     .mobile-nav button.on{opacity:1}
     .mobile-nav .talk{opacity:1}
-    .mobile-nav .talk i{width:3.3rem;height:3.3rem;margin:-1.2rem 0 0;background:radial-gradient(circle at 32% 28%,var(--c1),var(--ink) 72%);
-      box-shadow:0 .6rem 1.4rem -.5rem color-mix(in srgb,var(--ink) 70%,transparent);
-      border-radius:58% 42% 47% 53% / 46% 55% 45% 54%;animation:blobmorph 9s ease-in-out infinite}
+    .mobile-nav .talk i{width:3.3rem;height:3.3rem;margin:-1.2rem 0 0;box-shadow:0 .6rem 1.4rem -.5rem color-mix(in srgb,var(--ink) 70%,transparent)}
     .mobile-nav .talk:active i{transform:scale(.92)}
-    @keyframes blobmorph{
-      33%{border-radius:44% 56% 58% 42% / 57% 44% 56% 43%}
-      66%{border-radius:53% 47% 41% 59% / 42% 58% 44% 56%}
-    }
+
+    /* assistant pop-up: a sheet over the page */
+    body.talking .orb-shade{display:block;position:fixed;inset:0;z-index:140;background:color-mix(in srgb,var(--base) 45%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+    .orb{left:.75rem;right:.75rem;width:auto;bottom:calc(env(safe-area-inset-bottom,0px) + .6rem);padding:1.6rem 1.3rem 1.2rem;border-radius:1.7rem;
+      background:color-mix(in srgb,var(--base) 94%,transparent);transform-origin:bottom center}
+    .orb-x{top:.5rem;right:.5rem;width:2.75rem;height:2.75rem;font-size:1.5rem}
+    .orb-blob{width:min(58vw,14rem);margin:-.2rem 0 -.8rem}
+    .orb .you{font-size:.92rem}
+    .orb .ai{font-size:1.2rem;font-weight:500;letter-spacing:-.01em;line-height:1.35;min-height:3.4em;max-height:38dvh}
+    .orb-type{margin-top:1rem}
+    .orb-type input{font-size:16px;padding:.7rem 0}
+    .orb-type button{width:2.75rem;height:2.75rem}
 
     /* panels */
     .acct{left:.75rem;right:.75rem;width:auto;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + .6rem);transform:none;
-      max-height:78dvh;border-radius:1.4rem;z-index:90;padding:1.3rem 1.3rem 1.5rem;font-size:.95rem;background:color-mix(in srgb,var(--base) 90%,transparent)}
-    .acct input,.acct select,.acct textarea{font-size:1rem;padding:.6rem 0}
-    .acct p,.acct label{font-size:.82rem}
-    .pill{padding:.55rem 1rem;font-size:.85rem}
-    .gate input{font-size:1rem}
+      max-height:78dvh;border-radius:1.4rem;z-index:90;padding:1.3rem 1.3rem 1.5rem;font-size:.95rem;background:color-mix(in srgb,var(--base) 94%,transparent)}
+    .acct h3{font-weight:600;font-size:1rem}
+    .acct input,.acct select,.acct textarea{font-size:16px;padding:.6rem 0}
+    .acct p,.acct label{font-size:.84rem}
+    .pill{padding:.55rem 1rem;font-size:.85rem;font-weight:500}
+    .gate input{font-size:16px}
+    .gate h1{font-weight:600;letter-spacing:-.03em}
   }
-  @media (prefers-reduced-motion:reduce){.mobile-nav .talk i{animation:none}}
 </style>
 </head>
 <body class="locked">
-<div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
 
 <div class="bg" id="bg">
   <div class="blur-field">
@@ -500,6 +538,22 @@
     <button class="primary" type="submit" id="gateGo">Sign in</button>
     <button class="link" type="button" id="gateSwitch">Create an account</button>
     <div class="gmsg" id="gateMsg" role="status"></div>
+  </form>
+</div>
+
+<button class="orb-fab" id="orbFab" aria-label="Talk to your assistant" title="Talk to your assistant (V)"><i class="blobby"></i></button>
+<div class="orb-shade" id="orbShade"></div>
+<div class="orb" id="orb" role="dialog" aria-label="Assistant">
+  <button class="orb-x" id="orbClose" aria-label="Close assistant">&times;</button>
+  <div class="orb-name" id="orbName">Eclipse</div>
+  <button class="orb-blob" id="orbBlob" aria-label="Tap to talk"><canvas id="orbCanvas"></canvas></button>
+  <div class="orb-state" id="orbState" role="status" aria-live="polite"></div>
+  <p class="you" id="orbYou"></p>
+  <p class="ai" id="orbAi" aria-live="polite"></p>
+  <a class="pill orb-open" id="orbOpen" href="eclipse://link/talk" hidden>Open in browser to talk</a>
+  <form class="orb-type" id="orbForm">
+    <input id="orbInput" type="text" placeholder="Ask or type a task" autocomplete="off" aria-label="Message">
+    <button type="submit" aria-label="Send">&#8593;</button>
   </form>
 </div>
 
@@ -555,30 +609,11 @@
   <!-- 2 · clock + date -->
   <section class="col c2" data-name="Clock">
     <div class="clock" id="clock" aria-live="off"></div>
-    <div class="hello">
-      <div class="hello-t">
-        <div class="datestamp">
-          <span id="dow"></span><span class="sep">&middot;</span><span id="daymonth"></span>
-        </div>
-        <div class="brief" id="brief"></div>
-        <div class="talkbar">
-          <button class="talk-btn" id="talkBtn" aria-pressed="false">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="6" y="2" width="4" height="7.5" rx="2"/><path d="M3.5 7.5a4.5 4.5 0 0 0 9 0M8 12v2"/></svg><span id="talkLbl">Talk</span>
-          </button>
-          <span class="orb-state" id="orbState" role="status" aria-live="polite"></span>
-        </div>
-      </div>
-      <button class="orb-blob" id="orbBlob" aria-label="Talk to your assistant"><canvas id="orbCanvas"></canvas></button>
-    </div>
-    <div class="convo" id="convo">
-      <p class="you" id="orbYou"></p>
-      <p class="ai" id="orbAi" aria-live="polite"></p>
-      <form class="orb-type" id="orbForm">
-        <input id="orbInput" type="text" placeholder="Or type a message" autocomplete="off" aria-label="Message">
-        <button type="submit" aria-label="Send">&#8593;</button>
-      </form>
+    <div class="datestamp">
+      <span id="dow"></span><span class="sep">&middot;</span><span id="daymonth"></span>
     </div>
     <div class="c2extra">
+      <div class="brief" id="brief"></div>
       <div class="counts" id="counts"></div>
       <div class="classes" id="schoolToday"></div>
     </div>
@@ -608,21 +643,21 @@
   <section class="col c4" data-name="Upcoming">
     <button class="palette" id="palette" title="Click to change colors"></button>
     <div class="up" id="up"></div>
-    <div class="score" id="ieltsCard"></div>
+    <div class="fund" id="scholarCard"></div>
     <div class="music" id="music"></div>
   </section>
 
-  <!-- school timetable + IELTS tracker: pop-up sheets on a computer, their own views on a phone -->
+  <!-- school timetable + scholarship tracker: pop-up sheets on a computer, their own views on a phone -->
   <section class="sheet" id="school" aria-label="School timetable"><div class="sheet-in" id="schoolBody"></div></section>
-  <section class="sheet" id="track" aria-label="IELTS tracker"><div class="sheet-in" id="trackBody"></div></section>
+  <section class="sheet" id="scholar" aria-label="Scholarship tracker"><div class="sheet-in" id="scholarBody"></div></section>
 </main>
 
 <nav class="mobile-nav" id="mobileNav" aria-label="Sections">
   <button data-view="home"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>Home</button>
   <button data-view="tasks"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M5.4 8.2l1.8 1.8 3.4-3.8"/></svg>To-do</button>
-  <button class="talk" id="mTalk" aria-label="Talk to your assistant"><i></i></button>
+  <button class="talk" id="mTalk" aria-label="Talk to your assistant"><i class="blobby"></i></button>
   <button data-view="school"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10.5" rx="1.5"/><path d="M2 6.5h12M6 6.5v7M10 6.5v7"/></svg>School</button>
-  <button data-view="track"><svg viewBox="0 0 16 16"><path d="M2 12.5l3.5-4 3 2.5L14 4"/><path d="M10.5 4H14v3.5"/></svg>IELTS</button>
+  <button data-view="scholar"><svg viewBox="0 0 16 16"><path d="M1.5 6.2 8 3l6.5 3.2L8 9.4z"/><path d="M4.3 7.8v3c1 .9 2.3 1.4 3.7 1.4s2.7-.5 3.7-1.4v-3M14.5 6.2v3.3"/></svg>Scholar</button>
 </nav>
 
 <script>
@@ -830,7 +865,7 @@
     paintGreeting();
   }
   const who = () => String(store.get("dash.ai.name","")||"").trim() || "Deo";
-  function paintGreeting(){ $("#greet").textContent = "Eclipse"; renderExtras(); }
+  function paintGreeting(){ $("#greet").textContent = new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}); renderExtras(); }
   function tick(){
     const d = new Date(), p = n => String(n).padStart(2,"0");
     $("#clock").innerHTML = p(d.getHours())+":"+p(d.getMinutes())+"<small>"+p(d.getSeconds())+"</small>";
@@ -941,7 +976,7 @@
       const late = open.filter(t=>t.due && t.due<todayISO).length, loose = open.filter(t=>!t.due).length;
       const b = document.createElement("b"); b.textContent = "Nothing due today";
       l1.append(b, late ? " · "+late+" overdue "+(late===1?"task":"tasks")+" to clear"
-        : ahead ? " · Next up: "+ahead.text+", "+rel(ahead.due).toLowerCase()+(ahead.time?" at "+ahead.time:"")
+        : ahead ? " · Next up: "+ahead.text+", "+(rel(ahead.due)==="Tomorrow" ? "tomorrow" : rel(ahead.due))+(ahead.time?" at "+ahead.time:"")
         : loose ? " · "+loose+" open "+(loose===1?"task":"tasks")+" with no date"
         : " · your list is clear");
     }
@@ -957,7 +992,8 @@
     }
     const keys = tasks.filter(t=>!t.done && t.due && t.due>=todayISO && KEYRE.test(t.text))
       .concat(calEvents.filter(e=>e.due>=todayISO && KEYRE.test(e.text)))
-      .sort((x,y)=>x.due.localeCompare(y.due) || (x.time||"").localeCompare(y.time||"")).slice(0,3);
+      .concat((window.Scholar ? window.Scholar.deadlines() : []).filter(e=>e.due>=todayISO))
+      .sort((x,y)=>x.due.localeCompare(y.due) || (x.time||"").localeCompare(y.time||"")).slice(0,4);
     const box = $("#counts"); box.innerHTML = "";
     if (!keys.length) return;
     const h = document.createElement("span"); h.className="lbl"; h.textContent="Key dates"; box.append(h);
@@ -1135,10 +1171,10 @@
     p.append(s3);
 
     const s4 = el("section"); s4.append(el("h3",null,"Assistant"));
-    s4.append(el("p",null, phone.matches ? "Press Talk on the home screen (or the blob in the bottom bar) and speak. It only listens after you press it." : "Press Talk next to the date, or V, and speak. It only listens after you press it."));
+    s4.append(el("p",null, phone.matches ? "Tap the blob in the bottom bar to open the assistant, then talk or type. It only listens while it is open." : "Click the blob in the bottom-right corner, or press V, then talk or type. It only listens while it is open."));
     s4.append(field("What should it call you?","dash.ai.name","Deo"));
     s4.append(field("Assistant's name","dash.ai.botname","Eclipse"));
-    s4.append(area("About you (goals, school, how you like to be spoken to)","dash.ai.about","e.g. Grade 12, aiming for IELTS 7.5. Keep me accountable, be direct."));
+    s4.append(area("About you (goals, school, how you like to be spoken to)","dash.ai.about","e.g. Grade 12, applying for scholarships abroad. Keep me accountable, be direct."));
     const prov = store.get("dash.ai.provider","gemini") || "gemini";
     s4.append(choice("Answers come from","dash.ai.provider",[["gemini","Gemini"],["anthropic","Claude"],["openai","ChatGPT"],["omni","OmniRoute on this Mac"]], "gemini", renderAcct));
     if (prov==="omni"){
@@ -1179,8 +1215,8 @@
     if (!e.target.closest("#acct") && !e.target.closest("#btnAcct") && !e.target.closest("#mAcct")) toggleAcct(false);
   });
 
-  /* ---------- phone views + pop-up sheets (school, tracker) ---------- */
-  const VIEWS = ["home","tasks","school","track"];
+  /* ---------- phone views + pop-up sheets (school, scholarships) ---------- */
+  const VIEWS = ["home","tasks","school","scholar"];
   function setView(v){
     if (!VIEWS.includes(v)) v = "home";
     document.body.dataset.view = v; store.set("dash.view", v);
@@ -1188,7 +1224,7 @@
     if (phone.matches) scrollTo(0,0);
   }
   function closeSheets(){ document.querySelectorAll(".sheet.open").forEach(x => x.classList.remove("open")); $("#btnSchool").classList.remove("on"); }
-  function openSheet(id){                       // "school" | "track"
+  function openSheet(id){                       // "school" | "scholar"
     if (phone.matches) return setView(id);
     const was = $("#"+id).classList.contains("open");
     closeSheets();
@@ -1284,8 +1320,7 @@
     else if (spotify.configured) act("spotify-connect");
     else toggleAcct(true);
   };
-  $("#btnMic").onclick = $("#talkBtn").onclick = () => act("voice-toggle");
-  $("#mTalk").onclick = () => { setView("home"); act("voice-toggle"); };
+  $("#btnMic").onclick = $("#orbFab").onclick = $("#mTalk").onclick = () => act("voice-toggle");
   document.addEventListener("keydown", e => {
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key==="s"||e.key==="S") openSheet("school");
@@ -1297,27 +1332,16 @@
     if (e.key==="Escape" && selDay){ selDay=null; $("#newDue").value=""; renderCal(); renderUp(); }
   });
 
-  /* ---------- cursor ---------- */
+  /* ---------- the background drifts a little with the pointer (computer only) ---------- */
   (function(){
-    const glow = $("#cursorGlow"), bg = $("#bg");
-    const interactiveSel = "button, a, input, .day, .item, .uprow, [role='tab']";
-    let raf = null, tx = innerWidth/2, ty = innerHeight*.38, cx = tx, cy = ty;
+    if (matchMedia("(hover:none),(pointer:coarse)").matches || reduceMotion) return;
+    const bg = $("#bg"); let tx = .5, ty = .38, cx = tx, cy = ty, raf = 0;
     function loop(){
-      cx += (tx-cx)*.45; cy += (ty-cy)*.45;
-      glow.style.transform = "translate("+cx+"px,"+cy+"px)";
-      bg.style.setProperty("--mx", (cx/innerWidth*100)+"%");
-      bg.style.setProperty("--my", (cy/innerHeight*100)+"%");
-      raf = requestAnimationFrame(loop);
+      cx += (tx-cx)*.12; cy += (ty-cy)*.12;
+      bg.style.setProperty("--mx", (cx*100)+"%"); bg.style.setProperty("--my", (cy*100)+"%");
+      raf = Math.abs(tx-cx)+Math.abs(ty-cy) > .002 ? requestAnimationFrame(loop) : 0;
     }
-    addEventListener("pointermove", e => {
-      tx = e.clientX; ty = e.clientY;
-      glow.classList.toggle("hover", !!e.target.closest(interactiveSel));
-    }, {passive:true});
-    addEventListener("pointerdown", () => glow.classList.add("down"), {passive:true});
-    addEventListener("pointerup",   () => glow.classList.remove("down"), {passive:true});
-    addEventListener("pointerleave", () => glow.style.opacity = 0, {passive:true});
-    addEventListener("pointerenter", () => glow.style.opacity = "", {passive:true});
-    loop();
+    addEventListener("pointermove", e => { tx = e.clientX/innerWidth; ty = e.clientY/innerHeight; if (!raf) raf = requestAnimationFrame(loop); }, {passive:true});
   })();
 
   /* ---------- go ---------- */
@@ -1332,7 +1356,7 @@
 <script type="module" src="spotify.js"></script>
 <script type="module" src="weather.js"></script>
 <script type="module" src="school.js"></script>
-<script type="module" src="track.js"></script>
+<script type="module" src="scholar.js"></script>
 <script type="module" src="voice.js"></script>
 </body>
 </html>

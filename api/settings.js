@@ -1,10 +1,10 @@
-// Per-account preferences (weather city, assistant profile, IELTS scores, ...). Never put secrets here: API keys stay on the device.
+// Per-account preferences (weather city, assistant profile, scholarship tracker, ...). Never put secrets here: API keys stay on the device.
 import { db } from "./_lib/db.js";
 import { route, json, body } from "./_lib/http.js";
 import { requireUser } from "./_lib/auth.js";
 
 const ALLOWED = ["dash.weather.loc", "dash.voice.speak", "dash.omni.base", "dash.omni.model", "dash.pal.pin", "dash.fold",
-  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.ielts"];
+  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.scholar"];
 
 export default route(["GET", "PUT"], async (req, res) => {
   const a = await requireUser(req, res, json); if (!a) return;

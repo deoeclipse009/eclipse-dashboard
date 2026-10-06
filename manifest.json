@@ -1,8 +1,9 @@
 {
   "name": "Eclipse Dashboard",
   "short_name": "Dashboard",
-  "description": "Personal dashboard with clock, calendar, to-do, music and weather",
-  "start_url": "/eclipse-dashboard/",
+  "description": "Personal dashboard: clock, calendar, to-do, school timetable, scholarships and an assistant",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#B7ADE0",
   "theme_color": "#B7ADE0",
