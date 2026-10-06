@@ -108,27 +108,30 @@
 
   /* column 2: big date, month, clock */
   .c2{container-type:inline-size;overflow:hidden}
-  .c2top{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:.5rem;align-items:center;padding-right:1.8rem}
-  .orb-home{grid-row:1 / span 2;width:6rem;aspect-ratio:1;margin:-1.3rem -.9rem -1.3rem -1.25rem;border-radius:50%;-webkit-tap-highlight-color:transparent;transition:transform .3s ease}
+  /* three zones: assistant on top, clock exactly in the middle, lists underneath (the outer two share the spare height) */
+  .c2top{order:1;flex:1 1 0;min-height:0;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;align-content:start;column-gap:.4rem;align-items:center;padding-right:1.8rem}
+  .orb-home{grid-row:1 / span 2;width:12.5rem;aspect-ratio:1;margin:-1.1rem -1.9rem -1.9rem -1.5rem;border-radius:50%;-webkit-tap-highlight-color:transparent;transition:transform .3s ease}
   .orb-home:hover{transform:scale(1.06)}
   .orb-home canvas{display:block;width:100%;height:100%}
-  .hi{align-self:end;font-size:.95rem;font-weight:400;line-height:1.3}
+  .hi{align-self:end;font-size:1.05rem;font-weight:400;line-height:1.3}
   .hi b{font-weight:inherit}
   .brief{align-self:start;margin-top:.15rem;font-size:.76rem;line-height:1.5;color:var(--soft)}
   .brief div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .brief b{font-weight:400;color:var(--ink)}
-  .c2extra{margin-top:5vh;max-width:30rem}
-  .counts .lbl{display:block;margin-bottom:.45rem}
+  .c2extra{order:3;flex:1 1 0;min-height:0;overflow:hidden;max-width:30rem}
+  .c2extra::before{content:"";display:block;height:calc(4.6vh + 2.2rem)}   /* room for the date line under the clock */
+  .counts{margin-top:4vh}
+  .counts:empty{display:none}
+  .counts .lbl{display:block;margin-bottom:.45rem;font-size:.95rem;font-weight:400;color:var(--ink)}
   .counts div.row{display:flex;justify-content:space-between;gap:1rem;padding:.4rem 0;border-top:1px solid var(--line);font-size:.88rem;line-height:1.3}
   .counts div.row:first-of-type{border-top:0}
   .counts div.row span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .counts div.row span:last-child{color:var(--soft);white-space:nowrap}
-  .counts:not(:empty) + .classes{margin-top:3.4vh}
-  .timebox{margin-top:auto;padding-top:2vh}
-  .datestamp{margin-bottom:1.6vh;font-size:.95rem;font-weight:400;letter-spacing:.01em;color:var(--soft)}
+  .timebox{order:2;position:relative}
+  .datestamp{position:absolute;left:0;top:100%;white-space:nowrap;margin-top:2.2vh;font-size:1.05rem;font-weight:300;letter-spacing:.01em;color:var(--soft)}
   .datestamp .sep{margin:0 .55em;opacity:.6}
   .datestamp #daymonth{color:var(--ink)}
-  .clock{max-width:100%;margin-bottom:-.06em;font-weight:100;line-height:.82;letter-spacing:-.03em;font-size:min(19vh,11vw,44cqw);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .clock{max-width:100%;font-weight:100;line-height:.82;letter-spacing:-.03em;font-size:min(19vh,11vw,44cqw);white-space:nowrap;font-variant-numeric:tabular-nums}
   .clock small{font-size:.28em;font-weight:200;margin-left:.3rem;color:var(--soft);letter-spacing:0;font-variant-numeric:tabular-nums}
   .tiles,.daybar{display:none}
 
@@ -356,7 +359,7 @@
       --page:color-mix(in srgb,var(--c2) 62%,#fff);--card:color-mix(in srgb,var(--c2) 16%,#fff);
       --shadow:0 .5rem 1.4rem -1rem color-mix(in srgb,var(--ink) 35%,transparent);background:var(--page)}
     body.dark{--page:color-mix(in srgb,var(--base) 58%,#000);--card:color-mix(in srgb,var(--base) 88%,var(--ink));--shadow:none}
-    .rail,.fold,.dock,.palette,.sheet-x,.year,.scrim,.orb-home,.mhead h1,.wk{display:none}
+    .rail,.fold,.dock,.palette,.sheet-x,.year,.scrim,.orb-home,#mPalette,.wk{display:none}
 
     /* gradient header */
     .bg{position:absolute;inset:0 0 auto 0;height:var(--hero-h,19rem);border-radius:0 0 2.2rem 2.2rem;transition:height .35s cubic-bezier(.2,.7,.2,1),opacity .45s ease}
@@ -368,8 +371,8 @@
     .wash{background:color-mix(in srgb,var(--base) 30%,transparent)}
     .grain{opacity:.45}
 
-    .mhead{position:relative;z-index:2;display:block;padding:calc(env(safe-area-inset-top,0px) + .8rem) 1.1rem 0;transition:opacity .5s ease,filter .5s ease}
-    .mhead div{display:flex;justify-content:space-between}
+    .mhead{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + .8rem) 1.1rem 0;transition:opacity .5s ease,filter .5s ease}
+    .mhead h1{font-size:1.05rem;font-weight:600;letter-spacing:-.02em}
     .mhead button{width:3.3rem;height:2.4rem;display:grid;place-items:center;border-radius:1.2rem;background:var(--ink);color:var(--base)}
     .mhead button.on{box-shadow:0 0 0 2px var(--base),0 0 0 3.5px var(--ink)}
     .mhead svg,.mobile-nav svg,.tiles svg{width:1.2rem;height:1.2rem;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
@@ -387,7 +390,7 @@
 
     /* cards */
     .brief,.counts,.classes,.up,.fund,.music,.cal,.add,.list,.dv,.sform,.srow{margin-top:.7rem;padding:1.05rem 1.15rem;border-radius:1.5rem;background:var(--card);box-shadow:var(--shadow);max-width:none}
-    .counts:empty{display:none}
+    .counts{order:-1}
     .counts .lbl,.sec-h .lbl,.up h3 > span,.fund h3 > span,.music .top span,.calhead .lbl{font-size:1.02rem !important;font-weight:500 !important;letter-spacing:-.01em;color:var(--ink)}
     .sec-h,.up h3,.fund h3,.music .top{margin-bottom:.7rem;align-items:center}
     .sec-h button,.up h3 button,.fund h3 button{padding:.32rem .8rem;border-radius:1rem;background:color-mix(in srgb,var(--ink) 8%,transparent);font-size:.78rem;font-weight:500;color:var(--ink)}
@@ -398,7 +401,7 @@
     .hi{order:1;align-self:flex-start;margin-top:1.3rem;font-size:2.05rem;font-weight:300;letter-spacing:-.035em;line-height:1.12}
     .hi b{display:block;font-weight:700}
     .timebox{order:2;display:flex;flex-direction:column;margin-top:1.15rem;padding:1rem 1.25rem 1.05rem;border-radius:1.5rem;background:var(--ink);color:var(--base)}
-    .datestamp{margin:0;font-size:.85rem;font-weight:400;color:color-mix(in srgb,var(--base) 78%,transparent)}
+    .datestamp{position:static;margin:0;font-size:.85rem;font-weight:400;color:color-mix(in srgb,var(--base) 78%,transparent)}
     .datestamp #daymonth{color:inherit}
     .clock{align-self:flex-end;margin:.35rem 0 0;font-size:2.9rem;font-weight:500;letter-spacing:-.03em;line-height:1}
     .clock small{font-size:.42em;font-weight:400;margin-left:.35rem;color:color-mix(in srgb,var(--base) 60%,transparent)}
@@ -412,8 +415,8 @@
     .tiles small{font-size:.72rem;color:var(--soft)}
     .tiles b{font-size:1.05rem;font-weight:500;letter-spacing:-.01em}
     .tiles button:active{transform:scale(.97)}
-    .c2extra{order:5;margin:0;max-width:none}
-    .counts:not(:empty) + .classes{margin-top:.7rem}
+    .c2extra{order:5;flex:none;overflow:visible;margin:0;max-width:none}
+    .c2extra::before{display:none}
     .counts div.row{padding:.6rem 0;font-size:.95rem}
     .daybar{display:block;height:.55rem;margin:.1rem 0 .9rem;border-radius:1rem;background:color-mix(in srgb,var(--ink) 9%,transparent);overflow:hidden}
     .daybar i{display:block;height:100%;border-radius:1rem;background:linear-gradient(90deg,var(--c1),var(--c3))}
@@ -652,7 +655,6 @@
       <button data-go="school"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2"/><path d="M5.4 8.2l1.800 1.800 3.400-3.800"/></svg><small>See</small><b>Week</b></button>
     </div>
     <div class="c2extra">
-      <div class="counts" id="counts"></div>
       <div class="classes" id="schoolToday"></div>
     </div>
     <div class="timebox" id="timebox">
@@ -687,6 +689,7 @@
   <section class="col c4" data-name="Upcoming">
     <button class="palette" id="palette" title="Click to change colors"></button>
     <div class="up" id="up"></div>
+    <div class="counts" id="counts"></div>
     <div class="fund" id="scholarCard"></div>
     <div class="music" id="music"></div>
   </section>
@@ -765,6 +768,8 @@
     return cur;
   }
 
+  const PHONE_PALETTE = PALETTES.find(p => p.name==="Pine & Ember"), phoneQ = matchMedia("(max-width:900px)");
+  phoneQ.addEventListener("change", () => refreshPalette());
   // palette mode: auto (follows the clock) or a pinned palette from PALETTES
   let pin = store.get("dash.pal.pin", null);
   if (pin!=null && !PALETTES[pin]) pin = null;
@@ -783,7 +788,8 @@
     s[2].textContent = p.hex || p.c1.toUpperCase(); s[4].textContent = p.mood;
   }
   function refreshPalette(){
-    const p = pin==null ? autoPalette() : PALETTES[pin];
+    // phones always use one look (Pine & Ember); the time-of-day themes and pinned palettes are for the computer
+    const p = phoneQ.matches ? PHONE_PALETTE : pin==null ? autoPalette() : PALETTES[pin];
     const sig = JSON.stringify([p, pin]);
     if (sig===applied) return;
     const apply = () => { applied = sig; appliedDark = !!p.dark; paintPalette(p); };
@@ -909,7 +915,7 @@
     paintGreeting();
   }
   const who = () => String(store.get("dash.ai.name","")||"").trim() || "Deo";
-  function paintGreeting(){ $("#greet").textContent = new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}); renderExtras(); }
+  function paintGreeting(){ $("#greet").textContent = "Eclipse"; renderExtras(); }
   function tick(){
     const d = new Date(), p = n => String(n).padStart(2,"0");
     $("#clock").innerHTML = p(d.getHours())+":"+p(d.getMinutes())+"<small>"+p(d.getSeconds())+"</small>";

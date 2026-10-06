@@ -191,17 +191,27 @@ function frame(ms){
   const speed = state === "thinking" ? 2.6 : state === "idle" ? .45 : 1.1;
   const tt = quiet ? 0 : t * speed;
   const breathe = quiet ? 0 : Math.sin(t * (state === "thinking" ? 4.2 : 1.4)) * (state === "thinking" ? .035 : .018);
-  const R = Math.min(w, h) * .29 * (state === "thinking" ? .82 : 1) * (1 + breathe + level * .22);
+  const R = Math.min(w, h) * .25 * (state === "thinking" ? .82 : 1) * (1 + breathe + level * .22);
   const amp = (state === "thinking" ? .09 : state === "idle" ? .035 : .05) + level * .2;
   const cx = w / 2, cy = h / 2;
   ctx.clearRect(0, 0, w, h);
-  // two soft halos, then the body
-  ctx.globalAlpha = .16 + level * .12; ctx.fillStyle = c.c1; shape(cx, cy, R * (1.34 + level * .25), amp * 1.9, tt * .7, 4.2); ctx.fill();
-  ctx.globalAlpha = .3 + level * .15;  ctx.fillStyle = c.c3; shape(cx, cy, R * (1.15 + level * .12), amp * 1.4, tt * .85, 1.7); ctx.fill();
+  // glow, two soft halos, two drifting hairline rings, then the body with a highlight
+  ctx.save(); ctx.shadowColor = c.c1; ctx.shadowBlur = R * (.7 + level * .6); ctx.globalAlpha = .55; ctx.fillStyle = c.c1;
+  shape(cx, cy, R * .92, amp, tt, 0); ctx.fill(); ctx.restore();
+  ctx.globalAlpha = .14 + level * .12; ctx.fillStyle = c.c1; shape(cx, cy, R * (1.34 + level * .25), amp * 1.9, tt * .7, 4.2); ctx.fill();
+  ctx.globalAlpha = .26 + level * .15; ctx.fillStyle = c.c3; shape(cx, cy, R * (1.15 + level * .12), amp * 1.4, tt * .85, 1.7); ctx.fill();
+  ctx.lineWidth = dpr; ctx.strokeStyle = c.ink;
+  ctx.globalAlpha = .34; shape(cx, cy, R * (1.5 + level * .2), amp * 1.3 + .025, -tt * .5, 2.9); ctx.stroke();
+  ctx.globalAlpha = .16; shape(cx, cy, R * (1.68 + level * .3), amp * 1.6 + .04, tt * .35, 5.3); ctx.stroke();
   ctx.globalAlpha = 1;
-  const g = ctx.createRadialGradient(cx - R * .35, cy - R * .4, R * .1, cx, cy, R * 1.25);
-  g.addColorStop(0, c.c1); g.addColorStop(1, c.ink);
+  const g = ctx.createRadialGradient(cx - R * .35, cy - R * .42, R * .08, cx, cy, R * 1.25);
+  g.addColorStop(0, c.c3); g.addColorStop(.38, c.c1); g.addColorStop(1, c.ink);
   ctx.fillStyle = g; shape(cx, cy, R, amp, tt, 0); ctx.fill();
+  ctx.save(); ctx.clip();
+  const hl = ctx.createRadialGradient(cx - R * .38, cy - R * .5, 0, cx - R * .38, cy - R * .5, R * .75);
+  hl.addColorStop(0, "rgba(255,255,255,.42)"); hl.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = hl; ctx.fillRect(cx - R * 1.4, cy - R * 1.4, R * 2.8, R * 2.8);
+  ctx.restore();
 }
 function startBlob(){ if (!raf) raf = requestAnimationFrame(frame); }
 function stopBlob(){ cancelAnimationFrame(raf); raf = 0; }
