@@ -1,9 +1,10 @@
-// Per-account preferences (weather city, voice options, ...). Never put secrets here.
+// Per-account preferences (weather city, assistant profile, IELTS scores, ...). Never put secrets here: API keys stay on the device.
 import { db } from "./_lib/db.js";
 import { route, json, body } from "./_lib/http.js";
 import { requireUser } from "./_lib/auth.js";
 
-const ALLOWED = ["dash.weather.loc", "dash.voice.speak", "dash.omni.base", "dash.omni.model", "dash.pal.pin", "dash.fold"];
+const ALLOWED = ["dash.weather.loc", "dash.voice.speak", "dash.omni.base", "dash.omni.model", "dash.pal.pin", "dash.fold",
+  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.ielts"];
 
 export default route(["GET", "PUT"], async (req, res) => {
   const a = await requireUser(req, res, json); if (!a) return;
@@ -15,7 +16,7 @@ export default route(["GET", "PUT"], async (req, res) => {
   const s = body(req).settings || {};
   const stmts = Object.keys(s).filter(k => ALLOWED.includes(k)).map(k => {
     const v = JSON.stringify(s[k] === undefined ? null : s[k]);
-    if (v.length > 2000) return null;
+    if (v.length > 20000) return null;
     return { sql: "INSERT INTO settings (user_id, key, value) VALUES (?,?,?) ON CONFLICT(user_id, key) DO UPDATE SET value = excluded.value", args: [a.user.id, k, v] };
   }).filter(Boolean);
   if (stmts.length) await db().batch(stmts, "write");

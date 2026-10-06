@@ -3,12 +3,12 @@
 -- Only the ids listed below can run; nothing from the URL is ever executed.
 -- Edit the lists, then run launcher/install.sh again.
 
-property allowedApps : {{"claude", "Claude"}, {"spotify", "Spotify"}, {"notion", "Notion"}, {"chrome", "Google Chrome"}}
+property allowedApps : {{"claude", "Claude"}, {"antigravity", "Antigravity"}, {"orion", "Orion"}, {"spotify", "Spotify"}}
 
-property allowedLinks : {{"github", "https://github.com/deoeclipse009/eclipse-dashboard"}, {"site", "https://deoeclipse009.github.io/eclipse-dashboard/"}, {"omniroute-ui", "http://localhost:20128"}}
+property allowedLinks : {{"github", "https://github.com/deoeclipse009/eclipse-dashboard"}, {"studio-site", "https://github.com/deoeclipse009/eclipse-studio-website"}, {"studio-dash", "https://github.com/deoeclipse009/eclipse-studio-dashboard"}, {"omniroute-ui", "http://localhost:20128"}}
 
 -- folders are relative to your home folder
-property allowedFolders : {{"project", "Desktop/eclipse-dashboard"}}
+property allowedFolders : {}
 
 -- OmniRoute is told to accept calls from the dashboard site (needed for voice commands)
 property allowedCommands : {{"omniroute", "CORS_ALLOWED_ORIGINS=https://deoeclipse009.github.io omniroute serve"}, {"omniroute-stop", "omniroute stop"}, {"claude-code", "cd ~ && claude"}}

@@ -48,14 +48,15 @@ Google's browser token lasts about an hour. The dashboard renews it quietly; if 
 2. Copy the **Client ID** into `spotifyClientId` in `config.js`.
 3. Person icon > **Connect Spotify**. Play/pause/next/previous need **Spotify Premium**. Apps in development mode only work for the owner and users added under **User Management**.
 
-## 5. Voice assistant (Claude through OmniRoute)
+## 5. Assistant (Gemini by default)
 
-1. Run `./launcher/install.sh` once (and again after launcher changes).
-2. Click **OmniRoute** in the Launch section. It starts `omniroute serve` allowing this site to call it. The dot next to it turns green when it's running.
-3. Press **V** or the mic button and speak: "add dentist friday at 3pm", "what's on today", "next song", "open Notion".
-4. If you set an OmniRoute API key, add it in the panel under Voice assistant (stored on this device only).
+1. Go to https://aistudio.google.com/apikey, sign in with your Google account and press **Create API key**. This key is separate from a Gemini app subscription; the free tier is enough for a personal assistant.
+2. On the dashboard open the person icon > **Assistant**, leave **Answers come from** on **Gemini**, and paste the key into **Gemini API key**. Do this once on each device (the key is kept in that browser only and is never synced).
+3. Press **Talk** next to the date (or **V**, or the blob in the phone's bottom bar) and speak: "add dentist friday at 3pm", "what's on today", "I got 7 in reading", "next song". Press **End** or Esc to stop. Nothing listens until you press Talk.
 
-Speech-to-text is done by the browser (Chrome or Safari) and needs the microphone allowed. The assistant can only add or complete tasks, open launcher buttons and control Spotify. It can't delete anything.
+Claude, ChatGPT and OmniRoute are also in the **Answers come from** list. For OmniRoute, run `./launcher/install.sh` once, click **OmniRoute** in the Launch section (the dot turns green), and pick "OmniRoute on this Mac".
+
+Speech-to-text is done by the browser (Chrome or Safari) and needs the microphone allowed. The assistant can add or complete tasks, log an IELTS score, open a view, open launcher buttons and control Spotify. It can't delete anything.
 
 ## 6. Weather and sun times
 
@@ -69,5 +70,5 @@ Person icon > **Weather and sun times**: type a city and press Set (Open-Meteo, 
 
 | Data | Where |
 |---|---|
-| Account, hashed password, devices, tasks, weather city, theme choice, folded sections | Your Turso database |
-| Spotify and Google tokens, OmniRoute address/key | This device only (browser storage) |
+| Account, hashed password, devices, tasks, weather city, theme choice, folded sections, assistant profile, lesson times, IELTS scores | Your Turso database |
+| Spotify and Google tokens, AI provider API keys, OmniRoute address/key | This device only (browser storage) |

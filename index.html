@@ -22,7 +22,7 @@
     --line:color-mix(in srgb,var(--ink) 30%,transparent);
     --soft:color-mix(in srgb,var(--ink) 62%,transparent);
   }
-  button,input{font:inherit;color:inherit;background:none;border:0;outline:0}
+  button,input,select,textarea{font:inherit;color:inherit;background:none;border:0;outline:0}
   button{cursor:pointer}
   :focus-visible{outline:1px solid var(--ink);outline-offset:3px;border-radius:3px}
 
@@ -58,7 +58,7 @@
     display:grid;grid-template-columns:1fr 2fr 1.15fr 1.15fr;
   }
   .col{position:relative;display:flex;flex-direction:column;min-height:0;min-width:0;padding:0 clamp(14px,1.5vw,26px);border-left:1px solid var(--line)}
-  .col:last-child{border-right:1px solid var(--line)}
+  .c4{border-right:1px solid var(--line)}
   .lbl{font-size:.74rem;letter-spacing:.02em;color:var(--soft)}
   .hide-in-focus{transition:opacity .35s}
   body.focus .c3 > *, body.focus .c4 > *{opacity:0;pointer-events:none}
@@ -111,10 +111,14 @@
   .c2{container-type:inline-size;overflow:hidden}
   .clock{margin-top:auto;max-width:100%;font-weight:100;line-height:.82;letter-spacing:-.03em;font-size:min(20vh,11vw,44cqw);white-space:nowrap;font-variant-numeric:tabular-nums}
   .clock small{font-size:.28em;font-weight:200;margin-left:.3rem;color:var(--soft);letter-spacing:0;font-variant-numeric:tabular-nums}
-  .datestamp{margin-top:2.4vh;font-size:min(2.6vh,7.5cqw);font-weight:300;letter-spacing:.01em;color:var(--soft)}
+  .hello{display:flex;align-items:flex-start;gap:.5em;margin-top:1.6vh;font-size:min(1.9vh,5.4cqw);line-height:1.45}
+  .hello-t{flex:1;min-width:0}
+  .datestamp{font-size:1.28em;font-weight:300;letter-spacing:.01em;color:var(--soft)}
   .datestamp .sep{margin:0 .55em;opacity:.6}
-  .c2extra{margin-top:2.2vh;margin-bottom:auto;font-size:min(1.9vh,5.4cqw);line-height:1.45}
-  .brief{color:var(--soft)}
+  .c2extra,.convo{margin-top:1.6vh;margin-bottom:auto;font-size:min(1.9vh,5.4cqw);line-height:1.45}
+  body.talking .c2extra,body:not(.talking) .convo{display:none}
+  .brief{margin-top:.35em;color:var(--soft)}
+  .brief .hi{font-size:1.2em;font-weight:400;color:var(--ink)}
   .brief b{font-weight:400;color:var(--ink)}
   .counts{margin-top:1.6vh;max-width:26em}
   .counts .lbl{display:block;margin-bottom:.35rem}
@@ -190,18 +194,122 @@
   .np-wrap .ctl .main{border:1px solid var(--line);opacity:.95}
   .dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:var(--line);margin-left:auto}
   .dot.on{background:#3fb06b;box-shadow:0 0 0 3px color-mix(in srgb,#3fb06b 25%,transparent)}
-  .voice{position:fixed;left:50%;bottom:3.2vh;transform:translate(-50%,12px);max-width:min(38rem,88vw);padding:.7rem 1.1rem;border-radius:1.2rem;border:1px solid var(--line);background:color-mix(in srgb,var(--base) 78%,transparent);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);font-size:.9rem;line-height:1.4;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:60;display:flex;gap:.75rem;align-items:center}
-  .voice.show{opacity:1;transform:translate(-50%,0)}
-  .voice i{flex:none;width:.55rem;height:.55rem;border-radius:50%;background:var(--ink);opacity:.45}
-  .voice.listening i{background:#e5484d;opacity:1;animation:pulse 1.1s ease-in-out infinite}
-  .voice.thinking i{animation:pulse 1.6s ease-in-out infinite}
-  @keyframes pulse{50%{transform:scale(1.55);opacity:.5}}
+  /* assistant: the blob lives next to the date; it only listens after you press Talk (see voice.js) */
+  .orb-blob{flex:none;width:7.4em;aspect-ratio:1;margin:-1.5em -1.4em -1.4em -1.5em;border-radius:50%;-webkit-tap-highlight-color:transparent;transition:width .45s cubic-bezier(.2,.7,.2,1)}
+  body.talking .orb-blob{width:10em}
+  .orb-blob canvas{display:block;width:100%;height:100%}
+  .talkbar{display:flex;align-items:center;gap:.8em;margin-top:.75em}
+  .talk-btn{display:inline-flex;align-items:center;gap:.5em;padding:.34em .95em .34em .8em;border-radius:2em;background:var(--ink);color:var(--base);font-size:.88em;font-weight:400;transition:opacity .2s}
+  .talk-btn:hover{opacity:.85}
+  .talk-btn svg{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round}
+  body.talking .talk-btn{background:none;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+  .orb-state{font-size:.72em;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+  .convo .you{min-height:1.4em;font-size:.9em;color:var(--soft)}
+  .convo .ai{margin-top:.3em;min-height:2.7em;max-height:8.2em;overflow:auto;scrollbar-width:none;font-size:1.25em;line-height:1.35;color:var(--ink)}
+  .orb-type{display:flex;align-items:center;max-width:26em;margin-top:.8em;border-bottom:1px solid var(--line)}
+  .orb-type input{flex:1;min-width:0;padding:.5em 0;font-size:1em}
+  .orb-type input::placeholder{color:var(--soft)}
+  .orb-type button{width:2.2em;height:2.2em;font-size:1.1em;opacity:.6}
+  .orb-type button:hover{opacity:1}
+
+  /* school: today's classes (column 2) + the week sheet. Each class is a filled block, tinted by kind of subject. */
+  .cls,.wk .cell,.legend i{--tone:color-mix(in srgb,var(--ink) 55%,var(--base))}
+  .t-sci{--tone:color-mix(in srgb,var(--c1) 72%,var(--ink)) !important}
+  .t-lang{--tone:color-mix(in srgb,var(--c3) 72%,var(--ink)) !important}
+  .t-prep{--tone:var(--ink) !important}
+  .classes{margin-top:1.6vh;max-width:30em}
+  .sec-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.45em}
+  .sec-h .lbl{color:var(--ink);font-size:.8em;font-weight:400}
+  .sec-h button{font-size:.76em;color:var(--soft)}
+  .sec-h button:hover{color:var(--ink)}
+  .cls{display:flex;gap:.9em;align-items:center;margin-top:.28em;padding:.4em .75em .4em .9em;border-radius:.6em;font-size:.9em;line-height:1.25;
+    background:color-mix(in srgb,var(--tone) 24%,transparent);box-shadow:inset 3px 0 0 var(--tone)}
+  .cls .tm{flex:none;width:6.3em;font-weight:400;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .cls .nm{flex:1;min-width:0;font-weight:400;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cls .nm small{display:block;font-size:.8em;font-weight:300;color:color-mix(in srgb,var(--ink) 72%,transparent);overflow:hidden;text-overflow:ellipsis}
+  .cls em{flex:none;font-style:normal;font-size:.7em;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:.15em .65em;border-radius:1em;background:var(--base);color:var(--ink)}
+  .cls.past{opacity:.38}
+  .cls.now{background:var(--ink);box-shadow:0 .7em 1.4em -.8em var(--ink)}
+  .cls.now .tm,.cls.now .nm{color:var(--base)}
+  .cls.now .nm small{color:color-mix(in srgb,var(--base) 75%,transparent)}
+  .sheet{display:none}
+  .sheet-in{position:relative}
+  .sheet h2{font-weight:200;font-size:2.1rem;letter-spacing:-.02em;line-height:1}
+  .sheet .sub{margin-top:.5rem;font-size:.82rem;color:var(--soft);line-height:1.45}
+  .sheet-x{position:absolute;top:.9rem;right:1rem;width:2.2rem;height:2.2rem;font-size:1.4rem;font-weight:200;line-height:1;opacity:.55}
+  .sheet-x:hover{opacity:1}
+  .wk{display:grid;grid-template-columns:5rem repeat(var(--n,8),minmax(0,1fr));gap:.4rem;margin-top:1.5rem}
+  .wk > *{min-width:0}
+  .wk .ph{padding:.1rem 0 .35rem;text-align:center;font-size:.95rem;font-weight:400}
+  .wk .ph small{display:block;margin-top:.1rem;font-size:.66rem;font-weight:300;color:color-mix(in srgb,var(--ink) 75%,transparent);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .wk .dn{display:flex;align-items:center;justify-content:center;border-radius:.7rem;font-size:.9rem;font-weight:400}
+  .wk .dn.on{background:var(--ink);color:var(--base);font-weight:500}
+  .wk .cell{display:flex;flex-direction:column;justify-content:center;gap:.14rem;min-height:5rem;padding:.6rem .8rem .6rem .9rem;border-radius:.7rem;
+    background:color-mix(in srgb,var(--tone) 22%,transparent);box-shadow:inset 3px 0 0 var(--tone);transition:background .2s,transform .2s}
+  .wk .cell b{font-weight:500;font-size:1.08rem;letter-spacing:.005em}
+  .wk .cell span{font-size:.68rem;color:color-mix(in srgb,var(--ink) 80%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wk .cell.on{background:color-mix(in srgb,var(--tone) 36%,transparent)}
+  .wk .cell:not(.free):not(.now):hover{background:color-mix(in srgb,var(--tone) 46%,transparent)}
+  .wk .cell.free{background:none;box-shadow:inset 0 0 0 1px var(--line);opacity:.5}
+  .wk .cell.now{background:var(--ink);color:var(--base);box-shadow:0 .9rem 1.8rem -1rem var(--ink)}
+  .wk .cell.now span{color:inherit;opacity:.75}
+  .legend{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;margin-top:1rem;font-size:.74rem;color:var(--soft)}
+  .legend i{display:inline-block;width:.7rem;height:.7rem;margin-right:.4rem;border-radius:.2rem;background:var(--tone);vertical-align:-.05rem}
+  .dv{display:none}
+  .times{display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:.3rem 1.4rem;margin-top:1rem}
+  .times label{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--soft);border-bottom:1px solid var(--line);padding:.25rem 0}
+  .times input{flex:1;min-width:0;font-size:.85rem;color:var(--ink);color-scheme:light}
+  body.dark .times input,body.dark .tform input[type=date]{color-scheme:dark}
+  .sheet .foot{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.1rem}
+
+  /* IELTS tracker: summary card (column 4) + the log sheet */
+  .score{margin-top:4vh}
+  .score h3{font-weight:400;font-size:.95rem;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem}
+  .score h3 button{font-size:.72rem;color:var(--soft)}
+  .score h3 button:hover{color:var(--ink)}
+  .score .row{display:flex;align-items:flex-end;gap:1rem;width:100%;text-align:left}
+  .score .big{font-size:2.9rem;font-weight:100;line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .score .side{flex:1;min-width:0}
+  .score .note{font-size:.72rem;color:var(--soft);line-height:1.4}
+  .spark{display:block;width:100%;height:2.2rem;overflow:visible}
+  .spark path{fill:none;stroke:currentColor;stroke-width:1.2;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+  .spark .tg{stroke-dasharray:2 4;opacity:.45}
+  .skills{display:grid;grid-template-columns:repeat(4,1fr);margin-top:1.4rem;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .skills div{padding:.8rem .2rem .7rem .8rem;border-left:1px solid var(--line)}
+  .skills div:first-child{border-left:0;padding-left:0}
+  .skills b{display:block;font-weight:200;font-size:1.7rem;line-height:1;font-variant-numeric:tabular-nums}
+  .skills span{display:block;margin-top:.3rem;font-size:.72rem;color:var(--soft)}
+  .tform{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.4rem 1rem;margin-top:1.4rem}
+  .tform label{font-size:.72rem;color:var(--soft)}
+  .tform input{display:block;width:100%;padding:.4rem 0;font-size:1rem;color:var(--ink);border-bottom:1px solid var(--line)}
+  .tform input:focus{border-bottom-color:var(--ink)}
+  .tform input::placeholder{color:var(--soft);opacity:.6}
+  .tform .wide{grid-column:span 2}
+  .tform .act{grid-column:span 2;display:flex;align-items:flex-end;justify-content:flex-end;gap:.5rem}
+  .tmsg{min-height:1.2em;margin-top:.6rem;font-size:.78rem;color:var(--soft)}
+  .erow{display:flex;align-items:center;gap:.8rem;padding:.5rem 0;border-top:1px solid var(--line);font-size:.88rem}
+  .erow .when{flex:none;width:5.2rem;color:var(--soft)}
+  .erow .vals{flex:1;min-width:0;color:var(--soft);font-size:.82rem;font-variant-numeric:tabular-nums}
+  .erow .ov{flex:none;width:2.4rem;text-align:right;font-weight:400;font-variant-numeric:tabular-nums}
+  .erow .del{opacity:.45}
+  .trackhead{display:flex;align-items:flex-end;gap:1.4rem;margin-top:1.3rem}
+  .trackhead .big{font-size:4.6rem;font-weight:100;line-height:.85;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+  .trackhead .side{flex:1;min-width:0}
+  .trackhead .tgt{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--soft);margin-bottom:.4rem}
+  .trackhead .tgt input{width:3.2rem;padding:.1rem 0;color:var(--ink);border-bottom:1px solid var(--line);font-size:.9rem}
+  .mobile-nav,.mhead{display:none}
+  @media (hover:none){.del{opacity:.45}}
+  @media (min-width:901px){
+    .sheet.open{display:grid;position:fixed;inset:0;z-index:70;place-items:center;padding:5vh 5vw;background:color-mix(in srgb,var(--base) 35%,transparent);-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px)}
+    .sheet-in{width:min(70rem,100%);max-height:100%;overflow:auto;scrollbar-width:none;padding:2rem 2.2rem 1.8rem;border:1px solid var(--line);border-radius:1.2rem;background:color-mix(in srgb,var(--base) 88%,transparent);box-shadow:0 2rem 4rem -2rem color-mix(in srgb,var(--ink) 40%,transparent)}
+    #track .sheet-in{width:min(38rem,100%)}
+  }
   .acct label{display:block;font-size:.72rem;color:var(--soft);margin-top:.6rem}
   .acct .chk2{display:flex;gap:.5rem;align-items:center;margin-top:.7rem;font-size:.78rem;color:var(--soft)}
   .acct .chk2 input{width:auto}
 
   /* sign-in gate (first visit on a device) */
-  body.locked .stage, body.locked .rail{opacity:0;pointer-events:none;filter:blur(14px)}
+  body.locked .stage, body.locked .rail, body.locked .mobile-nav, body.locked .mhead{opacity:0;pointer-events:none;filter:blur(14px)}
   .stage,.rail{transition:opacity .5s ease,filter .5s ease}
   .gate{position:fixed;inset:0;z-index:200;display:none;place-items:center;padding:1.5rem;background:color-mix(in srgb,var(--base) 35%,transparent);-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px)}
   .gate.show{display:grid}
@@ -223,88 +331,129 @@
   .acct h3{font-weight:400;font-size:.95rem;margin-bottom:.5rem}
   .acct section + section{margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--line)}
   .acct p{color:var(--soft);font-size:.78rem;line-height:1.45;margin-bottom:.4rem}
-  .acct input{width:100%;padding:.45rem 0;font-size:.88rem;border-bottom:1px solid var(--line)}
+  .acct input,.acct select,.acct textarea{width:100%;padding:.45rem 0;font-size:.88rem;border-bottom:1px solid var(--line);border-radius:0}
+  .acct textarea{display:block;resize:none;height:4.6rem;line-height:1.4}
+  .acct select{-webkit-appearance:none;appearance:none;cursor:pointer}
+  .acct select option{color:#111;background:#fff}
+  .acct textarea::placeholder{color:var(--soft)}
   .acct input::placeholder{color:var(--soft)}
   .acct .row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem}
   .acct .msg{margin:.9rem 0 0;min-height:1em;color:var(--ink)}
 
-  /* ---------- mobile: phone layout ---------- */
+  /* ---------- phone: one view at a time, switched from the bottom bar ---------- */
   @media (max-width:900px){
-    html{font-size:clamp(13px,2vw,16px)}
-    body{overflow:auto;height:auto;min-height:100vh;min-height:100dvh}
-    .rail{display:none}
-    .cursor-glow{display:none}
-    .fold{display:none}
-    .stage{
-      position:relative;left:0;right:0;top:0;bottom:auto;
-      display:flex;flex-direction:column;gap:0;
-      padding:env(safe-area-inset-top,1.2rem) 1.2rem calc(env(safe-area-inset-bottom,0px) + 1rem);
-    }
-    .col{border-left:0 !important;border-right:0 !important;padding:1.2rem 0}
-    .col + .col{border-top:1px solid var(--line)}
-    .col.folded > *:not(.fold){opacity:1;pointer-events:auto;visibility:visible}
-
-    /* mobile nav bar at bottom */
-    .mobile-nav{
-      position:fixed;bottom:0;left:0;right:0;z-index:80;
-      display:flex;justify-content:space-around;align-items:center;
-      padding:.55rem 0 calc(.55rem + env(safe-area-inset-bottom,0px));
-      background:color-mix(in srgb,var(--base) 82%,transparent);
-      -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);
-      border-top:1px solid var(--line)
-    }
-    .mobile-nav button{
-      width:2.6rem;height:2.6rem;display:grid;place-items:center;
-      opacity:.55;transition:opacity .2s;background:none;border:0;color:inherit
-    }
-    .mobile-nav button:hover,.mobile-nav button.on{opacity:1}
-    .mobile-nav svg{width:1.15rem;height:1.15rem;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
-
-    /* clock: smaller on mobile */
-    .clock{font-size:min(18vw,5rem) !important}
-    .datestamp{font-size:min(4vw,1rem) !important}
-    .c2extra{font-size:min(3.5vw,.9rem) !important}
-
-    /* calendar grid */
-    .grid{font-size:.85rem}
-    .day{height:2.2rem}
-
-    /* dock */
-    .dock{margin-top:1.2rem}
-    .dock .apps{gap:.35rem}
-    .dock .apps a{font-size:.78rem;padding:.22rem .6rem}
-    .dock .cmds a{padding:.5rem .3rem}
-
-    /* to-do */
-    .c3,.c4{display:block !important}
-    .body{font-size:.9rem}
-    .add input.txt{font-size:.9rem}
-    .addrow{flex-wrap:wrap}
-
-    /* upcoming + music */
-    .up{margin-top:1.2rem}
-    .music{margin-top:1.5rem}
-    .np img{width:4rem;height:4rem}
-
-    /* palette text */
-    .palette{font-size:.72rem}
-
-    /* acct panel full-width on mobile */
-    .acct{left:1rem;right:1rem;width:auto;max-width:none;top:auto;bottom:0;transform:none;max-height:70vh;border-radius:1rem 1rem 0 0}
-
-    /* voice bar */
-    .voice{max-width:92vw;bottom:calc(3.6rem + env(safe-area-inset-bottom,0px))}
-
-    /* bg stays fixed */
+    html{font-size:16px;height:auto}
+    body{overflow:visible;height:auto;min-height:100vh;min-height:100dvh}
+    .rail,.cursor-glow,.fold,.dock,.palette,.sheet-x{display:none}
     .bg{position:fixed}
-  }
+    .blur-field{filter:blur(70px)}
+    .b1{width:110vw;height:110vw}.b2{width:95vw;height:95vw}.b3{width:120vw;height:120vw}.b4{width:80vw;height:80vw}
 
-  /* very small phones */
-  @media (max-width:400px){
-    .stage{padding-left:.8rem;padding-right:.8rem}
-    .clock{font-size:15vw !important}
-    .dock .apps a{font-size:.72rem;padding:.18rem .5rem}
+    .mhead{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;
+      padding:calc(env(safe-area-inset-top,0px) + .7rem) .65rem 0 1.25rem;transition:opacity .5s ease,filter .5s ease}
+    .mhead h1{font-size:.8rem;font-weight:400;letter-spacing:.02em;color:var(--ink)}
+    .mhead div{display:flex}
+    .mhead button{width:2.75rem;height:2.75rem;display:grid;place-items:center;opacity:.65}
+    .mhead button.on{opacity:1}
+    .mhead svg,.mobile-nav svg{width:1.2rem;height:1.2rem;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+
+    .stage{position:relative;left:auto;right:auto;top:auto;bottom:auto;display:flex;flex-direction:column;
+      padding:0 1.25rem calc(env(safe-area-inset-bottom,0px) + 7.5rem)}
+    .stage > *{display:none}
+    body[data-view=home] .c2,body[data-view=home] .c4,body[data-view=tasks] .c3,
+    body[data-view=school] #school,body[data-view=school] .c1,body[data-view=track] #track{display:flex}
+    .col{border:0 !important;padding:0;min-height:0}
+    .col.folded > *:not(.fold),body.focus .c3 > *,body.focus .c4 > *{opacity:1;pointer-events:auto;visibility:visible}
+    .sheet{flex-direction:column}
+    .sheet h2{margin-top:1.4rem;font-size:2.6rem}
+
+    /* home */
+    .c2{overflow:visible}
+    .clock{margin-top:1.6rem;font-size:min(27vw,8.5rem)}
+    .hello{margin-top:1.1rem;font-size:.98rem;gap:.6rem}
+    .datestamp{font-size:1.1em}
+    .orb-blob{width:8rem;margin:-1.4rem -1.3rem -1.4rem -1.2rem}
+    body.talking .orb-blob{width:9.6rem}
+    .talk-btn{padding:.55em 1.15em .55em 1em;font-size:.9rem}
+    .c2extra,.convo{margin:1.4rem 0 0;font-size:.98rem}
+    .convo .ai{max-height:none}
+    .counts,.classes{max-width:none;margin-top:1.6rem}
+    .counts div.row{padding:.55em 0}
+    .cls{padding:.6em .8em .6em .95em;margin-top:.35em}
+    .up,.score,.music{margin-top:2.2rem}
+    .uprow{padding:.6rem 0;font-size:.95rem}
+    .np img{width:4.4rem;height:4.4rem}
+    .np-wrap .ctl button{width:2.75rem;height:2.75rem}
+
+    /* to-do: the add box sits on top so the keyboard never covers it */
+    .c3{padding-top:1.4rem}
+    .todo-head{padding-right:0}
+    .todo-head h2{font-weight:200 !important;font-size:2.6rem !important;letter-spacing:-.02em;line-height:1}
+    .add{order:1;margin-top:1.3rem;padding:0 0 .9rem;border-top:0;border-bottom:1px solid var(--line)}
+    .add input.txt{font-size:1rem;padding:.5rem 0}
+    .addrow{font-size:.85rem;margin-top:.6rem}
+    .addrow .scope{padding:.35rem .8rem}
+    .addrow input[type=date]{font-size:1rem}
+    .addrow .go{width:2.75rem;height:2.75rem;margin-right:-.6rem;font-size:1.5rem}
+    .tabs{order:2;gap:1.5rem;margin:1.1rem 0 .5rem;font-size:.95rem}
+    .tabs button{padding:.45rem 0}
+    .list{order:3;overflow:visible;flex:none}
+    .item{padding:.7rem 0;gap:.9rem;align-items:center}
+    .chk{width:1.4rem;height:1.4rem;margin-top:0}
+    .chk::before{content:"";position:absolute;inset:-.7rem}
+    .item.done .chk::after{left:.46rem;top:.2rem;width:.3rem;height:.62rem;border-width:0 1.5px 1.5px 0}
+    .body{font-size:1rem}
+    .body .meta{font-size:.78rem;margin-top:.15rem}
+    .del{width:2.75rem;height:2.75rem;margin-right:-.7rem;font-size:1.4rem}
+    .empty{font-size:.95rem;padding:.8rem 0}
+
+    /* school: day by day instead of the wide grid, month calendar underneath */
+    #school{order:-1}
+    .wk{display:none}
+    .dv{display:block;margin-top:.6rem}
+    .dv .cls{font-size:1rem;padding:.7rem .9rem .7rem 1rem;margin-top:.45rem;border-radius:.8rem}
+    .dv .cls .tm{font-size:.84rem;width:6.1rem}
+    .dv .cls .nm{white-space:normal}
+    .c1{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid var(--line) !important}
+    .year{display:none}
+    .cal{margin-top:0}
+    .grid{font-size:.95rem;row-gap:.2rem}
+    .day{height:2.75rem}
+    .calhead button{width:2.75rem;height:2.75rem;font-size:1.4rem}
+    .times{grid-template-columns:1fr 1fr}
+
+    /* tracker */
+    .trackhead .big{font-size:5.4rem}
+    .tform input,.trackhead .tgt input,.times input,.orb-type input{font-size:16px}
+    .tform{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+    /* bottom bar with the talk blob in the middle */
+    .mobile-nav{position:fixed;left:.75rem;right:.75rem;bottom:calc(env(safe-area-inset-bottom,0px) + .6rem);z-index:80;
+      display:grid;grid-template-columns:1fr 1fr 4.4rem 1fr 1fr;align-items:center;padding:.3rem .35rem;
+      border:1px solid var(--line);border-radius:1.7rem;background:color-mix(in srgb,var(--base) 76%,transparent);
+      -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);transition:opacity .5s ease,filter .5s ease}
+    .mobile-nav button{display:flex;flex-direction:column;align-items:center;gap:.22rem;min-height:3rem;justify-content:center;
+      font-size:.64rem;letter-spacing:.04em;opacity:.5;transition:opacity .2s;-webkit-tap-highlight-color:transparent}
+    .mobile-nav button.on{opacity:1}
+    .mobile-nav .talk{opacity:1}
+    .mobile-nav .talk i{width:3.3rem;height:3.3rem;margin:-1.2rem 0 0;background:radial-gradient(circle at 32% 28%,var(--c1),var(--ink) 72%);
+      box-shadow:0 .6rem 1.4rem -.5rem color-mix(in srgb,var(--ink) 70%,transparent);
+      border-radius:58% 42% 47% 53% / 46% 55% 45% 54%;animation:blobmorph 9s ease-in-out infinite}
+    .mobile-nav .talk:active i{transform:scale(.92)}
+    @keyframes blobmorph{
+      33%{border-radius:44% 56% 58% 42% / 57% 44% 56% 43%}
+      66%{border-radius:53% 47% 41% 59% / 42% 58% 44% 56%}
+    }
+
+    /* panels */
+    .acct{left:.75rem;right:.75rem;width:auto;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + .6rem);transform:none;
+      max-height:78dvh;border-radius:1.4rem;z-index:90;padding:1.3rem 1.3rem 1.5rem;font-size:.95rem;background:color-mix(in srgb,var(--base) 90%,transparent)}
+    .acct input,.acct select,.acct textarea{font-size:1rem;padding:.6rem 0}
+    .acct p,.acct label{font-size:.82rem}
+    .pill{padding:.55rem 1rem;font-size:.85rem}
+    .gate input{font-size:1rem}
   }
+  @media (prefers-reduced-motion:reduce){.mobile-nav .talk i{animation:none}}
 </style>
 </head>
 <body class="locked">
@@ -327,10 +476,13 @@
   <button id="btnFocus" aria-label="Hide widgets" title="Hide widgets (F)">
     <svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M6 3v10"/></svg>
   </button>
+  <button id="btnSchool" aria-label="School timetable" title="School timetable (S)">
+    <svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10.5" rx="1.5"/><path d="M2 6.5h12M6 6.5v7M10 6.5v7"/></svg>
+  </button>
   <button id="btnAcct" aria-label="Account and connections" title="Account and connections">
     <svg viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.6"/><path d="M2.8 13.6c.7-2.6 2.9-4 5.2-4s4.5 1.4 5.2 4"/></svg>
   </button>
-  <button id="btnMic" aria-label="Voice command" title="Voice command (V)">
+  <button id="btnMic" aria-label="Talk to your assistant" title="Talk to your assistant (V)">
     <svg viewBox="0 0 16 16"><rect x="6" y="2" width="4" height="7.5" rx="2"/><path d="M3.5 7.5a4.5 4.5 0 0 0 9 0M8 12v2"/></svg>
   </button>
   <button id="btnMusic" aria-label="Play or pause music" title="Play / pause">
@@ -351,9 +503,19 @@
   </form>
 </div>
 
-<div class="voice" id="voice" role="status" aria-live="polite"><i></i><span id="voiceText"></span></div>
-
 <aside class="acct" id="acct" aria-label="Account and connections"></aside>
+
+<header class="mhead" id="mhead">
+  <h1 id="greet"></h1>
+  <div>
+    <button id="mPalette" aria-label="Change colors">
+      <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor"/></svg>
+    </button>
+    <button id="mAcct" aria-label="Account and settings">
+      <svg viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.6"/><path d="M2.8 13.6c.7-2.6 2.9-4 5.2-4s4.5 1.4 5.2 4"/></svg>
+    </button>
+  </div>
+</header>
 
 <main class="stage" id="stage">
   <!-- 1 · year + calendar -->
@@ -363,18 +525,18 @@
       <h3>Launch</h3>
       <div class="apps">
         <a href="eclipse://app/claude">Claude</a>
+        <a href="eclipse://app/antigravity">Antigravity</a>
+        <a href="eclipse://app/orion">Orion</a>
         <a href="eclipse://app/spotify">Spotify</a>
-        <a href="eclipse://app/notion">Notion</a>
-        <a href="eclipse://app/chrome">Chrome</a>
         <a href="eclipse://link/github">GitHub</a>
-        <a href="eclipse://link/site">My site</a>
-        <a href="eclipse://folder/project">Project folder</a>
+        <a href="eclipse://link/studio-site">Studio website</a>
+        <a href="eclipse://link/studio-dash">Studio dashboard</a>
       </div>
       <div class="cmds">
+        <a href="eclipse://cmd/claude-code">Claude Code</a>
         <a href="eclipse://cmd/omniroute">OmniRoute<i class="dot" id="omniDot" title="OmniRoute status"></i></a>
         <a href="eclipse://link/omniroute-ui">OmniRoute dashboard</a>
         <a href="eclipse://cmd/omniroute-stop">Stop OmniRoute</a>
-        <a href="eclipse://cmd/claude-code">Claude Code</a>
       </div>
       <div class="hint">Needs the Eclipse Launcher app. See launcher/README.md.</div>
     </div>
@@ -393,12 +555,32 @@
   <!-- 2 · clock + date -->
   <section class="col c2" data-name="Clock">
     <div class="clock" id="clock" aria-live="off"></div>
-    <div class="datestamp">
-      <span id="dow"></span><span class="sep">&middot;</span><span id="daymonth"></span>
+    <div class="hello">
+      <div class="hello-t">
+        <div class="datestamp">
+          <span id="dow"></span><span class="sep">&middot;</span><span id="daymonth"></span>
+        </div>
+        <div class="brief" id="brief"></div>
+        <div class="talkbar">
+          <button class="talk-btn" id="talkBtn" aria-pressed="false">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="6" y="2" width="4" height="7.5" rx="2"/><path d="M3.5 7.5a4.5 4.5 0 0 0 9 0M8 12v2"/></svg><span id="talkLbl">Talk</span>
+          </button>
+          <span class="orb-state" id="orbState" role="status" aria-live="polite"></span>
+        </div>
+      </div>
+      <button class="orb-blob" id="orbBlob" aria-label="Talk to your assistant"><canvas id="orbCanvas"></canvas></button>
+    </div>
+    <div class="convo" id="convo">
+      <p class="you" id="orbYou"></p>
+      <p class="ai" id="orbAi" aria-live="polite"></p>
+      <form class="orb-type" id="orbForm">
+        <input id="orbInput" type="text" placeholder="Or type a message" autocomplete="off" aria-label="Message">
+        <button type="submit" aria-label="Send">&#8593;</button>
+      </form>
     </div>
     <div class="c2extra">
-      <div class="brief" id="brief"></div>
       <div class="counts" id="counts"></div>
+      <div class="classes" id="schoolToday"></div>
     </div>
   </section>
 
@@ -426,9 +608,22 @@
   <section class="col c4" data-name="Upcoming">
     <button class="palette" id="palette" title="Click to change colors"></button>
     <div class="up" id="up"></div>
+    <div class="score" id="ieltsCard"></div>
     <div class="music" id="music"></div>
   </section>
+
+  <!-- school timetable + IELTS tracker: pop-up sheets on a computer, their own views on a phone -->
+  <section class="sheet" id="school" aria-label="School timetable"><div class="sheet-in" id="schoolBody"></div></section>
+  <section class="sheet" id="track" aria-label="IELTS tracker"><div class="sheet-in" id="trackBody"></div></section>
 </main>
+
+<nav class="mobile-nav" id="mobileNav" aria-label="Sections">
+  <button data-view="home"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>Home</button>
+  <button data-view="tasks"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M5.4 8.2l1.8 1.8 3.4-3.8"/></svg>To-do</button>
+  <button class="talk" id="mTalk" aria-label="Talk to your assistant"><i></i></button>
+  <button data-view="school"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10.5" rx="1.5"/><path d="M2 6.5h12M6 6.5v7M10 6.5v7"/></svg>School</button>
+  <button data-view="track"><svg viewBox="0 0 16 16"><path d="M2 12.5l3.5-4 3 2.5L14 4"/><path d="M10.5 4H14v3.5"/></svg>IELTS</button>
+</nav>
 
 <script>
 (function(){
@@ -632,7 +827,10 @@
     $("#year").textContent = d.getFullYear();
     $("#dow").textContent  = d.toLocaleDateString("en-GB",{weekday:"long"});
     $("#daymonth").textContent = d.toLocaleDateString("en-GB",{day:"numeric",month:"long"});
+    paintGreeting();
   }
+  const who = () => String(store.get("dash.ai.name","")||"").trim() || "Deo";
+  function paintGreeting(){ $("#greet").textContent = "Eclipse"; renderExtras(); }
   function tick(){
     const d = new Date(), p = n => String(n).padStart(2,"0");
     $("#clock").innerHTML = p(d.getHours())+":"+p(d.getMinutes())+"<small>"+p(d.getSeconds())+"</small>";
@@ -729,12 +927,27 @@
     const now = new Date(), todayISO = iso(now), nowHM = pad2(now.getHours())+":"+pad2(now.getMinutes());
     const todays = tasks.filter(t=>!t.done && t.due===todayISO).concat(calEvents.filter(e=>e.due===todayISO));
     const brief = $("#brief"); brief.innerHTML = "";
+    const hi = document.createElement("div"); hi.className = "hi"; hi.textContent = "Hello, "+who()+"."; brief.append(hi);
     const l1 = document.createElement("div"), n = todays.length;
-    const b = document.createElement("b"); b.textContent = n+(n===1?" thing":" things");
-    if (n){ l1.append(b, " today"); } else l1.textContent = "Nothing due today";
     const nxt = todays.filter(x=>x.time && x.time>=nowHM).sort((a,c)=>a.time.localeCompare(c.time))[0];
-    if (nxt) l1.append(" · Next: "+nxt.text+" at "+nxt.time);
+    if (n){
+      const b = document.createElement("b"); b.textContent = n+(n===1?" thing":" things");
+      l1.append(b, " due today"+(nxt ? " · Next: "+nxt.text+" at "+nxt.time : ""));
+    } else {
+      // nothing today: say what is coming instead of leaving it blank
+      const open = tasks.filter(t=>!t.done);
+      const ahead = open.filter(t=>t.due && t.due>todayISO).concat(calEvents.filter(e=>e.due>todayISO))
+        .sort((x,y)=>x.due.localeCompare(y.due) || (x.time||"").localeCompare(y.time||""))[0];
+      const late = open.filter(t=>t.due && t.due<todayISO).length, loose = open.filter(t=>!t.due).length;
+      const b = document.createElement("b"); b.textContent = "Nothing due today";
+      l1.append(b, late ? " · "+late+" overdue "+(late===1?"task":"tasks")+" to clear"
+        : ahead ? " · Next up: "+ahead.text+", "+rel(ahead.due).toLowerCase()+(ahead.time?" at "+ahead.time:"")
+        : loose ? " · "+loose+" open "+(loose===1?"task":"tasks")+" with no date"
+        : " · your list is clear");
+    }
     brief.append(l1);
+    const sb = window.School && window.School.brief();
+    if (sb){ const ls = document.createElement("div"); ls.textContent = sb; brief.append(ls); }
     if (weather){
       const l2 = document.createElement("div"), w = [];
       w.push(Math.round(weather.temp)+"° "+weather.desc);
@@ -782,6 +995,7 @@
   }
 
   /* ---------- music: now playing + controls (Spotify Web API, see spotify.js) ---------- */
+  const phone = matchMedia("(max-width:900px)");
   let nowPlaying = null, spotify = {configured:false, connected:false, controls:true, msg:""};
   const act = (type, extra) => dispatchEvent(new CustomEvent("dash:action", {detail:Object.assign({type}, extra||{})}));
   function npProgress(){ return nowPlaying ? nowPlaying.progress + (nowPlaying.playing ? Date.now()-nowPlaying.ts : 0) : 0; }
@@ -820,7 +1034,7 @@
       box.append(wrap); updateProgress();
     } else if (spotify.connected){
       const h = document.createElement("div"); h.className="hint"; h.textContent = "Nothing playing right now.";
-      const o = document.createElement("a"); o.href="eclipse://app/spotify"; o.className="pill"; o.textContent="Open Spotify"; o.style.cssText="display:inline-block;margin-top:.6rem;text-decoration:none";
+      const o = document.createElement("a"); o.href = phone.matches ? "https://open.spotify.com" : "eclipse://app/spotify"; o.className="pill"; o.textContent="Open Spotify"; o.style.cssText="display:inline-block;margin-top:.6rem;text-decoration:none";
       box.append(h, o);
     } else if (spotify.configured){
       const h = document.createElement("div"); h.className="hint"; h.textContent = "Show what's playing, with album art and controls.";
@@ -860,8 +1074,25 @@
     const wrap = document.createElement("div");
     const l = el("label",null,label), i = el("input");
     i.type = type||"text"; i.placeholder = placeholder||""; i.value = store.get(key, "") || "";
+    if (type==="password"){ i.autocomplete = "off"; i.spellcheck = false; }
+    i.setAttribute("aria-label", label);
+    i.addEventListener("change", () => { setSetting(key, i.value.trim()); if (key==="dash.ai.name") paintGreeting(); });
+    wrap.append(l, i); return wrap;
+  }
+  function area(label, key, placeholder){
+    const wrap = document.createElement("div");
+    const l = el("label",null,label), i = el("textarea");
+    i.placeholder = placeholder||""; i.maxLength = 1200; i.value = store.get(key, "") || "";
     i.setAttribute("aria-label", label);
     i.addEventListener("change", () => setSetting(key, i.value.trim()));
+    wrap.append(l, i); return wrap;
+  }
+  function choice(label, key, options, def, after){
+    const wrap = document.createElement("div");
+    const l = el("label",null,label), i = el("select");
+    options.forEach(o => { const x = el("option",null,o[1]); x.value = o[0]; i.append(x); });
+    i.value = store.get(key, def) || def; i.setAttribute("aria-label", label);
+    i.addEventListener("change", () => { setSetting(key, i.value); if (after) after(); });
     wrap.append(l, i); return wrap;
   }
   function renderAcct(){
@@ -903,11 +1134,24 @@
     }
     p.append(s3);
 
-    const s4 = el("section"); s4.append(el("h3",null,"Voice assistant"));
-    s4.append(el("p",null,"Press V or the mic button and speak. Claude runs through OmniRoute on this Mac, so no key is stored on the site. Start OmniRoute from the Launch section."));
-    s4.append(field("OmniRoute address","dash.omni.base","http://localhost:20128"));
-    s4.append(field("OmniRoute API key (only if you set one)","dash.omni.key","","password"));
-    s4.append(field("Model","dash.omni.model","auto"));
+    const s4 = el("section"); s4.append(el("h3",null,"Assistant"));
+    s4.append(el("p",null, phone.matches ? "Press Talk on the home screen (or the blob in the bottom bar) and speak. It only listens after you press it." : "Press Talk next to the date, or V, and speak. It only listens after you press it."));
+    s4.append(field("What should it call you?","dash.ai.name","Deo"));
+    s4.append(field("Assistant's name","dash.ai.botname","Eclipse"));
+    s4.append(area("About you (goals, school, how you like to be spoken to)","dash.ai.about","e.g. Grade 12, aiming for IELTS 7.5. Keep me accountable, be direct."));
+    const prov = store.get("dash.ai.provider","gemini") || "gemini";
+    s4.append(choice("Answers come from","dash.ai.provider",[["gemini","Gemini"],["anthropic","Claude"],["openai","ChatGPT"],["omni","OmniRoute on this Mac"]], "gemini", renderAcct));
+    if (prov==="omni"){
+      s4.append(field("OmniRoute address","dash.omni.base","http://localhost:20128"));
+      s4.append(field("OmniRoute API key (only if you set one)","dash.omni.key","","password"));
+      s4.append(field("Model","dash.omni.model","auto"));
+    } else {
+      const P = {anthropic:["Claude API key","sk-ant-...","claude-opus-5-5"], openai:["OpenAI API key","sk-...","gpt-5-mini"], gemini:["Gemini API key (free at aistudio.google.com)","AIza...","gemini-flash-latest"]}[prov];
+      s4.append(field(P[0],"dash.ai.key."+prov,P[1],"password"));
+      s4.append(field("Model","dash.ai.model."+prov,P[2]));
+      s4.append(el("p",null,"The key is saved only in this browser on this device, and is sent straight to the provider. Add it once on each device you use."));
+    }
+    s4.append(choice("You speak","dash.speech.lang",[["en-US","English"],["id-ID","Bahasa Indonesia"],["en-GB","English (UK)"]], "en-US"));
     const sp = el("label","chk2"), cb = el("input"); cb.type="checkbox"; cb.checked = store.get("dash.voice.speak", true);
     cb.onchange = () => setSetting("dash.voice.speak", cb.checked);
     sp.append(cb, document.createTextNode("Speak replies aloud")); s4.append(sp);
@@ -925,11 +1169,35 @@
     p.append(el("p","msg",keep));
   }
   function setMsg(t){ const m=$("#acct .msg"); if (m) m.textContent = t||""; }
-  $("#btnAcct").onclick = e => { e.stopPropagation(); $("#acct").classList.toggle("open"); $("#btnAcct").classList.toggle("on"); };
+  function toggleAcct(on){
+    const open = on==null ? !$("#acct").classList.contains("open") : !!on;
+    $("#acct").classList.toggle("open", open); $("#btnAcct").classList.toggle("on", open); $("#mAcct").classList.toggle("on", open);
+  }
+  $("#btnAcct").onclick = $("#mAcct").onclick = e => { e.stopPropagation(); toggleAcct(); };
   document.addEventListener("click", e => {
-    if (!$("#acct").classList.contains("open")) return;
-    if (!e.target.closest("#acct") && !e.target.closest("#btnAcct")){ $("#acct").classList.remove("open"); $("#btnAcct").classList.remove("on"); }
+    if (!$("#acct").classList.contains("open") || !e.target.isConnected) return;
+    if (!e.target.closest("#acct") && !e.target.closest("#btnAcct") && !e.target.closest("#mAcct")) toggleAcct(false);
   });
+
+  /* ---------- phone views + pop-up sheets (school, tracker) ---------- */
+  const VIEWS = ["home","tasks","school","track"];
+  function setView(v){
+    if (!VIEWS.includes(v)) v = "home";
+    document.body.dataset.view = v; store.set("dash.view", v);
+    document.querySelectorAll("#mobileNav [data-view]").forEach(b => b.classList.toggle("on", b.dataset.view===v));
+    if (phone.matches) scrollTo(0,0);
+  }
+  function closeSheets(){ document.querySelectorAll(".sheet.open").forEach(x => x.classList.remove("open")); $("#btnSchool").classList.remove("on"); }
+  function openSheet(id){                       // "school" | "track"
+    if (phone.matches) return setView(id);
+    const was = $("#"+id).classList.contains("open");
+    closeSheets();
+    if (!was){ $("#"+id).classList.add("open"); if (id==="school") $("#btnSchool").classList.add("on"); }
+  }
+  document.querySelectorAll(".sheet").forEach(sh => sh.addEventListener("click", e => { if (e.target===sh) closeSheets(); }));
+  document.querySelectorAll("#mobileNav [data-view]").forEach(b => { b.onclick = () => setView(b.dataset.view); });
+  phone.addEventListener("change", closeSheets);
+  setView(store.get("dash.view","home"));
 
   /* ---------- sign-in gate ---------- */
   let gateMode = "signin";
@@ -976,7 +1244,8 @@
       Object.keys(obj||{}).forEach(k => store.set(k, obj[k]));
       pin = store.get("dash.pal.pin", null); if (pin!=null && !PALETTES[pin]) pin = null;
       folded = store.get("dash.fold", [false,false,false,false]);
-      refreshPalette(); paintFold(); renderAcct();
+      refreshPalette(); paintFold(); renderAcct(); paintGreeting();
+      dispatchEvent(new CustomEvent("dash:settings"));
     },
     lock, unlock,
     gateMsg(t){ $("#gateMsg").textContent = t||""; },
@@ -986,22 +1255,15 @@
       tasks.push(t); save(); renderTasks(); renderUp(); renderCal(); return t;
     },
     completeTask(id){ const t = tasks.find(x=>x.id===id && !x.done); if (!t) return false; toggleTask(t); return true; },
-    launchIds: () => [...document.querySelectorAll("#dock a[href^='eclipse://']")].map(a=>a.getAttribute("href").slice(10)+" ("+a.textContent.trim()+")"),
+    launchIds: () => phone.matches ? [] : [...document.querySelectorAll("#dock a[href^='eclipse://']")].map(a=>a.getAttribute("href").slice(10)+" ("+a.textContent.trim()+")"),
     launch(kind, id){
       const a = document.querySelector('#dock a[href="eclipse://'+kind+'/'+id+'"]');
       if (!a) return false; a.click(); return true;
     },
     setOmniStatus(on){ const d = $("#omniDot"); if (d) d.classList.toggle("on", !!on); },
     setMic(on){ document.body.classList.toggle("listening", !!on); $("#btnMic").classList.toggle("on", !!on); },
-    voice(v){
-      const box = $("#voice"); clearTimeout(box._t);
-      if (!v || v.state==="idle"){ box.classList.remove("show","listening","thinking"); return; }
-      box.classList.add("show");
-      box.classList.toggle("listening", v.state==="listening");
-      box.classList.toggle("thinking", v.state==="thinking");
-      $("#voiceText").textContent = v.text || (v.state==="listening" ? "Listening\u2026" : v.state==="thinking" ? "Thinking\u2026" : "");
-      if (v.state==="done" || v.state==="error") box._t = setTimeout(()=>box.classList.remove("show"), v.state==="error" ? 7000 : 8000);
-    },
+    openSheet, closeSheets, setView, toggleAcct, refreshBrief: () => renderExtras(),
+    isPhone: () => phone.matches,
     setNowPlaying(np){
       const same = nowPlaying && np && nowPlaying.id===np.id && nowPlaying.playing===np.playing;
       nowPlaying = np;
@@ -1014,20 +1276,24 @@
 
   /* ---------- rail + keys ---------- */
   $("#palette").onclick = cyclePalette;
-  $("#btnPalette").onclick = cyclePalette;
+  $("#btnPalette").onclick = $("#mPalette").onclick = cyclePalette;
+  $("#btnSchool").onclick = () => openSheet("school");
   $("#btnFocus").onclick = () => { document.body.classList.toggle("focus"); $("#btnFocus").classList.toggle("on"); };
   $("#btnMusic").onclick = () => {
     if (spotify.connected) act("spotify-cmd", {cmd:"toggle"});
     else if (spotify.configured) act("spotify-connect");
-    else { $("#acct").classList.add("open"); $("#btnAcct").classList.add("on"); }
+    else toggleAcct(true);
   };
-  $("#btnMic").onclick = () => act("voice-toggle");
+  $("#btnMic").onclick = $("#talkBtn").onclick = () => act("voice-toggle");
+  $("#mTalk").onclick = () => { setView("home"); act("voice-toggle"); };
   document.addEventListener("keydown", e => {
-    if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key==="s"||e.key==="S") openSheet("school");
+    if (e.key==="Escape" && document.querySelector(".sheet.open")){ closeSheets(); return; }
     if (e.key==="p"||e.key==="P") cyclePalette();
     if (e.key==="f"||e.key==="F") $("#btnFocus").click();
     if (e.key==="v"||e.key==="V") act("voice-toggle");
-    if (e.key==="Escape" && $("#acct").classList.contains("open")){ $("#acct").classList.remove("open"); $("#btnAcct").classList.remove("on"); return; }
+    if (e.key==="Escape" && $("#acct").classList.contains("open")){ toggleAcct(false); return; }
     if (e.key==="Escape" && selDay){ selDay=null; $("#newDue").value=""; renderCal(); renderUp(); }
   });
 
@@ -1054,63 +1320,19 @@
     loop();
   })();
 
-  /* ---------- mobile nav ---------- */
-  const mNav = $("#mobileNav");
-  if (mNav){
-    mNav.querySelectorAll("[data-section]").forEach(b => {
-      b.onclick = () => {
-        const sec = $("."+b.dataset.section);
-        if (sec) sec.scrollIntoView({behavior:"smooth",block:"start"});
-        mNav.querySelectorAll("button").forEach(x => x.classList.remove("on"));
-        b.classList.add("on");
-      };
-    });
-    const ma = $("#mobileAcct");
-    if (ma) ma.onclick = e => { e.stopPropagation(); $("#acct").classList.toggle("open"); ma.classList.toggle("on"); };
-    // highlight current section on scroll
-    const cols = [...document.querySelectorAll(".col")];
-    const navBtns = [...mNav.querySelectorAll("[data-section]")];
-    let scrollT;
-    window.addEventListener("scroll", () => {
-      clearTimeout(scrollT);
-      scrollT = setTimeout(() => {
-        const mid = innerHeight * 0.35;
-        let active = cols[0];
-        cols.forEach(c => { if (c.getBoundingClientRect().top <= mid) active = c; });
-        const cls = [...active.classList].find(c => /^c\d$/.test(c));
-        navBtns.forEach(b => b.classList.toggle("on", b.dataset.section === cls));
-      }, 80);
-    }, {passive:true});
-  }
-
   /* ---------- go ---------- */
   refreshPalette(); renderDate(); renderCal(); renderTasks(); renderUp(); renderMusic();
   $("#scopeBtn").textContent = cap(scopeNew);
+  if (phone.matches) $("#newText").placeholder = "Add a task, e.g. essay friday 10am";
   tick(); setInterval(tick, 1000);
 })();
 </script>
-<nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
-  <button data-section="c2" aria-label="Clock">
-    <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>
-  </button>
-  <button data-section="c1" aria-label="Calendar">
-    <svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M2 6.5h12M5.5 2v2.5M10.5 2v2.5"/></svg>
-  </button>
-  <button data-section="c3" aria-label="To-do">
-    <svg viewBox="0 0 16 16"><path d="M4 4h8M4 8h8M4 12h5"/><circle cx="2" cy="4" r=".7" fill="currentColor"/><circle cx="2" cy="8" r=".7" fill="currentColor"/><circle cx="2" cy="12" r=".7" fill="currentColor"/></svg>
-  </button>
-  <button data-section="c4" aria-label="Music & upcoming">
-    <svg viewBox="0 0 16 16"><path d="M6 12V4l6-1.5V10"/><circle cx="4.5" cy="12" r="1.5"/><circle cx="10.5" cy="10" r="1.5"/></svg>
-  </button>
-  <button id="mobileAcct" aria-label="Account">
-    <svg viewBox="0 0 16 16"><circle cx="8" cy="5.5" r="2.6"/><path d="M2.8 13.6c.7-2.6 2.9-4 5.2-4s4.5 1.4 5.2 4"/></svg>
-  </button>
-</nav>
-
 <script type="module" src="sync.js"></script>
 <script type="module" src="calendar.js"></script>
 <script type="module" src="spotify.js"></script>
 <script type="module" src="weather.js"></script>
+<script type="module" src="school.js"></script>
+<script type="module" src="track.js"></script>
 <script type="module" src="voice.js"></script>
 </body>
 </html>
