@@ -1,5 +1,5 @@
 // The assistant: a blob that moves with your voice and with its own, plus a small pop-up for the conversation.
-// On a computer the blob sits at the top of the clock column; on a phone it is in the bottom bar and the pop-up.
+// A still orange blob opens it (top of the clock column on a computer, bottom bar on a phone); the live blob is in the pop-up.
 // It opens on a click or the V key, and only listens while it is open.
 // Speech is turned into text by the browser, sent to the model you picked in the account panel
 // (Claude, ChatGPT, Gemini, or OmniRoute on this Mac), and the answer is read aloud.
@@ -148,20 +148,10 @@ function parseReply(raw){
 
 /* ---------- the blob ---------- */
 // state: idle | listening | thinking | speaking. `level` (0..1) is how loud the current voice is.
-let state = "idle", level = 0, target = 0, pulse = 0, raf = 0, colors = null, colorsAt = 0, skip = 0;
-const cvHome = $("orbHomeCanvas"), cvPop = $("orbCanvas");
-let canvas = null, ctx = null;
-function pickCanvas(){ const c = D.isPhone() ? cvPop : cvHome; if (c !== canvas){ canvas = c; ctx = c.getContext("2d"); } }
+let state = "idle", level = 0, target = 0, pulse = 0, raf = 0;
+const canvas = $("orbCanvas"), ctx = canvas && canvas.getContext("2d");
+const BLOB = {a:"#EE8B4E", b:"#F4B286"};            // the assistant is always this orange, whatever the theme
 const still = matchMedia("(prefers-reduced-motion: reduce)");
-// one colour for the blob everywhere: the theme's accent, lifted a little on dark themes so it stays visible
-const hx = h => { const m = /^#?([0-9a-f]{6})$/i.exec(h.trim()); return m ? [0, 2, 4].map(i => parseInt(m[1].slice(i, i + 2), 16)) : [136, 136, 136]; };
-const blend = (a, b, t) => "rgb(" + hx(a).map((x, i) => Math.round(x + (hx(b)[i] - x) * t)).join(",") + ")";
-function readColors(now){
-  if (colors && now - colorsAt < 1000) return colors;
-  const s = getComputedStyle(document.documentElement), g = k => s.getPropertyValue(k).trim() || "#888888";
-  const c1 = g("--c1"), c3 = g("--c3"), ink = g("--ink"), dark = document.body.classList.contains("dark");
-  colorsAt = now; return colors = {a:dark ? blend(c1, ink, .32) : c1, b:dark ? blend(c1, c3, .5) : blend(c1, c3, .45)};
-}
 function shape(cx, cy, R, amp, t, seed){
   const N = 72, pts = [];
   for (let i = 0; i < N; i++){
@@ -180,12 +170,10 @@ function shape(cx, cy, R, amp, t, seed){
 }
 function frame(ms){
   raf = requestAnimationFrame(frame);
-  pickCanvas();
-  if (!open && (D.isPhone() || ++skip % 2)) return;      // resting: nothing to draw on a phone, half the frame rate on a computer
   const dpr = Math.min(2, devicePixelRatio || 1), w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
   if (!w || !h) return;
   if (canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
-  const t = ms / 1000, c = readColors(ms);
+  const t = ms / 1000, c = BLOB;
   // where the loudness comes from
   if (state === "listening") target = micLevel() ?? pulse;
   else if (state === "speaking") target = Math.min(1, .28 + .5 * Math.abs(Math.sin(t * 8.3) * Math.sin(t * 2.7 + 1)) + pulse * .4);
@@ -200,7 +188,7 @@ function frame(ms){
   const amp = (state === "thinking" ? .1 : state === "idle" ? .055 : .06) + level * .18;
   const cx = w / 2, cy = h / 2;
   ctx.clearRect(0, 0, w, h);
-  // just the blob: one soft shape in the accent colour, with a barely-there shift from one side to the other
+  // just the blob: one soft orange shape, with a barely-there shift from one side to the other
   const g = ctx.createRadialGradient(cx - R * .3, cy - R * .35, R * .1, cx, cy, R * 1.3);
   g.addColorStop(0, c.a); g.addColorStop(1, c.b);
   ctx.fillStyle = g; shape(cx, cy, R, amp, tt, 0); ctx.fill();
@@ -358,11 +346,6 @@ function openOrb(){
   open = true; session++;
   $("orbName").textContent = get("dash.ai.botname", "Eclipse");
   $("orbYou").textContent = ""; $("orbAi").textContent = ""; offerBrowser(false);
-  if (!D.isPhone()){                                   // computer: the pop-up hangs under the blob, inside the clock column
-    const r = $("orbHome").getBoundingClientRect(), col = $("orbHome").closest(".col").getBoundingClientRect(), s = $("orb").style;
-    s.setProperty("--ox", Math.round(r.left + r.width * .21) + "px"); s.setProperty("--oy", Math.round(r.bottom - r.height * .1) + "px");
-    s.setProperty("--ow", Math.round(Math.min(380, col.right - r.left - r.width * .21 - 16)) + "px");
-  }
   $("orb").classList.add("open"); document.body.classList.add("talking");
   D.toggleAcct(false);
   unlockSpeech(); startBlob(); openMic();
@@ -376,7 +359,7 @@ function closeOrb(){
   $("orb").classList.remove("open"); document.body.classList.remove("talking");
   $("orbInput").blur(); $("orbState").textContent = "";
   state = "idle";
-  setTimeout(() => { if (!open && D.isPhone()) stopBlob(); }, 350);
+  setTimeout(() => { if (!open) stopBlob(); }, 350);
 }
 
 /* ---------- OmniRoute status light (launcher, computer only) ---------- */
@@ -388,12 +371,12 @@ async function ping(){
   clearTimeout(timer);
 }
 
-if (D && cvHome && cvPop){
+if (D && ctx){
   addEventListener("dash:action", e => { if (e.detail.type === "voice-toggle") (open ? closeOrb : openOrb)(); });
   $("orbClose").onclick = $("orbShade").onclick = closeOrb;
-  $("orbHome").onclick = $("orbBlob").onclick = () => {
-    if (!open) openOrb();
-    else if (state === "listening" && rec){ try { rec.stop(); } catch(e){} }     // stop early: send what was heard
+  $("orbHome").onclick = openOrb;
+  $("orbBlob").onclick = () => {
+    if (state === "listening" && rec){ try { rec.stop(); } catch(e){} }     // stop early: send what was heard
     else if (state === "thinking") return;
     else { session++; listen(); }                                          // idle: start; speaking: interrupt and listen
   };
@@ -408,8 +391,6 @@ if (D && cvHome && cvPop){
     else if (e.key === " " && !/^(INPUT|BUTTON)$/.test(document.activeElement.tagName)){ e.preventDefault(); $("orbBlob").click(); }
   });
   if (window.speechSynthesis) speechSynthesis.getVoices();                 // warm the voice list
-  if (!D.isPhone()) startBlob();
-  addEventListener("resize", () => { if (!D.isPhone()) startBlob(); });
   // opened from the "Open in browser to talk" button: go straight into talk mode
   if (location.hash === "#talk"){ window.history.replaceState(null, "", location.pathname + location.search); setTimeout(openOrb, 600); }
   ping(); setInterval(ping, 8000);

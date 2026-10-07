@@ -110,9 +110,9 @@
   .c2{container-type:inline-size;overflow:hidden}
   /* three zones: assistant on top, clock exactly in the middle, lists underneath (the outer two share the spare height) */
   .c2top{order:1;flex:1 1 0;min-height:0;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;align-content:start;column-gap:.4rem;align-items:center;padding-right:1.8rem}
-  .orb-home{grid-row:1 / span 2;width:9rem;aspect-ratio:1;margin:-1.5rem -1.3rem -1.5rem -1.7rem;border-radius:50%;-webkit-tap-highlight-color:transparent;transition:transform .3s ease}
-  .orb-home:hover{transform:scale(1.06)}
-  .orb-home canvas{display:block;width:100%;height:100%}
+  .orb-home{grid-row:1 / span 2;width:5.2rem;height:5.2rem;margin:.1rem .7rem .1rem 0;-webkit-tap-highlight-color:transparent;transition:transform .3s ease}
+  .orb-home:hover{transform:scale(1.07)}
+  .orb-home i{width:100%;height:100%}
   .hi{align-self:end;font-size:1.05rem;font-weight:400;line-height:1.3}
   .hi b{font-weight:inherit}
   .brief{align-self:start;margin-top:.15rem;font-size:.76rem;line-height:1.5;color:var(--soft)}
@@ -220,35 +220,35 @@
   .dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:var(--line);margin-left:auto}
   .dot.on{background:#3fb06b;box-shadow:0 0 0 3px color-mix(in srgb,#3fb06b 25%,transparent)}
   /* assistant: a small blob in the corner (bottom bar on a phone) opens a pop-up to talk or type (see voice.js) */
-  .blobby{display:block;background:radial-gradient(circle at 34% 30%,var(--c1),color-mix(in srgb,var(--c1) 55%,var(--c3)));border-radius:58% 42% 47% 53% / 46% 55% 45% 54%;animation:blobmorph 9s ease-in-out infinite}
+  .blobby{display:block;background:radial-gradient(circle at 34% 30%,#EE8B4E,#F4B286);border-radius:58% 42% 47% 53% / 46% 55% 45% 54%;animation:blobmorph 9s ease-in-out infinite}
   @keyframes blobmorph{
     33%{border-radius:44% 56% 58% 42% / 57% 44% 56% 43%}
     66%{border-radius:53% 47% 41% 59% / 42% 58% 44% 56%}
   }
   @media (prefers-reduced-motion:reduce){.blobby{animation:none}}
   .orb-shade{display:none}
-  .orb{position:fixed;z-index:150;left:var(--ox,30vw);top:var(--oy,20vh);width:var(--ow,22rem);padding:1rem 1.3rem 1rem;
-    display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1px solid var(--line);border-radius:1.2rem;
-    background:color-mix(in srgb,var(--base) 88%,transparent);-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px);
-    box-shadow:0 2rem 4rem -1.5rem color-mix(in srgb,var(--ink) 45%,transparent);
-    opacity:0;visibility:hidden;transform:translateY(-.5rem) scale(.98);transform-origin:top left;transition:opacity .25s ease,transform .25s ease,visibility 0s .25s}
-  .orb.open{opacity:1;visibility:visible;transform:none;transition:opacity .25s ease,transform .25s ease}
-  .orb-x{position:absolute;top:.45rem;right:.55rem;width:2.4rem;height:2.4rem;font-size:1.3rem;font-weight:300;line-height:1;opacity:.55}
-  .orb-x:hover{opacity:1}
+  body.talking .orb-shade{display:block;position:fixed;inset:0;z-index:140;background:color-mix(in srgb,var(--base) 45%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  .orb{position:fixed;z-index:150;left:50%;top:50%;width:min(25rem,90vw);padding:1.7rem 1.6rem 1.4rem;
+    display:flex;flex-direction:column;align-items:center;text-align:center;border:1px solid var(--line);border-radius:2rem;
+    background:color-mix(in srgb,var(--base) 92%,transparent);box-shadow:0 2.5rem 5rem -2rem color-mix(in srgb,var(--ink) 45%,transparent);
+    opacity:0;visibility:hidden;transform:translate(-50%,-46%) scale(.97);transition:opacity .25s ease,transform .25s ease,visibility 0s .25s}
+  .orb.open{opacity:1;visibility:visible;transform:translate(-50%,-50%);transition:opacity .25s ease,transform .25s ease}
+  .orb-x{position:absolute;top:.8rem;right:.8rem;width:2.3rem;height:2.3rem;border-radius:50%;background:color-mix(in srgb,var(--ink) 8%,transparent);font-size:1.25rem;font-weight:300;line-height:1}
+  .orb-x:hover{background:color-mix(in srgb,var(--ink) 15%,transparent)}
   .orb-name,.orb-state{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);min-height:1.1em}
-  .orb-blob{display:none;flex:none;aspect-ratio:1;border-radius:50%;-webkit-tap-highlight-color:transparent}
+  .orb-name{font-weight:500}
+  .orb-blob{flex:none;width:12.5rem;aspect-ratio:1;margin:-.3rem 0 -.9rem;border-radius:50%;-webkit-tap-highlight-color:transparent}
   .orb-blob canvas{display:block;width:100%;height:100%}
-  .orb-name{display:none}
-  .orb .you{margin-top:.5rem;font-size:.8rem;line-height:1.35;color:var(--soft)}
+  .orb .you{margin-top:.5rem;font-size:.85rem;line-height:1.35;color:var(--soft)}
   .orb .you:empty{display:none}
-  .orb .ai{margin-top:.35rem;min-height:1.4em;max-height:9.5rem;overflow:auto;scrollbar-width:none;font-size:.98rem;line-height:1.45}
+  .orb .ai{margin-top:.35rem;min-height:3em;max-height:11rem;overflow:auto;scrollbar-width:none;font-size:1.12rem;font-weight:400;line-height:1.4}
   .orb-open{margin-top:.7rem;text-decoration:none;font-size:.8rem}
   .orb-open[hidden]{display:none}
-  .orb-type{display:flex;align-items:center;width:100%;margin-top:.8rem;border-bottom:1px solid var(--line)}
-  .orb-type input{flex:1;min-width:0;padding:.5rem 0;font-size:.95rem}
+  .orb-type{display:flex;align-items:center;width:100%;margin-top:1rem;padding:0 .3rem 0 1.1rem;border-radius:2rem;background:color-mix(in srgb,var(--ink) 8%,transparent)}
+  .orb-type input{flex:1;min-width:0;padding:.7rem 0;font-size:.95rem}
   .orb-type input::placeholder{color:var(--soft)}
-  .orb-type button{width:2.3rem;height:2.3rem;font-size:1.1rem;opacity:.6}
-  .orb-type button:hover{opacity:1}
+  .orb-type button{width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--base);font-size:1.05rem}
+  .orb-type button:hover{opacity:.85}
 
   /* school: today's classes as a thin timeline (column 2) + the week sheet as a hairline grid */
   .sec-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.45rem}
@@ -545,17 +545,14 @@
     .mobile-nav .talk:active i{transform:scale(.92)}
 
     /* assistant pop-up: a sheet over the page */
-    body.talking .orb-shade{display:block;position:fixed;inset:0;z-index:140;background:color-mix(in srgb,var(--page) 55%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-    .orb{left:.9rem;right:.9rem;top:auto;width:auto;bottom:calc(env(safe-area-inset-bottom,0px) + .7rem);padding:1.6rem 1.3rem 1.2rem;align-items:center;text-align:center;
-      border:0;border-radius:2rem;background:var(--card);-webkit-backdrop-filter:none;backdrop-filter:none;transform:translateY(1rem) scale(.98);transform-origin:bottom center}
-    .orb-x{top:.7rem;right:.7rem;width:2.4rem;height:2.4rem;border-radius:50%;background:color-mix(in srgb,var(--ink) 8%,transparent);font-size:1.3rem;opacity:1}
-    .orb-name{display:block;font-weight:500}
-    .orb-blob{display:block;width:min(56vw,13.5rem);margin:-.2rem 0 -.8rem}
+    body.talking .orb-shade{background:color-mix(in srgb,var(--page) 55%,transparent)}
+    .orb{left:.9rem;right:.9rem;top:auto;width:auto;bottom:calc(env(safe-area-inset-bottom,0px) + .7rem);padding:1.6rem 1.3rem 1.2rem;
+      border:0;background:var(--card);transform:translateY(1rem) scale(.98)}
+    .orb.open{transform:none}
+    .orb-blob{width:min(56vw,13.5rem);margin:-.2rem 0 -.8rem}
     .orb .you{font-size:.92rem}
     .orb .ai{font-size:1.2rem;font-weight:500;letter-spacing:-.01em;line-height:1.35;min-height:3.4em;max-height:38dvh}
-    .orb-type{margin-top:1rem;padding:0 .3rem 0 1.1rem;border:0;border-radius:2rem;background:color-mix(in srgb,var(--ink) 7%,transparent)}
     .orb-type input{font-size:16px;padding:.8rem 0}
-    .orb-type button{width:2.3rem;height:2.3rem;border-radius:50%;background:var(--ink);color:var(--base);opacity:1}
 
     /* panels */
     .acct{left:.9rem;right:.9rem;width:auto;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + .7rem);transform:none;
@@ -685,7 +682,7 @@
   <!-- 2 · clock + date -->
   <section class="col c2" data-name="Clock">
     <div class="c2top">
-      <button class="orb-home" id="orbHome" aria-label="Talk to your assistant" title="Talk to your assistant (V)"><canvas id="orbHomeCanvas"></canvas></button>
+      <button class="orb-home" id="orbHome" aria-label="Talk to your assistant" title="Talk to your assistant (V)"><i class="blobby"></i></button>
       <div class="hi" id="hi"></div>
       <div class="brief" id="brief"></div>
     </div>
@@ -1302,7 +1299,7 @@
     p.append(s3);
 
     const s4 = el("section"); s4.append(el("h3",null,"Assistant"));
-    s4.append(el("p",null, phone.matches ? "Tap the blob in the bottom bar to open the assistant, then talk or type. It only listens while it is open." : "Click the blob above the clock column, or press V, then talk or type. It only listens while it is open."));
+    s4.append(el("p",null, phone.matches ? "Tap the blob in the bottom bar to open the assistant, then talk or type. It only listens while it is open." : "Click the orange blob at the top of the clock column, or press V, then talk or type. It only listens while it is open."));
     s4.append(field("What should it call you?","dash.ai.name","Deo"));
     s4.append(field("Assistant's name","dash.ai.botname","Eclipse"));
     s4.append(area("About you (goals, school, how you like to be spoken to)","dash.ai.about","e.g. Grade 12, applying for scholarships abroad. Keep me accountable, be direct."));
