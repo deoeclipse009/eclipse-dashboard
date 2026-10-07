@@ -5,7 +5,7 @@
 export const apiBase = "https://eclipse-deo-dashboard.vercel.app";
 
 // Spotify "Client ID" (not the secret) from developer.spotify.com/dashboard.
-export const spotifyClientId = "";
+export const spotifyClientId = "62514f8da6c5473399ce01b1c3dbee05";
 
 // Google OAuth "Web application" Client ID from console.cloud.google.com (Calendar connector).
 export const googleClientId = "";
