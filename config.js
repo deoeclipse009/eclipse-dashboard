@@ -8,4 +8,4 @@ export const apiBase = "https://eclipse-deo-dashboard.vercel.app";
 export const spotifyClientId = "62514f8da6c5473399ce01b1c3dbee05";
 
 // Google OAuth "Web application" Client ID from console.cloud.google.com (Calendar connector).
-export const googleClientId = "";
+export const googleClientId = "420891693706-38trsoblenlh7qo9120jg4p7hbldanvu.apps.googleusercontent.com";
