@@ -5,7 +5,10 @@ const D = window.Dash;
 const base = String(apiBase || "").replace(/\/+$/, "");
 const K = { token: "dash.token", user: "dash.user", dirty: "dash.dirty" };
 const SYNCED = ["dash.weather.loc", "dash.voice.speak", "dash.omni.base", "dash.omni.model", "dash.pal.pin", "dash.fold",
-  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.scholar", "dash.task.prio", "dash.college.seeded"];
+  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.scholar", "dash.task.prio", "dash.college.seeded",
+  // connections: set up once, used on every device you sign in on
+  "dash.ai.key.gemini", "dash.ai.key.anthropic", "dash.ai.key.openai", "dash.ai.model.gemini", "dash.ai.model.anthropic", "dash.ai.model.openai",
+  "dash.omni.key", "dash.spotify.tok", "dash.gcal.on", "dash.gcal.events"];
 
 const ls = {
   get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
@@ -79,8 +82,20 @@ function pushSetting(k, v){
     try { await api("/api/settings", "PUT", {settings:s}); } catch(e){}
   }, 600);
 }
+let lastSettings = "";
 async function pullSettings(){
-  try { const r = await api("/api/settings"); if (r.ok) D.applySettings((await r.json()).settings); } catch(e){}
+  if (!user) return;
+  try {
+    const r = await api("/api/settings"); if (!r.ok) return;
+    const s = (await r.json()).settings || {};
+    Object.keys(pendingSettings).forEach(k => delete s[k]);          // a change made here a moment ago wins over the older copy
+    const sig = JSON.stringify(s);
+    if (sig !== lastSettings){ lastSettings = sig; D.applySettings(s); }
+    // a device that was set up before its settings synced: send up whatever the account doesn't have yet
+    const missing = {};
+    SYNCED.forEach(k => { if (!(k in s) && !(k in pendingSettings)){ const v = D.getSetting(k, null); if (v != null && v !== "") missing[k] = v; } });
+    if (Object.keys(missing).length) await api("/api/settings", "PUT", {settings:missing});
+  } catch(e){}
 }
 
 /* ---------- session ---------- */
@@ -100,15 +115,17 @@ function begin(u, firstTime){
     } catch(e){ /* offline: keep what's on screen */ }
     await pullSettings();
   })();
-  clearInterval(polling); polling = setInterval(pull, 30000);
+  D.pullSettings = pullSettings;
+  let n = 0;
+  clearInterval(polling); polling = setInterval(() => { pull(); if (++n % 2 === 0) pullSettings(); }, 30000);
 }
 function expire(msg){
-  user = null; ls.del(K.token); clearInterval(polling);
+  user = null; lastSettings = ""; ls.del(K.token); clearInterval(polling);
   D.onSave(null); D.onSetting(null); D.setAccount({user:null}); D.lock(msg);
 }
 async function signOut(all){
   try { await api("/api/auth/logout", "POST", {all:!!all}); } catch(e){}
-  ls.del(K.token); ls.del(K.user); ls.del(K.dirty); user = null; clearInterval(polling);
+  ls.del(K.token); ls.del(K.user); ls.del(K.dirty); user = null; clearInterval(polling); lastSettings = "";
   D.onSave(null); D.onSetting(null);
   D.setTasks([]); D.setEvents([]); D.setAccount({user:null, calendar:"off"});
   D.lock("");
@@ -138,8 +155,8 @@ if (D){
       else if (t === "signout") signOut(false);
       else if (t === "signout-all") signOut(true);
     });
-    addEventListener("online", pull);
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) pull(); });
+    addEventListener("online", () => { pull(); pullSettings(); });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden){ pull(); pullSettings(); } });
     let saved = null; try { saved = JSON.parse(ls.get(K.user)); } catch(e){}
     if (ls.get(K.token) && saved) begin(saved, false);      // remembered device: straight in
     else D.lock("");

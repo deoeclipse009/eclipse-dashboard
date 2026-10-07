@@ -1282,7 +1282,7 @@
         s2.append(el("p",null,"Connected. "+acct.events+" upcoming event"+(acct.events===1?"":"s")+" shown in Upcoming and the month grid."));
         const row = el("div","row"); row.append(pill("Refresh", ()=>act("calendar-refresh"))); s2.append(row);
       } else {
-        s2.append(el("p",null,acct.calendar==="expired" ? "Google's access lapsed (it lasts about an hour). Reconnect to refresh events." : "Read-only access to show your events here."));
+        s2.append(el("p",null,acct.calendar==="expired" ? (acct.events ? "Showing the "+acct.events+" event"+(acct.events===1?"":"s")+" your account last fetched. Reconnect on this device to refresh them from here." : "Connected on your account. Reconnect on this device to load events here.") : "Read-only access to show your events here."));
         const row = el("div","row"); row.append(pill(acct.calendar==="expired"?"Reconnect":"Connect Google Calendar", ()=>act("calendar"))); s2.append(row);
       }
       p.append(s2);
@@ -1313,7 +1313,7 @@
       const P = {anthropic:["Claude API key","sk-ant-...","claude-opus-5-5"], openai:["OpenAI API key","sk-...","gpt-5-mini"], gemini:["Gemini API key (free at aistudio.google.com)","AIza...","gemini-flash-latest"]}[prov];
       s4.append(field(P[0],"dash.ai.key."+prov,P[1],"password"));
       s4.append(field("Model","dash.ai.model."+prov,P[2]));
-      s4.append(el("p",null,"The key is saved only in this browser on this device, and is sent straight to the provider. Add it once on each device you use."));
+      s4.append(el("p",null,acct.user ? "Saved to your account, so it works on every device you sign in on. It is only ever sent to the provider." : "Saved in this browser. Sign in to have it follow you to your other devices."));
     }
     s4.append(choice("You speak","dash.speech.lang",[["en-US","English"],["id-ID","Bahasa Indonesia"],["en-GB","English (UK)"]], "en-US"));
     const sp = el("label","chk2"), cb = el("input"); cb.type="checkbox"; cb.checked = store.get("dash.voice.speak", true);
@@ -1422,7 +1422,8 @@
       pin = store.get("dash.pal.pin", null); if (pin!=null && !PALETTES[pin]) pin = null;
       folded = store.get("dash.fold", [false,false,false,false]);
       prios = store.get("dash.task.prio", {}) || {}; renderTasks();
-      refreshPalette(); paintFold(); renderAcct(); paintGreeting();
+      refreshPalette(); paintFold(); paintGreeting();
+      if (!$("#acct").contains(document.activeElement)) renderAcct();          // don't wipe a field that is being typed in
       dispatchEvent(new CustomEvent("dash:settings"));
     },
     lock, unlock,

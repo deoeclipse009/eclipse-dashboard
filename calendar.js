@@ -5,7 +5,20 @@ const D = window.Dash;
 const SCOPE = "https://www.googleapis.com/auth/calendar.readonly";
 const iso = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const hm = d => String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
-const flag = { get(){ try { return localStorage.getItem("dash.gcal.on"); } catch(e){ return null; } }, set(){ try { localStorage.setItem("dash.gcal.on","1"); } catch(e){} }, del(){ try { localStorage.removeItem("dash.gcal.on"); } catch(e){} } };
+// "connected" and the last list of events are kept with the account, so a device that can't open Google's sign-in
+// (or hasn't yet) still shows the calendar that another device fetched
+const flag = { get: () => D.getSetting("dash.gcal.on", null), set: () => D.setSetting("dash.gcal.on", 1), del: () => D.setSetting("dash.gcal.on", null) };
+const today = () => iso(new Date());
+function showShared(){
+  if (token) return;
+  const c = D.getSetting("dash.gcal.events", null);
+  if (c && Array.isArray(c.list)) D.setEvents(c.list.filter(e => e && /^\d{4}-\d{2}-\d{2}$/.test(e.due) && e.due >= today()));
+}
+function share(list){
+  let out = list.slice(0, 80).map(e => ({id:String(e.id).slice(0, 40), text:String(e.text).slice(0, 80), due:e.due, time:e.time}));
+  while (out.length && JSON.stringify(out).length > 18000) out = out.slice(0, out.length - 10);
+  D.setSetting("dash.gcal.events", {at:Date.now(), list:out});
+}
 
 let client = null, token = null, exp = 0, pollTimer = null, refreshTimer = null;
 
@@ -45,10 +58,11 @@ async function loadEvents(){
     if (r.status === 401){ token = null; D.setAccount({calendar:"expired"}); return; }
     if (r.status === 403){ D.setMsg("Turn on the Google Calendar API for your Google Cloud project (see SETUP.md)."); return; }
     const j = await r.json();
-    D.setEvents((j.items || []).filter(e => e.status !== "cancelled" && e.start).map(e => {
+    const list = (j.items || []).filter(e => e.status !== "cancelled" && e.start).map(e => {
       const allDay = !e.start.dateTime, start = allDay ? null : new Date(e.start.dateTime);
       return {id:e.id, text:e.summary || "(No title)", due: allDay ? e.start.date : iso(start), time: allDay ? null : hm(start)};
-    }));
+    });
+    D.setEvents(list); share(list);
   } catch(e){ console.error(e); }
 }
 
@@ -61,9 +75,13 @@ if (D){
       if (t === "calendar") request(flag.get() ? "" : "consent");
       else if (t === "calendar-refresh") loadEvents();
       else if (t === "signout" || t === "signout-all"){
-        token = null; clearInterval(pollTimer); clearTimeout(refreshTimer); flag.del(); D.setEvents([]);
+        // signing out of this device only: forget the calendar here, leave the account's copy alone
+        token = null; clearInterval(pollTimer); clearTimeout(refreshTimer); D.setEvents([]);
+        try { localStorage.removeItem("dash.gcal.on"); localStorage.removeItem("dash.gcal.events"); } catch(e2){}
       }
     });
+    showShared();
+    addEventListener("dash:settings", () => { showShared(); if (!token) D.setAccount({calendar: flag.get() ? "expired" : "off"}); });
     if (flag.get()) setTimeout(() => request(""), 1500);   // quietly renew on load; if the browser blocks it the panel shows Reconnect
   }
 }

@@ -13,7 +13,9 @@ const ls = {
   del(k){ try{ localStorage.removeItem(k); }catch(e){} }
 };
 const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-let timer = null, lastPlaying = false, msgTimer = null;
+let timer = null, lastPlaying = false, msgTimer = null, linked = false;
+// the sign-in is kept with the account, so connecting once covers every device
+const saveTok = v => D.setSetting(K.tok, v);
 const hasControls = () => ((ls.get(K.tok) || {}).scope || "").includes("user-modify-playback-state");
 
 if (D){
@@ -32,13 +34,19 @@ async function boot(){
   } else if (q.get("error") && q.get("state") === ls.get(K.st)){
     history.replaceState(null, "", location.pathname);
   }
-  if (ls.get(K.tok)){ D.setSpotify({connected:true, controls:hasControls()}); poll(); }
+  if (ls.get(K.tok)){ linked = true; D.setSpotify({connected:true, controls:hasControls()}); poll(); }
+  // the account's settings arrived: another device may have connected, renewed or disconnected Spotify
+  addEventListener("dash:settings", () => {
+    const has = !!ls.get(K.tok);
+    if (has && !linked){ linked = true; D.setSpotify({connected:true, controls:hasControls()}); poll(); }
+    else if (!has && linked){ linked = false; clearTimeout(timer); D.setNowPlaying(null); D.setSpotify({connected:false}); }
+  });
 
   addEventListener("dash:action", e => {
     if (e.detail.type === "spotify-connect") connect();
     if (e.detail.type === "spotify-cmd") control(e.detail.cmd);
     if (e.detail.type === "spotify-disconnect"){
-      ls.del(K.tok); clearTimeout(timer); D.setNowPlaying(null); D.setSpotify({connected:false});
+      saveTok(null); linked = false; clearTimeout(timer); D.setNowPlaying(null); D.setSpotify({connected:false});
     }
   });
 }
@@ -59,16 +67,29 @@ async function exchange(params){
     method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"},
     body:new URLSearchParams({client_id:ID, ...params})
   });
-  if (!r.ok) throw new Error("token "+r.status);
+  if (!r.ok){ const e = new Error("token "+r.status); e.status = r.status; throw e; }
   const j = await r.json(), old = ls.get(K.tok) || {};
-  ls.set(K.tok, {access:j.access_token, refresh:j.refresh_token || old.refresh, scope:j.scope || old.scope || "", exp:Date.now() + (j.expires_in-60)*1000});
+  saveTok({access:j.access_token, refresh:j.refresh_token || old.refresh, scope:j.scope || old.scope || "", exp:Date.now() + (j.expires_in-60)*1000});
+  linked = true;
 }
 
 async function accessToken(){
   const t = ls.get(K.tok); if (!t) return null;
   if (t.exp > Date.now()) return t.access;
   try { await exchange({grant_type:"refresh_token", refresh_token:t.refresh}); return ls.get(K.tok).access; }
-  catch(e){ ls.del(K.tok); D.setSpotify({connected:false}); D.setNowPlaying(null); return null; }
+  catch(e){
+    if (!e.status) return null;                       // offline or a hiccup: keep the sign-in and try again next time
+    // Spotify hands out a new renewal token each time, so another device may have renewed first: get the newest one from the account
+    if (D.pullSettings){
+      await D.pullSettings();
+      const n = ls.get(K.tok);
+      if (n && n.refresh && n.refresh !== t.refresh){
+        if (n.exp > Date.now()) return n.access;
+        try { await exchange({grant_type:"refresh_token", refresh_token:n.refresh}); return ls.get(K.tok).access; } catch(e2){ if (!e2.status) return null; }
+      }
+    }
+    saveTok(null); linked = false; D.setSpotify({connected:false}); D.setNowPlaying(null); return null;
+  }
 }
 
 async function poll(){

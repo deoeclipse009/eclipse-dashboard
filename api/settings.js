@@ -1,10 +1,15 @@
-// Per-account preferences (weather city, assistant profile, scholarship tracker, ...). Never put secrets here: API keys stay on the device.
+// Per-account preferences (weather city, assistant profile, college prep, ...) and, at the owner's request, the
+// connections that would otherwise need setting up on every device: AI provider keys and the Spotify sign-in.
+// Only the signed-in owner can read them back.
 import { db } from "./_lib/db.js";
 import { route, json, body } from "./_lib/http.js";
 import { requireUser } from "./_lib/auth.js";
 
 const ALLOWED = ["dash.weather.loc", "dash.voice.speak", "dash.omni.base", "dash.omni.model", "dash.pal.pin", "dash.fold",
-  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.scholar", "dash.task.prio", "dash.college.seeded"];
+  "dash.ai.name", "dash.ai.botname", "dash.ai.about", "dash.ai.provider", "dash.speech.lang", "dash.school.times", "dash.scholar", "dash.task.prio", "dash.college.seeded",
+  // connections the owner chose to keep with the account, so one setup covers every device
+  "dash.ai.key.gemini", "dash.ai.key.anthropic", "dash.ai.key.openai", "dash.ai.model.gemini", "dash.ai.model.anthropic", "dash.ai.model.openai",
+  "dash.omni.key", "dash.spotify.tok", "dash.gcal.on", "dash.gcal.events"];
 
 export default route(["GET", "PUT"], async (req, res) => {
   const a = await requireUser(req, res, json); if (!a) return;
