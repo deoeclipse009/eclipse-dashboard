@@ -20,7 +20,17 @@ function share(list){
   D.setSetting("dash.gcal.events", {at:Date.now(), list:out});
 }
 
-let client = null, token = null, exp = 0, pollTimer = null, refreshTimer = null;
+let client = null, token = null, exp = 0, pollTimer = null;
+// Google's sign-in for browsers lasts about an hour. It is remembered on this device for that hour, so reloading the
+// page does not ask again. Google's window only ever opens when the Connect / Refresh button is pressed.
+const TOK = "dash.gcal.tok";
+const remember = () => { try { localStorage.setItem(TOK, JSON.stringify({t:token, exp})); } catch(e){} };
+const forget = () => { token = null; try { localStorage.removeItem(TOK); } catch(e){} };
+function recall(){
+  try { const v = JSON.parse(localStorage.getItem(TOK)); if (v && v.t && Date.now() < v.exp){ token = v.t; exp = v.exp; return true; } } catch(e){}
+  forget(); return false;
+}
+function startPolling(){ clearInterval(pollTimer); pollTimer = setInterval(loadEvents, 10*60*1000); }
 
 function loadGis(){
   return new Promise((ok, fail) => {
@@ -35,10 +45,8 @@ async function ensureClient(){
     client_id: googleClientId, scope: SCOPE,
     callback: resp => {
       if (resp.error){ D.setAccount({calendar:"expired"}); D.setMsg("Google Calendar wasn't connected."); return; }
-      token = resp.access_token; exp = Date.now() + (resp.expires_in - 180) * 1000; flag.set();
-      D.setAccount({calendar:"on"}); loadEvents();
-      clearInterval(pollTimer); pollTimer = setInterval(loadEvents, 10*60*1000);
-      clearTimeout(refreshTimer); refreshTimer = setTimeout(() => request(""), Math.max(60000, exp - Date.now()));   // renew before it lapses
+      token = resp.access_token; exp = Date.now() + (resp.expires_in - 180) * 1000; flag.set(); remember();
+      D.setAccount({calendar:"on"}); loadEvents(); startPolling();
     },
     error_callback: () => { D.setAccount({calendar: flag.get() ? "expired" : "off"}); }
   });
@@ -49,13 +57,13 @@ async function request(prompt){
 }
 
 async function loadEvents(){
-  if (!token || Date.now() > exp + 120000){ D.setAccount({calendar:"expired"}); return; }
+  if (!token || Date.now() > exp){ forget(); clearInterval(pollTimer); D.setAccount({calendar:"expired"}); showShared(); return; }
   const max = new Date(Date.now() + 45*864e5);
   const url = "https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&maxResults=100"
     + "&timeMin=" + encodeURIComponent(new Date().toISOString()) + "&timeMax=" + encodeURIComponent(max.toISOString());
   try {
     const r = await fetch(url, {headers:{Authorization:"Bearer " + token}});
-    if (r.status === 401){ token = null; D.setAccount({calendar:"expired"}); return; }
+    if (r.status === 401){ forget(); clearInterval(pollTimer); D.setAccount({calendar:"expired"}); showShared(); return; }
     if (r.status === 403){ D.setMsg("Turn on the Google Calendar API for your Google Cloud project (see SETUP.md)."); return; }
     const j = await r.json();
     const list = (j.items || []).filter(e => e.status !== "cancelled" && e.start).map(e => {
@@ -76,12 +84,12 @@ if (D){
       else if (t === "calendar-refresh") loadEvents();
       else if (t === "signout" || t === "signout-all"){
         // signing out of this device only: forget the calendar here, leave the account's copy alone
-        token = null; clearInterval(pollTimer); clearTimeout(refreshTimer); D.setEvents([]);
+        forget(); clearInterval(pollTimer); D.setEvents([]);
         try { localStorage.removeItem("dash.gcal.on"); localStorage.removeItem("dash.gcal.events"); } catch(e2){}
       }
     });
     showShared();
     addEventListener("dash:settings", () => { showShared(); if (!token) D.setAccount({calendar: flag.get() ? "expired" : "off"}); });
-    if (flag.get()) setTimeout(() => request(""), 1500);   // quietly renew on load; if the browser blocks it the panel shows Reconnect
+    if (recall()){ D.setAccount({calendar:"on"}); loadEvents(); startPolling(); }   // still inside the hour: carry on, no sign-in window
   }
 }

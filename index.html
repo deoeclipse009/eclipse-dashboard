@@ -1282,8 +1282,8 @@
         s2.append(el("p",null,"Connected. "+acct.events+" upcoming event"+(acct.events===1?"":"s")+" shown in Upcoming and the month grid."));
         const row = el("div","row"); row.append(pill("Refresh", ()=>act("calendar-refresh"))); s2.append(row);
       } else {
-        s2.append(el("p",null,acct.calendar==="expired" ? (acct.events ? "Showing the "+acct.events+" event"+(acct.events===1?"":"s")+" your account last fetched. Reconnect on this device to refresh them from here." : "Connected on your account. Reconnect on this device to load events here.") : "Read-only access to show your events here."));
-        const row = el("div","row"); row.append(pill(acct.calendar==="expired"?"Reconnect":"Connect Google Calendar", ()=>act("calendar"))); s2.append(row);
+        s2.append(el("p",null,acct.calendar==="expired" ? (acct.events ? "Showing the "+acct.events+" event"+(acct.events===1?"":"s")+" last fetched. Google signs a browser out after about an hour, so press Refresh when you want newer ones." : "Connected on your account. Press Refresh to load your events on this device.") : "Read-only access to show your events here."));
+        const row = el("div","row"); row.append(pill(acct.calendar==="expired"?"Refresh from Google":"Connect Google Calendar", ()=>act("calendar"))); s2.append(row);
       }
       p.append(s2);
     }
