@@ -9,16 +9,23 @@ const $ = id => document.getElementById(id);
 const get = (k, d) => { const v = D.getSetting(k, d); return v == null || v === "" ? d : v; };
 
 /* ---------- providers ---------- */
-const DEFAULT_MODEL = {gemini:"gemini-flash-latest", anthropic:"claude-opus-5-5", openai:"gpt-5-mini", omni:"auto"};
+// Gemini default is the quickest model: a spoken assistant has to answer in a second or two
+const DEFAULT_MODEL = {gemini:"gemini-flash-lite-latest", anthropic:"claude-opus-5-5", openai:"gpt-5-mini", omni:"auto"};
 const LABEL = {anthropic:"Claude", openai:"ChatGPT", gemini:"Gemini", omni:"OmniRoute"};
 const provider = () => { const p = get("dash.ai.provider", "gemini"); return DEFAULT_MODEL[p] ? p : "gemini"; };
 const omniBase = () => String(get("dash.omni.base", "http://localhost:20128")).replace(/\/+$/, "");
 
 class AskError extends Error { constructor(m, status){ super(m); this.status = status; } }
+// a request that never comes back used to leave the assistant on "Thinking" for good: give up after 20 s and say so
+async function fetchT(url, opt, ms = 20000){
+  const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+  try { return await fetch(url, Object.assign({signal:c.signal}, opt)); } finally { clearTimeout(t); }
+}
 async function post(url, headers, body, name){
   let r;
-  try { r = await fetch(url, {method:"POST", headers:Object.assign({"Content-Type":"application/json"}, headers), body:JSON.stringify(body)}); }
-  catch(e){ throw new AskError(name === "OmniRoute" ? "I can't reach OmniRoute at " + omniBase() + ". Start it on your Mac first." : "I can't reach " + name + ". Check your connection."); }
+  try { r = await fetchT(url, {method:"POST", headers:Object.assign({"Content-Type":"application/json"}, headers), body:JSON.stringify(body)}); }
+  catch(e){ if (e && e.name === "AbortError") throw new AskError(name + " took too long to answer. Try again, or pick a faster model in the account panel.");
+    throw new AskError(name === "OmniRoute" ? "I can't reach OmniRoute at " + omniBase() + ". Start it on your Mac first." : "I can't reach " + name + ". Check your connection."); }
   const j = await r.json().catch(() => ({}));
   if (r.ok) return j;
   const detail = String((j.error && (j.error.message || j.error)) || "").slice(0, 140);
@@ -26,7 +33,7 @@ async function post(url, headers, body, name){
   if (r.status === 404) throw new AskError(name + " doesn't know that model. Check the model name in the account panel.", 404);
   if (r.status === 429) throw new AskError(name + " says the limit or credit for this key is used up. " + detail);
   if (r.status >= 500) throw new AskError(name + " is having trouble right now. Try again in a moment.");
-  throw new AskError(name + " returned an error (" + r.status + "). " + detail);
+  throw new AskError(name + " returned an error (" + r.status + "). " + detail, r.status);
 }
 
 // turns: [{role:"user"|"assistant", content:"..."}], ending with a user turn. Returns the model's text.
@@ -46,7 +53,10 @@ const PROVIDERS = {
   },
   async gemini(system, turns, key, model, retried){
     let j;
-    try { j = await geminiCall(system, turns, key, model); }
+    try {
+      try { j = await geminiCall(system, turns, key, model); }
+      catch(e){ if (e.status !== 400) throw e; j = await geminiCall(system, turns, key, model, false); }   // a model that won't take the quick setting
+    }
     catch(e){
       // model names change: if this one is gone, ask Google which Flash model this key can use, remember it, and try once more
       if (e.status !== 404 || retried) throw e;
@@ -65,20 +75,21 @@ const PROVIDERS = {
   }
 };
 
-function geminiCall(system, turns, key, model){
+// quick = switch off the model's hidden reasoning step, which is what made answers take many seconds
+function geminiCall(system, turns, key, model, quick = true){
   return post("https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent", {"x-goog-api-key":key}, {
     systemInstruction:{parts:[{text:system}]},
     contents:turns.map(t => ({role:t.role === "assistant" ? "model" : "user", parts:[{text:t.content}]})),
-    generationConfig:{responseMimeType:"application/json"}
+    generationConfig:Object.assign({responseMimeType:"application/json", maxOutputTokens:700}, quick ? {thinkingConfig:{thinkingBudget:0}} : {})
   }, "Gemini");
 }
 async function geminiFindModel(key){
   try {
-    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", {headers:{"x-goog-api-key":key}});
+    const r = await fetchT("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", {headers:{"x-goog-api-key":key}}, 8000);
     if (!r.ok) return null;
     const names = ((await r.json()).models || []).filter(m => (m.supportedGenerationMethods || []).includes("generateContent")).map(m => String(m.name).replace(/^models\//, ""));
-    const flash = names.filter(n => /flash/.test(n) && !/image|tts|audio|live|lite|embedding|8b/.test(n));
-    return flash.find(n => /latest/.test(n)) || flash.sort().reverse()[0] || names[0] || null;
+    const flash = names.filter(n => /flash/.test(n) && !/image|tts|audio|live|embedding|8b|preview|exp/.test(n));
+    return flash.find(n => /lite-latest/.test(n)) || flash.find(n => /latest/.test(n)) || flash.sort().reverse()[0] || names[0] || null;
   } catch(e){ return null; }
 }
 
@@ -110,7 +121,8 @@ function context(spoken){
     events:D.getEvents().slice(0, 40).map(e => ({text:e.text, due:e.due, time:e.time || null})),
     school:window.School ? window.School.context() : null,
     college:window.Scholar ? window.Scholar.context() : [],
-    portfolio:window.Scholar ? window.Scholar.profile() : null,
+    // the full portfolio is long: send it only when the question is about school, awards or applications
+    portfolio:!window.Scholar ? null : /grade|score|average|award|achiev|portfolio|profile|essay|appl|scholar|college|universit|kaist|gks|sat\b|nilai|prestasi|beasiswa|kuliah/i.test(spoken) ? window.Scholar.profile() : {semesterAverages:window.Scholar.profile().semesterAverages},
     launchers:D.launchIds()
   };
 }

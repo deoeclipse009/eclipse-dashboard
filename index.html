@@ -574,9 +574,11 @@
     .sform{margin-top:1.9rem;grid-template-columns:1fr 1fr;gap:.7rem 1rem}
     .sform .wide{grid-column:1 / -1}
     .sform .act{margin-bottom:0}
-    .cbar{margin-top:1.9rem}
+    .cbar{margin:0 .1rem}
+    .cbody{margin-top:1.9rem}
+    .cbody > :first-child{margin-top:0}
     .cbody{display:flex;flex-direction:column}
-    .ctabs{margin:1.3rem 0 0}
+    .ctabs{margin:1.1rem 0 0}
     .app{border-top:0}
     .app-name{font-size:1.08rem;font-weight:500}
     .app-when{font-size:.86rem}
@@ -584,7 +586,8 @@
     .track button{height:.5rem}
     .track-l{font-size:.64rem}
     .drop{font-size:.8rem;align-self:flex-start}
-    .ghead{margin:1.9rem .2rem .4rem}
+    .ghead{align-items:center;gap:1rem;margin:0 .2rem .5rem}
+    .ghead .note{font-size:.82rem;line-height:1.4}
     .ghead .big{font-size:4rem;font-weight:500}
     .gradebox{padding:.3rem 1.15rem}
     .sem:first-child{border-top:0}
@@ -595,7 +598,12 @@
     .psec h3{font-weight:500;font-size:1.05rem}
     .psec li{font-size:.92rem}
     .import textarea{font-size:16px}
-    .cbody > .drop,.cbody > .empty{margin-top:1rem}
+    .cbody > .drop{margin:1rem .2rem 0;padding:.4rem 0}
+    .cbody > .empty{margin-top:.4rem}
+    .app .drop{margin-top:.75rem;padding:.3rem 0}
+    .app-top{gap:.7rem}
+    .track{margin-top:1rem}
+    .psec li{padding:.32rem 0 .32rem 1.05rem}
 
     /* bottom bar: a solid capsule with the assistant blob in the middle */
     .mobile-nav{position:fixed;left:.9rem;right:.9rem;bottom:calc(env(safe-area-inset-bottom,0px) + .7rem);z-index:80;
@@ -1447,7 +1455,7 @@
   function fitHero(){
     if (!phone.matches) return;
     const v = document.body.dataset.view;
-    const end = v==="home" ? $("#timebox") : v==="tasks" ? $(".todo-head") : document.querySelector("#"+v+" .sub") || document.querySelector("#"+v+" h2");
+    const end = v==="home" ? $("#timebox") : v==="tasks" ? $(".todo-head") : document.querySelector("#"+v+" .ctabs") || document.querySelector("#"+v+" .sub") || document.querySelector("#"+v+" h2");
     if (!end || !end.offsetParent) return;
     document.documentElement.style.setProperty("--hero-h", Math.round(end.getBoundingClientRect().bottom + scrollY + 20)+"px");
   }
