@@ -174,13 +174,21 @@
   .add input.txt{width:100%;padding:.3rem 0;font-size:.95rem;border-bottom:1px solid transparent}
   .add input.txt::placeholder{color:var(--soft)}
   .add input.txt:focus{border-bottom-color:var(--line)}
+  .addtop{display:flex;align-items:center;gap:.5rem}
+  .addtop .txt{flex:1;min-width:0}
+  .add .go{flex:none;width:1.7rem;height:1.7rem;font-size:1.15rem;line-height:1;opacity:.6}
+  .add .go:hover{opacity:1}
+  /* when, date, time and priority: shown once you start a task */
+  .opts{display:none;padding-top:.3rem}
+  .add:focus-within .opts,.add.has .opts{display:block}
+  .seg{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;margin-top:.5rem;font-size:.72rem;color:var(--soft)}
+  .seg span{margin-right:.25rem}
+  .seg button{padding:.16rem .6rem;border:1px solid var(--line);border-radius:1rem;font-size:.72rem;color:var(--soft)}
+  .seg button:hover{border-color:var(--ink);color:var(--ink)}
+  .seg button.on{background:var(--ink);border-color:var(--ink);color:var(--base)}
   .addrow{display:flex;align-items:center;gap:.8rem;margin-top:.5rem;font-size:.78rem}
-  .addrow .scope{color:var(--soft);padding:.1rem .5rem;border:1px solid var(--line);border-radius:1rem}
-  .addrow .scope:hover{color:var(--ink);border-color:var(--ink)}
-  .addrow input[type=date]{color:var(--soft);font-size:.78rem;min-width:0;flex:1;color-scheme:light}
-  body.dark .addrow input[type=date]{color-scheme:dark}
-  .addrow .go{margin-left:auto;font-size:1.1rem;line-height:1;opacity:.6}
-  .addrow .go:hover{opacity:1}
+  .addrow input{flex:1;min-width:0;padding:.2rem 0;font-size:.78rem;color:var(--soft);border-bottom:1px solid var(--line);border-radius:0;color-scheme:light}
+  body.dark .addrow input{color-scheme:dark}
 
   /* column 4: palette, upcoming, music */
   .palette{text-align:left;font-size:.74rem;line-height:1.5;color:var(--soft);align-self:flex-start}
@@ -311,22 +319,60 @@
   .sform input::placeholder{color:var(--soft);opacity:.7}
   .sform .act{grid-column:1 / -1;display:flex;align-items:center;justify-content:flex-end;gap:1rem;margin-bottom:.8rem}
   .smsg{font-size:.78rem;color:var(--soft)}
-  .srow{display:flex;align-items:center;gap:.9rem;padding:.7rem 0;border-top:1px solid var(--line);font-size:.92rem}
-  .srow .main{flex:1;min-width:0}
-  .srow .main b{display:block;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .srow .main a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:.2em}
-  .srow small{display:block;font-size:.76rem;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .srow .when{flex:none;text-align:right;font-size:.82rem;font-variant-numeric:tabular-nums}
-  .srow .st{flex:none;min-width:6.6rem;padding:.28rem .7rem;font-size:.74rem;text-align:center}
-  .srow .st.s-applied,.srow .st.s-interview{border-color:var(--ink)}
-  .srow .st.s-awarded{background:var(--ink);border-color:var(--ink);color:var(--base)}
-  .srow .del{opacity:.45}
-  .srow .when{position:relative}
-  .srow .pick{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
-  .srow .pick::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
+  .pill.solid{background:var(--ink);border-color:var(--ink);color:var(--base)}
+  .cbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:2rem}
+  .app{padding:1rem 0;border-top:1px solid var(--line)}
+  .app-top{display:flex;align-items:flex-start;gap:.9rem}
+  .app-main{flex:1;min-width:0}
+  .app-kind{font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+  .app-name{margin-top:.1rem;font-size:1.02rem;line-height:1.3}
+  .app-name a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:.2em}
+  .app-note{margin-top:.1rem;font-size:.78rem;color:var(--soft)}
+  .app-when{position:relative;flex:none;text-align:right;font-size:.82rem;font-variant-numeric:tabular-nums}
+  .app-when b{display:block;font-weight:400;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:.2em}
+  .app-when small{display:block;font-size:.74rem;color:var(--soft)}
+  .app .pick{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+  .app .pick::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
+  .app .del{opacity:.45;margin-top:-.2rem}
+  .track,.track-l{display:grid;grid-template-columns:repeat(5,1fr);gap:.3rem}
+  .track{margin-top:.8rem}
+  .track button{position:relative;height:.38rem;border-radius:1rem;background:color-mix(in srgb,var(--ink) 13%,transparent);transition:background .2s}
+  .track button::before{content:"";position:absolute;inset:-.7rem 0}
+  .track button.on{background:var(--ink)}
+  .track-l{margin-top:.4rem;font-size:.66rem;color:var(--soft)}
+  .track-l span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .track-l .on{color:var(--ink);font-weight:500}
+  .drop{margin-top:.6rem;font-size:.72rem;color:var(--soft);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:.2em}
+  .drop:hover{color:var(--ink)}
+  .app.closed .app-top,.app.closed .track,.app.closed .track-l{opacity:.45}
+  .spark{display:block;width:100%;height:2.2rem;overflow:visible}
+  .spark path{fill:none;stroke:currentColor;stroke-width:1.3;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+  .ghead{display:flex;align-items:flex-end;gap:1.3rem;margin:.4rem 0 1.2rem}
+  .ghead .big{font-size:3.8rem;font-weight:200;line-height:.85;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+  .ghead .side{flex:1;min-width:0}
+  .ghead .note{margin-top:.3rem;font-size:.78rem;color:var(--soft)}
+  .sem{border-top:1px solid var(--line)}
+  .sem summary{display:flex;align-items:center;gap:1rem;padding:.8rem 0;cursor:pointer;list-style:none}
+  .sem summary::-webkit-details-marker{display:none}
+  .sem .nm{flex:0 0 9.5rem;font-size:.92rem}
+  .sem .bar{flex:1;height:.36rem;border-radius:1rem;background:color-mix(in srgb,var(--ink) 11%,transparent);overflow:hidden}
+  .sem .bar i{display:block;height:100%;border-radius:1rem;background:var(--ink)}
+  .sem .avg{flex:none;width:3.4rem;text-align:right;font-variant-numeric:tabular-nums}
+  .subs{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:0 2rem;padding:0 0 1rem}
+  .subs div{display:flex;justify-content:space-between;gap:1rem;padding:.24rem 0;font-size:.84rem}
+  .subs span{color:var(--soft)}
+  .subs b{font-weight:400;font-variant-numeric:tabular-nums}
+  .psec{padding:1rem 0;border-top:1px solid var(--line)}
+  .psec h3{font-weight:400;font-size:1rem;margin-bottom:.4rem}
+  .psec ul{list-style:none}
+  .psec li{position:relative;padding:.28rem 0 .28rem 1.05rem;font-size:.88rem;line-height:1.45}
+  .psec li::before{content:"";position:absolute;left:.1rem;top:.82rem;width:.3rem;height:.3rem;border-radius:50%;background:var(--ink);opacity:.5}
+  .import{margin-top:1rem}
+  .import textarea{display:block;width:100%;height:7.5rem;margin-top:.6rem;padding:.7rem .8rem;border:1px solid var(--line);border-radius:.8rem;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.76rem;line-height:1.4}
+  .import textarea:focus{border-color:var(--ink)}
+  .import .act{display:flex;align-items:center;justify-content:flex-end;gap:1rem;margin-top:.7rem}
   .sform select{display:block;width:100%;padding:.4rem 0;font-size:1rem;color:var(--ink);border-bottom:1px solid var(--line);border-radius:0;-webkit-appearance:none;appearance:none}
   .sform select option{color:#111;background:#fff}
-  .srow.closed .main,.srow.closed .when{opacity:.5}
   .mobile-nav,.mhead{display:none}
   @media (hover:none){.del{opacity:.45}}
   @media (min-width:901px){
@@ -411,7 +457,7 @@
     .sheet .sub{margin:.3rem 0 0;font-size:.9rem;color:var(--ink);opacity:.75}
 
     /* cards */
-    .brief,.counts,.classes,.up,.fund,.music,.cal,.add,.list,.dv,.sform,.srow{margin-top:.7rem;padding:1.05rem 1.15rem;border:1px solid var(--edge);border-radius:1.5rem;background:var(--card);box-shadow:var(--shadow);max-width:none}
+    .brief,.counts,.classes,.up,.fund,.music,.cal,.add,.list,.dv,.sform,.app,.gradebox,.psec,.import{margin-top:.7rem;padding:1.05rem 1.15rem;border:1px solid var(--edge);border-radius:1.5rem;background:var(--card);box-shadow:var(--shadow);max-width:none}
     .counts{order:-1}
     .counts .lbl,.sec-h .lbl,.up h3 > span,.fund h3 > span,.music .top span,.calhead .lbl{font-size:1.02rem !important;font-weight:500 !important;letter-spacing:-.01em;color:var(--ink)}
     .sec-h,.up h3,.fund h3,.music .top{margin-bottom:.7rem;align-items:center}
@@ -463,12 +509,15 @@
     /* to-do: the add box sits on top so the keyboard never covers it */
     .todo-head{padding-right:.2rem;align-items:flex-end}
     .todo-head .lbl{padding:.3rem .8rem;border-radius:1rem;background:var(--ink);color:var(--base);font-size:.78rem;font-weight:500}
-    .add{order:1;margin-top:1.9rem;padding:.65rem 1.15rem .75rem;border-top:0}
+    .add{order:1;margin-top:1.9rem;padding:.65rem 1.15rem .9rem;border-top:0}
     .add input.txt{font-size:1rem;padding:.5rem 0}
-    .addrow{font-size:.85rem;margin-top:.3rem}
-    .addrow .scope{padding:.35rem .85rem;font-weight:500;color:var(--ink)}
-    .addrow input[type=date]{font-size:1rem}
-    .addrow .go{width:2.4rem;height:2.4rem;border-radius:50%;background:var(--ink);color:var(--base);font-size:1.4rem;opacity:1}
+    .add .go{width:2.4rem;height:2.4rem;border-radius:50%;background:var(--ink);color:var(--base);font-size:1.4rem;opacity:1}
+    .opts{display:block;padding-top:.1rem}
+    .seg{gap:.35rem;margin-top:.7rem;font-size:.8rem}
+    .seg span{flex-basis:100%;margin:0 0 .05rem}
+    .seg button{padding:.42rem .9rem;font-size:.82rem;font-weight:500;border-color:var(--edge);background:color-mix(in srgb,var(--ink) 5%,transparent)}
+    .addrow{gap:1rem;margin-top:.7rem}
+    .addrow input{font-size:16px;padding:.4rem 0;color:var(--ink)}
     .tabs{order:2;gap:.4rem;margin:.9rem 0 0;font-size:.9rem}
     .tabs button{padding:.45rem 1rem;border:1px solid var(--edge);border-radius:2rem;background:var(--card);font-weight:500;opacity:1;color:var(--soft)}
     .tabs button.on{background:var(--ink);color:var(--base)}
@@ -490,10 +539,14 @@
     .edit .prio{font-size:.78rem;gap:.35rem}
     .edit .prio span{flex-basis:100%}
     .edit .prio button{padding:.4rem .85rem;font-size:.8rem}
-    .studio{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-top:.7rem;padding:.9rem 1.15rem;border:1px solid var(--edge);border-radius:1.5rem;background:var(--card);box-shadow:var(--shadow)}
+    .studio{display:block;margin-top:.7rem;padding:1.05rem 1.15rem 1.15rem;border:1px solid var(--edge);border-radius:1.5rem;background:var(--card);box-shadow:var(--shadow)}
     .studio span{font-size:1.02rem;font-weight:500}
-    .studio div{display:flex;gap:.4rem}
-    .studio a{text-decoration:none;white-space:nowrap;padding:.45rem .9rem;border-color:transparent;background:color-mix(in srgb,var(--ink) 8%,transparent)}
+    .shots{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem}
+    .shots a{display:block;min-width:0;text-decoration:none;color:inherit}
+    .shots img{display:block;width:100%;height:auto;aspect-ratio:16 / 10;object-fit:cover;object-position:top left;border-radius:.9rem;border:1px solid var(--edge)}
+    .shots b{display:block;margin-top:.55rem;font-size:.95rem;font-weight:500}
+    .shots small{display:block;font-size:.72rem;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .shots a:active img{transform:scale(.98)}
 
     /* school: day by day instead of the wide grid, month calendar underneath */
     #school{order:-1}
@@ -521,15 +574,28 @@
     .sform{margin-top:1.9rem;grid-template-columns:1fr 1fr;gap:.7rem 1rem}
     .sform .wide{grid-column:1 / -1}
     .sform .act{margin-bottom:0}
-    .srow{flex-wrap:wrap;gap:.6rem .8rem;border-top:0}
-    .srow .main{flex:1 1 70%}
-    .srow .main b{font-weight:500;font-size:1.05rem;white-space:normal}
-    .srow .when{order:3;flex:1 1 50%;text-align:left;font-size:.86rem}
-    .srow .when small{display:inline;margin-left:.5rem}
-    .srow .st{order:4;font-size:.8rem;padding:.45rem .95rem;border-color:transparent;background:color-mix(in srgb,var(--ink) 8%,transparent)}
-    .srow .st.s-applied,.srow .st.s-interview{box-shadow:inset 0 0 0 1.5px var(--ink)}
-    .srow .st.s-awarded{background:var(--ink)}
-    .srow .del{order:2;margin:-.6rem -.7rem -.6rem 0}
+    .cbar{margin-top:1.9rem}
+    .cbody{display:flex;flex-direction:column}
+    .ctabs{margin:1.3rem 0 0}
+    .app{border-top:0}
+    .app-name{font-size:1.08rem;font-weight:500}
+    .app-when{font-size:.86rem}
+    .app .del{margin:-.5rem -.7rem 0 -.4rem}
+    .track button{height:.5rem}
+    .track-l{font-size:.64rem}
+    .drop{font-size:.8rem;align-self:flex-start}
+    .ghead{margin:1.9rem .2rem .4rem}
+    .ghead .big{font-size:4rem;font-weight:500}
+    .gradebox{padding:.3rem 1.15rem}
+    .sem:first-child{border-top:0}
+    .sem .nm{flex:0 0 7.6rem;font-size:.95rem}
+    .subs{grid-template-columns:1fr;padding-bottom:.8rem}
+    .subs div{font-size:.9rem;padding:.3rem 0}
+    .psec{border-top:0}
+    .psec h3{font-weight:500;font-size:1.05rem}
+    .psec li{font-size:.92rem}
+    .import textarea{font-size:16px}
+    .cbody > .drop,.cbody > .empty{margin-top:1rem}
 
     /* bottom bar: a solid capsule with the assistant blob in the middle */
     .mobile-nav{position:fixed;left:.9rem;right:.9rem;bottom:calc(env(safe-area-inset-bottom,0px) + .7rem);z-index:80;
@@ -713,11 +779,17 @@
     </div>
     <div class="list" id="list"></div>
     <div class="add">
-      <input class="txt" id="newText" type="text" placeholder="Add a task, e.g. IELTS test friday 10am, or study every day" autocomplete="off" aria-label="New task">
-      <div class="addrow">
-        <button class="scope" id="scopeBtn" title="Click to change when this task is for">Today</button>
-        <input type="date" id="newDue" aria-label="Due date">
+      <div class="addtop">
+        <input class="txt" id="newText" type="text" placeholder="Add a task, e.g. essay friday 10am, or study every day" autocomplete="off" aria-label="New task">
         <button class="go" id="addBtn" aria-label="Add task">+</button>
+      </div>
+      <div class="opts">
+        <div class="seg" id="scopeSeg" role="group" aria-label="When is it for"><span>For</span><button data-scope="today">Today</button><button data-scope="week">This week</button><button data-scope="month">This month</button></div>
+        <div class="addrow">
+          <input type="date" id="newDue" aria-label="Date">
+          <input type="time" id="newTime" aria-label="Time">
+        </div>
+        <div class="seg" id="prioSeg" role="group" aria-label="Priority"><span>Priority</span><button data-p="0">None</button><button data-p="1">Low</button><button data-p="2">Medium</button><button data-p="3">High</button></div>
       </div>
     </div>
   </section>
@@ -731,7 +803,10 @@
     <div class="music" id="music"></div>
     <div class="studio">
       <span>Eclipse Studio</span>
-      <div><a class="pill" href="https://eclipsestudioweb.com" target="_blank" rel="noopener">Website</a><a class="pill" href="https://control.eclipsestudioweb.com" target="_blank" rel="noopener">Control room</a></div>
+      <div class="shots">
+        <a href="https://eclipsestudioweb.com" target="_blank" rel="noopener"><img src="img/studio-site.jpg" alt="" loading="lazy" width="480" height="304"><b>Website</b><small>eclipsestudioweb.com</small></a>
+        <a href="https://control.eclipsestudioweb.com" target="_blank" rel="noopener"><img src="img/studio-control.jpg" alt="" loading="lazy" width="480" height="300"><b>Control room</b><small>control.eclipsestudioweb.com</small></a>
+      </div>
     </div>
   </section>
 
@@ -1049,6 +1124,13 @@
     };
     mk("Date", "date", t.due, v => { t.due = /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null; if (t.due) t.scope = scopeFor(t.due); else t.time = null; });
     mk("Time", "time", t.time, v => { t.time = /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null; if (t.time && !t.due){ t.due = iso(new Date()); t.scope = "today"; } });
+    const wh = document.createElement("div"); wh.className = "prio";
+    const wl = document.createElement("span"); wl.textContent = "For"; wh.append(wl);
+    SCOPES.forEach(sc => {
+      const b = document.createElement("button"); b.textContent = sc==="today" ? "Today" : "This "+sc; b.className = t.scope===sc ? "on" : "";
+      b.onclick = () => { t.scope = sc; after(); }; wh.append(b);
+    });
+    box.append(wh);
     const pr = document.createElement("div"); pr.className = "prio";
     const lab = document.createElement("span"); lab.textContent = "Priority"; pr.append(lab);
     PRIO.forEach((name, n) => {
@@ -1063,22 +1145,31 @@
     const inp = $("#newText"), text = inp.value.trim();
     if (!text) return;
     const q = quickParse(text);
-    const t = makeTask({text:q.text, due:q.due||$("#newDue").value||null, time:q.time, repeat:q.repeat, scope:q.due?null:scopeNew});
+    // typed words win ("friday 10am"); otherwise the pickers; a time with no date means today
+    const time = q.time || $("#newTime").value || null, due = q.due || $("#newDue").value || (time ? iso(new Date()) : null);
+    const t = makeTask({text:q.text, due, time, repeat:q.repeat, scope:due?null:scopeNew});
+    if (prioNew) setPrio(t.id, prioNew);
+    $("#newTime").value = ""; prioNew = 0;
     tasks.push(t);
-    save(); inp.value = "";
+    save(); inp.value = ""; paintAdd();
     if (tab!=="all" && tab!==t.scope) tab = t.scope;
     renderTasks(); renderUp(); renderCal();
   }
   $("#newText").addEventListener("keydown", e => { if(e.key==="Enter") addTask(); });
   $("#addBtn").onclick = addTask;
-  $("#scopeBtn").onclick = () => {
-    scopeNew = SCOPES[(SCOPES.indexOf(scopeNew)+1)%SCOPES.length];
-    $("#scopeBtn").textContent = cap(scopeNew);
-  };
+  let prioNew = 0;
+  function paintAdd(){
+    document.querySelectorAll("#scopeSeg button").forEach(b => b.classList.toggle("on", b.dataset.scope===scopeNew));
+    document.querySelectorAll("#prioSeg button").forEach(b => b.classList.toggle("on", +b.dataset.p===prioNew));
+    document.querySelector(".add").classList.toggle("has", !!$("#newText").value.trim());
+  }
+  $("#scopeSeg").onclick = e => { const b = e.target.closest("button"); if (b){ scopeNew = b.dataset.scope; paintAdd(); } };
+  $("#prioSeg").onclick = e => { const b = e.target.closest("button"); if (b){ prioNew = +b.dataset.p; paintAdd(); } };
+  $("#newText").addEventListener("input", paintAdd);
   $("#tabs").onclick = e => {
     const b = e.target.closest("button"); if(!b) return;
     tab = b.dataset.tab; store.set("dash.tab",tab);
-    if (tab!=="all"){ scopeNew = tab; $("#scopeBtn").textContent = cap(tab); }
+    if (tab!=="all"){ scopeNew = tab; paintAdd(); }
     renderTasks();
   };
 
@@ -1430,7 +1521,7 @@
     gateMsg(t){ $("#gateMsg").textContent = t||""; },
     gateBusy(b){ $("#gateGo").disabled = !!b; },
     addTask(o){
-      const t = makeTask({text:o.text, due:o.due, time:o.time, repeat:o.repeat});
+      const t = makeTask({text:o.text, due:o.due, time:o.time, repeat:o.repeat, scope:!o.due && SCOPES.includes(o.scope) ? o.scope : null});
       tasks.push(t); if (o.priority) setPrio(t.id, o.priority); save(); renderTasks(); renderUp(); renderCal(); return t;
     },
     completeTask(id){ const t = tasks.find(x=>x.id===id && !x.done); if (!t) return false; toggleTask(t); return true; },
@@ -1495,8 +1586,8 @@
 
   /* ---------- go ---------- */
   refreshPalette(); renderDate(); renderCal(); renderTasks(); renderUp(); renderMusic();
-  $("#scopeBtn").textContent = cap(scopeNew);
-  if (phone.matches) $("#newText").placeholder = "Add a task, e.g. essay friday 10am";
+  paintAdd();
+  if (phone.matches) $("#newText").placeholder = "Add a task";
   tick(); setInterval(tick, 1000);
 })();
 </script>

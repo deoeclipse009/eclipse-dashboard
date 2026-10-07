@@ -24,7 +24,8 @@ This folder sits on an iCloud-synced Desktop. Files turn into cloud-only placeho
 - `sync.js`: sign-in, task sync, settings sync. `SYNCED` lists the setting keys that follow the account.
 - `api/settings.js`: `ALLOWED` must list the same keys as `SYNCED`. `api/tasks/index.js`: task table, do not add columns lightly.
 - `voice.js`: assistant pop-up, blob, providers (Gemini default, Claude, ChatGPT, OmniRoute), validated actions.
-- `school.js`: XII J timetable data and rendering. `scholar.js`: College prep (setting key is still `dash.scholar`).
+- `school.js`: XII J timetable data and rendering. `scholar.js`: College prep: applications (`dash.scholar`) plus grades and portfolio (`dash.portfolio`).
+- Personal data (grades, awards) is pasted in through the app and lives in the account. The repo is public: never commit it.
 - `spotify.js`, `calendar.js`, `weather.js`: connectors. `config.js`: public client IDs and `apiBase`.
 - `launcher/`: macOS app for `eclipse://` links. Re-run `launcher/install.sh` after editing the AppleScript.
 - `SETUP.md`: connector setup steps for the owner.
