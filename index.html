@@ -57,7 +57,7 @@
     display:grid;grid-template-columns:1fr 2fr 1.15fr 1.15fr;
   }
   .col{position:relative;display:flex;flex-direction:column;min-height:0;min-width:0;padding:0 clamp(14px,1.5vw,26px);border-left:1px solid var(--line)}
-  .c4{border-right:1px solid var(--line)}
+  .c4{border-right:1px solid var(--line);overflow:hidden}
   .lbl{font-size:.74rem;letter-spacing:.02em;color:var(--soft)}
   .hide-in-focus{transition:opacity .35s}
   body.focus .c3 > *, body.focus .c4 > *{opacity:0;pointer-events:none}
@@ -120,7 +120,7 @@
   .brief b{font-weight:400;color:var(--ink)}
   .c2extra{order:3;flex:1 1 0;min-height:0;overflow:hidden;max-width:30rem}
   .c2extra::before{content:"";display:block;height:calc(4.6vh + 2.2rem)}   /* room for the date line under the clock */
-  .counts{margin-top:4vh}
+  .counts{flex:none;margin-top:3vh}
   .counts:empty{display:none}
   .counts .lbl{display:block;margin-bottom:.45rem;font-size:.95rem;font-weight:400;color:var(--ink)}
   .counts div.row{display:flex;justify-content:space-between;gap:1rem;padding:.4rem 0;border-top:1px solid var(--line);font-size:.88rem;line-height:1.3}
@@ -170,7 +170,7 @@
   .item:hover .del,.del:focus-visible{opacity:.6}
   .del:hover{opacity:1 !important}
   .empty{font-size:.85rem;color:var(--soft);padding:.4rem 0}
-  .add{border-top:1px solid var(--line);padding-top:.8rem;margin-top:.6rem}
+  .add{position:relative;border-top:1px solid var(--line);padding-top:.8rem;margin-top:.6rem}
   .add input.txt{width:100%;padding:.3rem 0;font-size:.95rem;border-bottom:1px solid transparent}
   .add input.txt::placeholder{color:var(--soft)}
   .add input.txt:focus{border-bottom-color:var(--line)}
@@ -179,29 +179,35 @@
   .add .go{flex:none;width:1.7rem;height:1.7rem;font-size:1.15rem;line-height:1;opacity:.6}
   .add .go:hover{opacity:1}
   /* when, date, time and priority: shown once you start a task */
-  .opts{display:none;padding-top:.3rem}
-  .add:focus-within .opts,.add.has .opts{display:block}
+  .opts{display:none;position:absolute;left:-.5rem;right:-.5rem;bottom:calc(100% + .5rem);z-index:6;padding:.3rem .95rem .95rem;border:1px solid var(--line);border-radius:.9rem;
+    background:color-mix(in srgb,var(--base) 93%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 1.4rem 2.6rem -1.4rem color-mix(in srgb,var(--ink) 50%,transparent)}
+  .add.open .opts{display:block}
   .seg{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;margin-top:.5rem;font-size:.72rem;color:var(--soft)}
   .seg span{margin-right:.25rem}
   .seg button{padding:.16rem .6rem;border:1px solid var(--line);border-radius:1rem;font-size:.72rem;color:var(--soft)}
   .seg button:hover{border-color:var(--ink);color:var(--ink)}
   .seg button.on{background:var(--ink);border-color:var(--ink);color:var(--base)}
-  .addrow{display:flex;align-items:center;gap:.8rem;margin-top:.5rem;font-size:.78rem}
+  .addrow{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.72rem;color:var(--soft)}
+  .addrow span + input{margin-right:.5rem}
+  .seg span{flex-basis:100%;margin:0 0 .1rem}
+  .addrow span{flex:none}
   .addrow input{flex:1;min-width:0;padding:.2rem 0;font-size:.78rem;color:var(--soft);border-bottom:1px solid var(--line);border-radius:0;color-scheme:light}
   body.dark .addrow input{color-scheme:dark}
 
   /* column 4: palette, upcoming, music */
-  .palette{text-align:left;font-size:.74rem;line-height:1.5;color:var(--soft);align-self:flex-start}
+  .palette{flex:none;text-align:left;font-size:.74rem;line-height:1.5;color:var(--soft);align-self:flex-start}
   .palette:hover{color:var(--ink)}
   .palette b{font-weight:400;color:var(--ink)}
-  .up{margin-top:5vh}
+  .up{flex:0 1 auto;min-height:0;overflow:hidden;margin-top:3.6vh}
   .up h3{font-weight:400;font-size:.95rem;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.7rem}
   .up h3 button{font-size:.72rem;color:var(--soft)}
   .up h3 button:hover{color:var(--ink)}
   .uprow{display:flex;gap:.9rem;padding:.4rem 0;border-top:1px solid var(--line);font-size:.88rem;line-height:1.3}
   .uprow:first-of-type{border-top:0}
   .uprow .when{flex:none;width:4.6rem;color:var(--soft)}
-  .music{margin-top:auto}
+  .uprow .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .uprow .tm{flex:none;font-size:.74rem;color:var(--soft);font-variant-numeric:tabular-nums}
+  .music{flex:none;margin-top:auto;padding-top:3vh}
   .music .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.6rem}
   .music .top button{font-size:.72rem;color:var(--soft)}
   .music .top button:hover{color:var(--ink)}
@@ -303,7 +309,7 @@
   .sheet .foot{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.1rem}
 
   /* scholarships: summary card (column 4) + the tracker sheet (see scholar.js) */
-  .fund{margin-top:4vh}
+  .fund{flex:none;margin-top:3vh}
   .fund h3{font-weight:400;font-size:.95rem;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem}
   .fund h3 button{font-size:.72rem;color:var(--soft)}
   .fund h3 button:hover{color:var(--ink)}
@@ -311,7 +317,7 @@
   .fund .big{font-size:2.9rem;font-weight:200;line-height:.86;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
   .fund .side{flex:1;min-width:0}
   .fund .nm{font-size:.88rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fund .note{font-size:.72rem;color:var(--soft);line-height:1.4}
+  .fund .note{font-size:.72rem;color:var(--soft);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sform{display:grid;grid-template-columns:2fr 1fr;gap:.6rem 1.2rem;margin-top:1.4rem}
   .sform label{font-size:.72rem;color:var(--soft);min-width:0}
   .sform input{display:block;width:100%;padding:.4rem 0;font-size:1rem;color:var(--ink);border-bottom:1px solid var(--line);border-radius:0;color-scheme:light}
@@ -345,28 +351,38 @@
   .drop{margin-top:.6rem;font-size:.72rem;color:var(--soft);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:.2em}
   .drop:hover{color:var(--ink)}
   .app.closed .app-top,.app.closed .track,.app.closed .track-l{opacity:.45}
-  .spark{display:block;width:100%;height:2.2rem;overflow:visible}
-  .spark path{fill:none;stroke:currentColor;stroke-width:1.3;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
-  .ghead{display:flex;align-items:flex-end;gap:1.3rem;margin:.4rem 0 1.2rem}
-  .ghead .big{font-size:3.8rem;font-weight:200;line-height:.85;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
-  .ghead .side{flex:1;min-width:0}
-  .ghead .note{margin-top:.3rem;font-size:.78rem;color:var(--soft)}
-  .sem{border-top:1px solid var(--line)}
-  .sem summary{display:flex;align-items:center;gap:1rem;padding:.8rem 0;cursor:pointer;list-style:none}
-  .sem summary::-webkit-details-marker{display:none}
-  .sem .nm{flex:0 0 9.5rem;font-size:.92rem}
-  .sem .bar{flex:1;height:.36rem;border-radius:1rem;background:color-mix(in srgb,var(--ink) 11%,transparent);overflow:hidden}
-  .sem .bar i{display:block;height:100%;border-radius:1rem;background:var(--ink)}
-  .sem .avg{flex:none;width:3.4rem;text-align:right;font-variant-numeric:tabular-nums}
-  .subs{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:0 2rem;padding:0 0 1rem}
-  .subs div{display:flex;justify-content:space-between;gap:1rem;padding:.24rem 0;font-size:.84rem}
-  .subs span{color:var(--soft)}
-  .subs b{font-weight:400;font-variant-numeric:tabular-nums}
-  .psec{padding:1rem 0;border-top:1px solid var(--line)}
-  .psec h3{font-weight:400;font-size:1rem;margin-bottom:.4rem}
+  /* grades and portfolio */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);margin:.6rem 0 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .stats > div{min-width:0;padding:.95rem .9rem .85rem;border-left:1px solid var(--line)}
+  .stats > div:first-child{border-left:0;padding-left:0}
+  .stats b{display:block;font-weight:200;font-size:2rem;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .stats span{display:block;margin-top:.45rem;font-size:.74rem;color:var(--soft)}
+  .stats small{display:block;margin-top:.1rem;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sech{margin:1.7rem 0 .8rem;font-weight:400;font-size:.74rem;letter-spacing:.02em;color:var(--soft)}
+  .gchart{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:.9rem;align-items:end}
+  .gchart > div{display:flex;flex-direction:column;align-items:stretch;min-width:0;text-align:center}
+  .gchart b{font-weight:400;font-size:.9rem;font-variant-numeric:tabular-nums}
+  .gchart .col2{display:flex;align-items:flex-end;height:6.5rem;margin:.4rem 0 .5rem}
+  .gchart i{display:block;width:100%;border-radius:.5rem .5rem 0 0;background:color-mix(in srgb,var(--ink) 22%,transparent)}
+  .gchart .on i{background:var(--ink)}
+  .gchart span{font-size:.72rem;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gchart .on span{color:var(--ink)}
+  .gmatrix{display:grid;grid-template-columns:minmax(0,1fr) repeat(var(--n,4),3.2rem);gap:.2rem;align-items:center;font-size:.84rem}
+  .gmatrix .h{padding-bottom:.3rem;text-align:center;font-size:.7rem;color:var(--soft);font-variant-numeric:tabular-nums}
+  .gmatrix .s{padding-right:.6rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gmatrix .c{height:1.9rem;display:grid;place-items:center;border-radius:.4rem;background:color-mix(in srgb,var(--ink) var(--a,0%),transparent);font-variant-numeric:tabular-nums}
+  .pgrid{columns:2;column-gap:2.4rem;margin-top:1.2rem}
+  .psec{break-inside:avoid;padding:1rem 0 .7rem;border-top:1px solid var(--line)}
+  .psec h3{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;margin-bottom:.5rem;font-weight:400;font-size:1rem}
+  .psec h3 small{font-size:.72rem;color:var(--soft);font-variant-numeric:tabular-nums}
   .psec ul{list-style:none}
-  .psec li{position:relative;padding:.28rem 0 .28rem 1.05rem;font-size:.88rem;line-height:1.45}
-  .psec li::before{content:"";position:absolute;left:.1rem;top:.82rem;width:.3rem;height:.3rem;border-radius:50%;background:var(--ink);opacity:.5}
+  .psec li{display:flex;gap:.7rem;padding:.42rem 0;font-size:.86rem;line-height:1.4}
+  .psec li > div{min-width:0}
+  .psec li b{display:block;font-weight:400}
+  .psec li .d{display:block;margin-top:.05rem;font-size:.92em;color:var(--soft)}
+  .psec .dot{flex:none;width:.34rem;height:.34rem;margin:.52rem .5rem 0 .48rem;border-radius:50%;background:var(--ink);opacity:.45}
+  .psec .rank{flex:none;display:grid;place-items:center;width:1.3rem;height:1.3rem;margin-top:.02rem;border-radius:50%;border:1px solid var(--ink);font-style:normal;font-size:.68rem;font-weight:500}
+  .psec .rank.r1{background:var(--ink);color:var(--base)}
   .import{margin-top:1rem}
   .import textarea{display:block;width:100%;height:7.5rem;margin-top:.6rem;padding:.7rem .8rem;border:1px solid var(--line);border-radius:.8rem;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.76rem;line-height:1.4}
   .import textarea:focus{border-color:var(--ink)}
@@ -502,7 +518,10 @@
     .fund{margin-top:.7rem}
     .fund .big{font-size:3rem;font-weight:500;letter-spacing:-.04em}
     .fund .nm{font-size:1rem;font-weight:500}
-    .fund .note,.music .hint{font-size:.84rem}
+    .fund .note,.music .hint{font-size:.84rem;white-space:normal}
+    .music{padding-top:1.05rem}
+    .up{overflow:visible}
+    .uprow .t{white-space:normal}
     .np img{width:4.4rem;height:4.4rem;border-radius:1rem}
     .np-wrap .ctl button{width:2.75rem;height:2.75rem}
 
@@ -512,7 +531,8 @@
     .add{order:1;margin-top:1.9rem;padding:.65rem 1.15rem .9rem;border-top:0}
     .add input.txt{font-size:1rem;padding:.5rem 0}
     .add .go{width:2.4rem;height:2.4rem;border-radius:50%;background:var(--ink);color:var(--base);font-size:1.4rem;opacity:1}
-    .opts{display:block;padding-top:.1rem}
+    .opts{display:block;position:static;padding:.1rem 0 0;border:0;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+    .addrow span{display:none}
     .seg{gap:.35rem;margin-top:.7rem;font-size:.8rem}
     .seg span{flex-basis:100%;margin:0 0 .05rem}
     .seg button{padding:.42rem .9rem;font-size:.82rem;font-weight:500;border-color:var(--edge);background:color-mix(in srgb,var(--ink) 5%,transparent)}
@@ -586,24 +606,31 @@
     .track button{height:.5rem}
     .track-l{font-size:.64rem}
     .drop{font-size:.8rem;align-self:flex-start}
-    .ghead{align-items:center;gap:1rem;margin:0 .2rem .5rem}
-    .ghead .note{font-size:.82rem;line-height:1.4}
-    .ghead .big{font-size:4rem;font-weight:500}
-    .gradebox{padding:.3rem 1.15rem}
-    .sem:first-child{border-top:0}
-    .sem .nm{flex:0 0 7.6rem;font-size:.95rem}
-    .subs{grid-template-columns:1fr;padding-bottom:.8rem}
-    .subs div{font-size:.9rem;padding:.3rem 0}
+    .stats{grid-template-columns:1fr 1fr;gap:.6rem;margin:0;border:0}
+    .stats > div,.stats > div:first-child{padding:.95rem 1rem .9rem;border:1px solid var(--edge);border-radius:1.3rem;background:var(--card);box-shadow:var(--shadow)}
+    .stats b{font-size:2.1rem;font-weight:600;letter-spacing:-.04em}
+    .stats span{font-size:.8rem}
+    .stats small{font-size:.76rem}
+    .sech{margin:1.6rem .2rem .7rem;font-size:1.02rem;font-weight:500;letter-spacing:-.01em;color:var(--ink)}
+    .gchart,.gmatrix{padding:1.05rem 1.15rem;border:1px solid var(--edge);border-radius:1.5rem;background:var(--card);box-shadow:var(--shadow)}
+    .gchart{gap:.6rem}
+    .gchart b{font-size:.86rem;font-weight:600}
+    .gchart .col2{height:6rem}
+    .gchart span{font-size:.66rem;white-space:normal;line-height:1.25}
+    .gmatrix{grid-template-columns:minmax(0,1fr) repeat(var(--n,4),2.5rem);font-size:.86rem}
+    .gmatrix .c{height:2rem;border-radius:.55rem}
+    .pgrid{columns:1;margin-top:.7rem}
     .psec{border-top:0}
     .psec h3{font-weight:500;font-size:1.05rem}
-    .psec li{font-size:.92rem}
+    .psec li{font-size:.92rem;padding:.5rem 0}
+    .psec li b{font-weight:500}
+    .psec .rank{width:1.45rem;height:1.45rem;font-size:.72rem}
     .import textarea{font-size:16px}
     .cbody > .drop{margin:1rem .2rem 0;padding:.4rem 0}
     .cbody > .empty{margin-top:.4rem}
     .app .drop{margin-top:.75rem;padding:.3rem 0}
     .app-top{gap:.7rem}
     .track{margin-top:1rem}
-    .psec li{padding:.32rem 0 .32rem 1.05rem}
 
     /* bottom bar: a solid capsule with the assistant blob in the middle */
     .mobile-nav{position:fixed;left:.9rem;right:.9rem;bottom:calc(env(safe-area-inset-bottom,0px) + .7rem);z-index:80;
@@ -792,10 +819,10 @@
         <button class="go" id="addBtn" aria-label="Add task">+</button>
       </div>
       <div class="opts">
-        <div class="seg" id="scopeSeg" role="group" aria-label="When is it for"><span>For</span><button data-scope="today">Today</button><button data-scope="week">This week</button><button data-scope="month">This month</button></div>
+        <div class="seg" id="scopeSeg" role="group" aria-label="When is it for"><span>For</span><button data-scope="today">Today</button><button data-scope="week">Week</button><button data-scope="month">Month</button></div>
         <div class="addrow">
-          <input type="date" id="newDue" aria-label="Date">
-          <input type="time" id="newTime" aria-label="Time">
+          <span>Date</span><input type="date" id="newDue" aria-label="Date">
+          <span>Time</span><input type="time" id="newTime" aria-label="Time">
         </div>
         <div class="seg" id="prioSeg" role="group" aria-label="Priority"><span>Priority</span><button data-p="0">None</button><button data-p="1">Low</button><button data-p="2">Medium</button><button data-p="3">High</button></div>
       </div>
@@ -1159,7 +1186,7 @@
     if (prioNew) setPrio(t.id, prioNew);
     $("#newTime").value = ""; prioNew = 0;
     tasks.push(t);
-    save(); inp.value = ""; paintAdd();
+    save(); inp.value = ""; paintAdd(); document.querySelector(".add").classList.remove("open");
     if (tab!=="all" && tab!==t.scope) tab = t.scope;
     renderTasks(); renderUp(); renderCal();
   }
@@ -1174,6 +1201,12 @@
   $("#scopeSeg").onclick = e => { const b = e.target.closest("button"); if (b){ scopeNew = b.dataset.scope; paintAdd(); } };
   $("#prioSeg").onclick = e => { const b = e.target.closest("button"); if (b){ prioNew = +b.dataset.p; paintAdd(); } };
   $("#newText").addEventListener("input", paintAdd);
+  // the options panel opens when you start a task and stays until you add it, press Escape, or click elsewhere
+  const addBox = document.querySelector(".add");
+  const openAdd = () => addBox.classList.add("open");
+  $("#newText").addEventListener("focus", openAdd); $("#newText").addEventListener("input", openAdd); addBox.addEventListener("pointerdown", openAdd);
+  document.addEventListener("pointerdown", e => { if (!(e.target instanceof Element) || !e.target.closest(".add")) addBox.classList.remove("open"); });
+  addBox.addEventListener("keydown", e => { if (e.key==="Escape"){ addBox.classList.remove("open"); $("#newText").blur(); e.stopPropagation(); } });
   $("#tabs").onclick = e => {
     const b = e.target.closest("button"); if(!b) return;
     tab = b.dataset.tab; store.set("dash.tab",tab);
@@ -1239,7 +1272,7 @@
     let items = tasks.filter(t=>t.due && !t.done).concat(calEvents);
     items = selDay ? items.filter(t=>t.due===selDay) : items.filter(t=>t.due>=todayISO);
     items.sort((a,b)=>a.due.localeCompare(b.due) || (a.time||"").localeCompare(b.time||""));
-    items = items.slice(0,5);
+    items = items.slice(0, phone.matches ? 5 : 4);
     const box = $("#up"); box.innerHTML = "";
     const h = document.createElement("h3");
     const title = document.createElement("span");
@@ -1251,9 +1284,11 @@
     items.forEach(t=>{
       const r=document.createElement("div"); r.className="uprow";
       const w=document.createElement("span"); w.className="when"; w.textContent=rel(t.due);
-      const x=document.createElement("span"); x.textContent=t.text;
-      if (t.time){ const tm=document.createElement("span"); tm.className="meta"; tm.style.cssText="display:block;font-size:.72rem;color:var(--soft)"; tm.textContent=t.time; x.append(tm); }
-      r.append(w,x); box.append(r);
+      const x=document.createElement("span"); x.className="t"; x.textContent=t.text; x.title=t.text;
+      r.append(w,x);
+      if (t.time){ const tm=document.createElement("span"); tm.className="tm"; tm.textContent=t.time; r.append(tm); }
+      box.append(r);
+
     });
   }
 
@@ -1350,6 +1385,7 @@
     i.addEventListener("change", () => setSetting(key, i.value.trim()));
     wrap.append(l, i); return wrap;
   }
+  if (window.speechSynthesis) speechSynthesis.addEventListener("voiceschanged", () => { if (!$("#acct").contains(document.activeElement)) renderAcct(); });
   function choice(label, key, options, def, after){
     const wrap = document.createElement("div");
     const l = el("label",null,label), i = el("select");
@@ -1414,7 +1450,12 @@
       s4.append(field("Model","dash.ai.model."+prov,P[2]));
       s4.append(el("p",null,acct.user ? "Saved to your account, so it works on every device you sign in on. It is only ever sent to the provider." : "Saved in this browser. Sign in to have it follow you to your other devices."));
     }
-    s4.append(choice("You speak","dash.speech.lang",[["en-US","English"],["id-ID","Bahasa Indonesia"],["en-GB","English (UK)"]], "en-US"));
+    s4.append(choice("You speak","dash.speech.lang",[["en-US","English"],["id-ID","Bahasa Indonesia"],["en-GB","English (UK)"]], "en-US", renderAcct));
+    // the voice is the device's own; better ones can be downloaded in the phone or Mac settings and then picked here
+    const lang2 = String(store.get("dash.speech.lang","en-US")||"en-US").slice(0,2).toLowerCase();
+    const voices = (window.speechSynthesis ? speechSynthesis.getVoices() : []).filter(v => v.lang && v.lang.toLowerCase().startsWith(lang2))
+      .sort((a,b) => (/premium|enhanced|natural|neural|siri/i.test(b.name) - /premium|enhanced|natural|neural|siri/i.test(a.name)) || a.name.localeCompare(b.name));
+    if (voices.length) s4.append(choice("Voice (on this device)","dash.voice.name",[["","Automatic: best available"]].concat(voices.map(v => [v.name, v.name+" · "+v.lang])), "", () => act("voice-sample")));
     const sp = el("label","chk2"), cb = el("input"); cb.type="checkbox"; cb.checked = store.get("dash.voice.speak", true);
     cb.onchange = () => setSetting("dash.voice.speak", cb.checked);
     sp.append(cb, document.createTextNode("Speak replies aloud")); s4.append(sp);

@@ -239,7 +239,8 @@ function micLevel(){
 /* ---------- speech in / out ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const lang = () => get("dash.speech.lang", "en-US");
-let open = false, rec = null, session = 0, history = [], speakTimer = null;
+let open = false, rec = null, session = 0, history = [], speakTimer = null, pauseTimer = null;
+const PAUSE_MS = 1100;
 
 // Wallpaper apps such as Plash, and some in-app browsers, never hand a page the microphone. There the
 // assistant still works by typing, and on a computer it offers to open the dashboard in a real browser.
@@ -263,7 +264,7 @@ function listen(){
   if (rec){ try { rec.abort(); } catch(e){} }
   const my = session, r = rec = new SR();
   r.lang = lang(); r.interimResults = true; r.continuous = false;
-  let finalText = "", err = "";
+  let finalText = "", err = "", heard = "";
   r.onstart = () => { if (my === session){ setState("listening"); $("orbYou").textContent = ""; offerBrowser(false); } };
   r.onresult = e => {
     let interim = "";
@@ -272,10 +273,17 @@ function listen(){
       if (x.isFinal) finalText += x[0].transcript; else interim += x[0].transcript;
     }
     pulse = Math.min(1, pulse + .55);
-    if (my === session) $("orbYou").textContent = (finalText + interim).trim();
+    heard = (finalText + interim).trim();
+    if (my === session) $("orbYou").textContent = heard;
+    // ponytail: fixed pause. Browsers wait up to two seconds of silence before they hand over what you said;
+    // send it after PAUSE_MS instead. Raise PAUSE_MS if it cuts you off mid-sentence.
+    clearTimeout(pauseTimer);
+    if (heard) pauseTimer = setTimeout(() => { try { r.stop(); } catch(e2){} }, PAUSE_MS);
   };
   r.onerror = e => { err = e.error; };
   r.onend = () => {
+    clearTimeout(pauseTimer);
+    if (!finalText.trim()) finalText = heard;          // some browsers end without marking the last words final
     if (rec === r) rec = null;
     if (my !== session || !open) return;
     const said = finalText.trim();
@@ -292,6 +300,8 @@ function cancelSpeech(){
   try { speechSynthesis.cancel(); } catch(e){}
 }
 function pickVoice(l){
+  const want = get("dash.voice.name", ""), chosen = want && speechSynthesis.getVoices().find(v => v.name === want);
+  if (chosen) return chosen;
   const vs = speechSynthesis.getVoices().filter(v => v.lang && v.lang.replace("_", "-").toLowerCase().startsWith(l.slice(0, 2).toLowerCase()));
   const exact = vs.filter(v => v.lang.replace("_", "-").toLowerCase() === l.toLowerCase());
   const pool = exact.length ? exact : vs;
@@ -385,7 +395,12 @@ async function ping(){
 }
 
 if (D && ctx){
-  addEventListener("dash:action", e => { if (e.detail.type === "voice-toggle") (open ? closeOrb : openOrb)(); });
+  addEventListener("dash:action", e => {
+    if (e.detail.type === "voice-toggle") (open ? closeOrb : openOrb)();
+    if (e.detail.type === "voice-sample" && window.speechSynthesis){          // hear the voice just picked in the account panel
+      try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance("Hello " + get("dash.ai.name", "Deo") + ", this is how I sound."), vv = pickVoice(lang()); u.lang = lang(); if (vv) u.voice = vv; speechSynthesis.speak(u); } catch(e2){}
+    }
+  });
   $("orbClose").onclick = $("orbShade").onclick = closeOrb;
   $("orbHome").onclick = openOrb;
   $("orbBlob").onclick = () => {

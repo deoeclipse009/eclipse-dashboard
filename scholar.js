@@ -88,15 +88,6 @@ function renderCard(){
 /* ---------- the sheet: Applications / Grades / Portfolio ---------- */
 let view = "apps", adding = false, importing = false, msg = "";
 
-function spark(values){
-  const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg");
-  svg.setAttribute("class", "spark"); svg.setAttribute("viewBox", "0 0 100 30"); svg.setAttribute("preserveAspectRatio", "none"); svg.setAttribute("aria-hidden", "true");
-  const lo = Math.min(...values) - .6, hi = Math.max(...values) + .6, y = v => 27 - (v - lo) / (hi - lo) * 24, x = i => values.length === 1 ? 50 : i / (values.length - 1) * 100;
-  const p = document.createElementNS(NS, "path");
-  p.setAttribute("d", values.length === 1 ? "M40 15H60" : values.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(""));
-  svg.append(p); return svg;
-}
-
 function appsView(box, items){
   const bar = el("div", "cbar"), addB = el("button", "pill", adding ? "Close" : "Add one");
   addB.onclick = () => { adding = !adding; msg = ""; renderSheet(true); };
@@ -165,32 +156,89 @@ function importBox(box, has){
   row.append(m, go); w.append(ta, row); box.append(w);
 }
 
+// a row of headline numbers, used by both tabs
+function tiles(list){
+  const w = el("div", "stats");
+  list.forEach(t => { const c = el("div"); c.append(el("b", null, t[0]), el("span", null, t[1])); if (t[2]) c.append(el("small", null, t[2])); w.append(c); });
+  return w;
+}
+const shortTerm = t => { const m = /(\d+)\D+(\d+)/.exec(t); return m ? m[1] + "·" + m[2] : t.slice(0, 6); };
+
 function gradesView(box, p){
-  if (p.grades.length){
-    const avgs = p.grades.map(avg), last = avgs[avgs.length - 1], first = avgs[0], head = el("div", "ghead"), side = el("div", "side");
-    side.append(spark(avgs), el("div", "note", "Latest semester average" + (avgs.length > 1 ? " · " + (last >= first ? "up " : "down ") + Math.abs(last - first).toFixed(2) + " since " + p.grades[0].term : "")));
-    head.append(el("div", "big", last.toFixed(2)), side); box.append(head);
-    const list = el("div", "gradebox"), lo = Math.min(...avgs, 85) - 1;
-    p.grades.forEach((g, i) => {
-      const d = el("details", "sem"), s = el("summary"), bar = el("span", "bar"), fill = el("i");
-      fill.style.width = Math.max(4, (avgs[i] - lo) / (100 - lo) * 100) + "%"; bar.append(fill);
-      s.append(el("span", "nm", g.term), bar, el("span", "avg", avgs[i].toFixed(2))); d.append(s);
-      const subs = el("div", "subs");
-      g.subjects.slice().sort((a, b) => b[1] - a[1]).forEach(x => { const r = el("div"); r.append(el("span", null, x[0]), el("b", null, String(x[1]))); subs.append(r); });
-      d.append(subs); list.append(d);
-    });
-    box.append(list);
-  } else box.append(el("div", "empty", "No grades here yet."));
-  importBox(box, p.grades.length > 0);
+  if (!p.grades.length){ box.append(el("div", "empty", "No grades here yet.")); importBox(box, false); return; }
+  const G = p.grades, avgs = G.map(avg), last = avgs[avgs.length - 1], prev = avgs[avgs.length - 2];
+  // every subject with its score per semester, most-taken and strongest first
+  const by = new Map();
+  G.forEach((g, i) => g.subjects.forEach(x => { if (!by.has(x[0])) by.set(x[0], Array(G.length).fill(null)); by.get(x[0])[i] = x[1]; }));
+  const rows = [...by].map(([name, v]) => { const got = v.filter(n => n != null); return {name, v, n:got.length, mean:got.reduce((a, c) => a + c, 0) / got.length}; })
+    .sort((x, y) => y.n - x.n || y.mean - x.mean);
+  const all = rows.flatMap(r => r.v.filter(n => n != null)), overall = all.reduce((a, c) => a + c, 0) / all.length;
+  const steady = rows.filter(r => r.n >= Math.min(3, G.length)).sort((x, y) => y.mean - x.mean)[0] || rows[0];
+  const top = rows.map(r => ({name:r.name, score:Math.max(...r.v.filter(n => n != null))})).sort((x, y) => y.score - x.score)[0];
+  box.append(tiles([
+    [last.toFixed(2), "Latest average", prev != null ? (last >= prev ? "+" : "−") + Math.abs(last - prev).toFixed(2) + " vs last semester" : ""],
+    [overall.toFixed(2), "Across all " + G.length + " semesters", all.length + " subject scores"],
+    [steady.mean.toFixed(1), "Strongest subject", steady.name],
+    [String(top.score), "Highest single score", top.name]
+  ]));
+
+  // semester averages as bars
+  const lo = Math.floor(Math.min(...avgs)) - 2, hi = Math.max(...avgs), chart = el("div", "gchart");
+  G.forEach((g, i) => {
+    const c = el("div", i === G.length - 1 ? "on" : ""), bar = el("i");
+    bar.style.height = Math.max(8, (avgs[i] - lo) / (hi - lo) * 100) + "%";
+    const col = el("div", "col2"); col.append(bar);
+    c.append(el("b", null, avgs[i].toFixed(2)), col, el("span", null, g.term)); chart.append(c);
+  });
+  box.append(el("h3", "sech", "Semester averages"), chart);
+
+  // every score, shaded by how high it is
+  const m = el("div", "gmatrix"); m.style.setProperty("--n", G.length);
+  m.append(el("span", "h"));
+  G.forEach(g => { const h = el("span", "h", shortTerm(g.term)); h.title = g.term; m.append(h); });
+  const min = Math.min(...all), span = Math.max(1, Math.max(...all) - min);
+  rows.forEach(r => {
+    const n = el("span", "s", r.name); n.title = r.name; m.append(n);
+    r.v.forEach(x => { const c = el("span", "c", x == null ? "" : String(x)); if (x != null) c.style.setProperty("--a", (6 + (x - min) / span * 30).toFixed(0) + "%"); m.append(c); });
+  });
+  box.append(el("h3", "sech", "Every subject"), m);
+  importBox(box, true);
+}
+
+// "1st Place, Piala Walikota" -> rank 1 + title; "Role, Group: what you did" -> title + detail
+function parseItem(text){
+  let rank = 0, lead = text, detail = "";
+  const r = /^(1st|2nd|3rd)\s+Place,?\s*(.+)$/i.exec(text);
+  if (r){ rank = +r[1][0]; lead = r[2]; }
+  const colon = lead.indexOf(": ");
+  if (colon > 0){ detail = lead.slice(colon + 2); lead = lead.slice(0, colon); }
+  else {
+    const m = r ? /^([^,(]+?)\s*(\(.*|,\s*.+)$/.exec(lead) : /^(.*?\b(?:Award|Commendation|Mention|Winner|Finalist)\b[^,]*),\s*(.+)$/.exec(lead);
+    if (m){ lead = m[1]; detail = m[2].replace(/^,\s*/, ""); }
+  }
+  return {rank, lead, detail, strong:!!(r || colon > 0 || detail)};
 }
 function portfolioView(box, p){
+  if (!p.sections.length){ box.append(el("div", "empty", "No portfolio here yet.")); importBox(box, false); return; }
+  const items = p.sections.flatMap(s => s.items), count = re => items.filter(i => re.test(i)).length;
+  const firsts = count(/^1st\s+Place/i), seconds = count(/^2nd\s+Place/i), led = count(/\b(Founder|Leader|Conductor|Coordinator|President|Representative|Head of|Trainer)\b/i);
+  box.append(tiles([
+    [String(firsts), "First places"], [String(seconds), "Second places"], [String(led), "Leadership roles"], [String(items.length), "Entries in " + p.sections.length + " areas"]
+  ]));
+  const grid = el("div", "pgrid");
   p.sections.forEach(s => {
-    const c = el("div", "psec"), ul = el("ul");
-    s.items.forEach(i => ul.append(el("li", null, i)));
-    c.append(el("h3", null, s.title), ul); box.append(c);
+    const c = el("div", "psec"), h = el("h3"), ul = el("ul");
+    h.append(el("span", null, s.title), el("small", null, String(s.items.length)));
+    s.items.forEach(i => {
+      const x = parseItem(i), li = el("li", x.rank ? "ranked" : ""), body = el("div");
+      li.append(el("i", x.rank ? "rank r" + x.rank : "dot", x.rank ? String(x.rank) : ""));
+      body.append(el(x.strong ? "b" : "span", null, x.lead)); if (x.detail) body.append(el("span", "d", x.detail));
+      li.append(body); ul.append(li);
+    });
+    c.append(h, ul); grid.append(c);
   });
-  if (!p.sections.length) box.append(el("div", "empty", "No portfolio here yet."));
-  importBox(box, p.sections.length > 0);
+  box.append(grid);
+  importBox(box, true);
 }
 
 function renderSheet(force){
